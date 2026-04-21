@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập | Hệ thống thi trắc nghiệm PTIT</title>
+    <link rel="stylesheet" th:href="@{/css/login.css}" href="/css/login.css">
+</head>
+<body>
+<main class="login-page">
+    <section class="brand-panel">
+        <div class="brand-strip"></div>
+        <div class="brand-overlay"></div>
+        <div class="brand-content">
+            <div class="brand-header">
+                <div class="logo-slot" aria-label="Vị trí logo">
+                    <img th:src="@{/auth/img/logo.png}" src="/auth/img/logo.png" alt="Logo hệ thống">
+                </div>
+                <p class="brand-title">Hệ thống thi trắc nghiệm</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="form-panel">
+        <div class="login-card">
+            <header class="card-header">
+                <h2>Đăng nhập</h2>
+            </header>
+
+            <form class="login-form" action="#" method="post" novalidate>
+                <div class="field-group">
+                    <label for="username" id="usernameLabel">Tài khoản</label>
+                    <input
+                            id="username"
+                            name="username"
+                            type="text"
+                            class="input-control"
+                            placeholder="Nhập tài khoản"
+                            autocomplete="username"
+                            required
+                    >
+                </div>
+
+                <div class="field-group">
+                    <label for="password">Mật khẩu</label>
+                    <div class="password-wrapper">
+                        <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                class="input-control"
+                                placeholder="Nhập mật khẩu"
+                                autocomplete="current-password"
+                                required
+                        >
+                        <button class="toggle-password" type="button" id="togglePassword" aria-label="Hiện mật khẩu">
+                            Hiện
+                        </button>
+                    </div>
+                </div>
+
+                <div class="alert alert-error" id="errorBox" hidden>
+                    Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng kiểm tra lại.
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary" id="loginBtn">Đăng nhập</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</main>
+
+<script th:src="@{/js/login.js}" src="/js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+# Bỏ toàn bộ markdown
+*.md
+
+# File cấu hình local / bí mật
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.jks
+*.keystore
+
+# IDE / build
+.idea/
+.vscode/
+target/
+
+# Cấu hình local
+src/main/resources/application.properties
