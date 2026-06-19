@@ -60,7 +60,7 @@ public class AuthController {
         model.addAttribute("account", account);
 
         if (role.isBlank() || account.isBlank() || password.isBlank()) {
-            model.addAttribute("error", "Vui lÃ²ng nháº­p Ä‘áº§y Ä‘á»§ thÃ´ng tin Ä‘Äƒng nháº­p.");
+            model.addAttribute("error", "Vui lòng nhập đầy đủ thông tin đăng nhập.");
             return VIEW_LOGIN;
         }
 
@@ -73,13 +73,13 @@ public class AuthController {
                     password
             );
         } catch (DataAccessException ex) {
-            model.addAttribute("error", "KhÃ´ng thá»ƒ káº¿t ná»‘i hoáº·c truy váº¥n dá»¯ liá»‡u Ä‘Äƒng nháº­p. Vui lÃ²ng kiá»ƒm tra SQL Server.");
+            model.addAttribute("error", "Không thể kết nối hoặc truy vấn dữ liệu đăng nhập. Vui lòng kiểm tra SQL Server.");
             return VIEW_LOGIN;
         }
 
         if (rows.isEmpty() || !support.toBoolean(rows.get(0).get("SUCCESS"))) {
             model.addAttribute("error", rows.isEmpty()
-                    ? "ÄÄƒng nháº­p khÃ´ng thÃ nh cÃ´ng."
+                    ? "Đăng nhập không thành công."
                     : support.toStr(rows.get(0).get("MESSAGE")));
             return VIEW_LOGIN;
         }

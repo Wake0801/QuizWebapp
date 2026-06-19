@@ -40,7 +40,7 @@ public class TeacherController {
             return "redirect:/login";
         }
 
-        support.addTeacherShell(model, session, "giao-vien", "Quáº£n lÃ½ giÃ¡o viÃªn");
+        support.addTeacherShell(model, session, "giao-vien", "Quản lý giáo viên");
         magv = support.safeTrim(magv).toUpperCase();
         keyword = support.safeTrim(keyword);
         edit = support.safeTrim(edit).toUpperCase();
@@ -91,13 +91,13 @@ public class TeacherController {
                         "EXEC dbo.sp_4_4_GiaoVien_Sua ?, ?, ?, ?, ?",
                         normalizedMagv, support.safeTrim(ho), support.safeTrim(ten), support.nullIfBlank(sodtll), support.nullIfBlank(diachi)
                 );
-                redirect.addFlashAttribute("success", "ÄÃ£ ghi thay Ä‘á»•i giÃ¡o viÃªn.");
+                redirect.addFlashAttribute("success", "Đã ghi thay đổi giáo viên.");
             } else {
                 jdbcTemplate.update(
                         "EXEC dbo.sp_4_4_GiaoVien_Them ?, ?, ?, ?, ?",
                         normalizedMagv, support.safeTrim(ho), support.safeTrim(ten), support.nullIfBlank(sodtll), support.nullIfBlank(diachi)
                 );
-                redirect.addFlashAttribute("success", "ÄÃ£ thÃªm giÃ¡o viÃªn má»›i.");
+                redirect.addFlashAttribute("success", "Đã thêm giáo viên mới.");
             }
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
@@ -110,7 +110,7 @@ public class TeacherController {
     public String deleteGiaoVien(@RequestParam("magv") String magv, RedirectAttributes redirect) {
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_4_GiaoVien_Xoa ?", support.safeTrim(magv).toUpperCase());
-            redirect.addFlashAttribute("success", "ÄÃ£ xÃ³a giÃ¡o viÃªn.");
+            redirect.addFlashAttribute("success", "Đã xóa giáo viên.");
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
         }
@@ -123,7 +123,7 @@ public class TeacherController {
         String normalizedMagv = support.safeTrim(magv).toUpperCase();
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_4_GiaoVien_PhucHoi ?", normalizedMagv);
-            redirect.addFlashAttribute("success", "ÄÃ£ phá»¥c há»“i giÃ¡o viÃªn.");
+            redirect.addFlashAttribute("success", "Đã phục hồi giáo viên.");
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
         }

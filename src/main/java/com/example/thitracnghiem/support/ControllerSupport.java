@@ -179,6 +179,6 @@ public class ControllerSupport {
     public String dbMessage(DataAccessException ex) {
         Throwable cause = ex.getMostSpecificCause();
         String message = cause == null ? ex.getMessage() : cause.getMessage();
-        return message == null ? "CÃ³ lá»—i dá»¯ liá»‡u. Vui lÃ²ng kiá»ƒm tra láº¡i." : message;
+        return message == null ? "Có lỗi dữ liệu. Vui lòng kiểm tra lại." : message;
     }
 }

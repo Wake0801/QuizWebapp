@@ -40,7 +40,7 @@ public class SubjectController {
             return "redirect:/login";
         }
 
-        support.addTeacherShell(model, session, "mon-hoc", "Quáº£n lÃ½ mÃ´n há»c");
+        support.addTeacherShell(model, session, "mon-hoc", "Quản lý môn học");
         mamh = support.safeTrim(mamh).toUpperCase();
         keyword = support.safeTrim(keyword);
         edit = support.safeTrim(edit).toUpperCase();
@@ -86,12 +86,12 @@ public class SubjectController {
         try {
             if ("edit".equals(mode)) {
                 jdbcTemplate.update("EXEC dbo.sp_4_2_MonHoc_Sua ?, ?", support.safeTrim(mamh).toUpperCase(), support.safeTrim(tenmh));
-                redirect.addFlashAttribute("success", "ÄÃ£ ghi thay Ä‘á»•i mÃ´n há»c.");
+                redirect.addFlashAttribute("success", "Đã ghi thay đổi môn học.");
                 return "redirect:/gv/mon-hoc?edit=" + support.safeTrim(mamh).toUpperCase();
             }
 
             jdbcTemplate.update("EXEC dbo.sp_4_2_MonHoc_Them ?, ?", support.safeTrim(mamh).toUpperCase(), support.safeTrim(tenmh));
-            redirect.addFlashAttribute("success", "ÄÃ£ thÃªm mÃ´n há»c má»›i.");
+            redirect.addFlashAttribute("success", "Đã thêm môn học mới.");
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
         }
@@ -103,7 +103,7 @@ public class SubjectController {
     public String restoreMonHoc(@RequestParam("mamh") String mamh, RedirectAttributes redirect) {
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_2_MonHoc_PhucHoi ?", support.safeTrim(mamh).toUpperCase());
-            redirect.addFlashAttribute("success", "ÄÃ£ phá»¥c há»“i mÃ´n há»c.");
+            redirect.addFlashAttribute("success", "Đã phục hồi môn học.");
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
         }
@@ -115,7 +115,7 @@ public class SubjectController {
     public String deleteMonHoc(@RequestParam("mamh") String mamh, RedirectAttributes redirect) {
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_2_MonHoc_Xoa ?", support.safeTrim(mamh).toUpperCase());
-            redirect.addFlashAttribute("success", "ÄÃ£ xÃ³a mÃ´n há»c.");
+            redirect.addFlashAttribute("success", "Đã xóa môn học.");
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
         }

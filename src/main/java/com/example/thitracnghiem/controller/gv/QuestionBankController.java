@@ -41,7 +41,7 @@ public class QuestionBankController {
             return "redirect:/login";
         }
 
-        support.addTeacherShell(model, session, "bo-de", "Nháº­p cÃ¢u há»i thi");
+        support.addTeacherShell(model, session, "bo-de", "Nhập câu hỏi thi");
         mamh = support.safeTrim(mamh).toUpperCase();
         trinhdo = support.safeTrim(trinhdo).toUpperCase();
         keyword = support.safeTrim(keyword);
@@ -106,7 +106,7 @@ public class QuestionBankController {
                         loginname, cauhoi, support.safeTrim(mamh).toUpperCase(), support.safeTrim(trinhdo).toUpperCase(),
                         support.safeTrim(noidung), support.safeTrim(a), support.safeTrim(b), support.safeTrim(c), support.safeTrim(d), support.safeTrim(dapAn).toUpperCase()
                 );
-                redirect.addFlashAttribute("success", "ÄÃ£ ghi thay Ä‘á»•i cÃ¢u há»i.");
+                redirect.addFlashAttribute("success", "Đã ghi thay đổi câu hỏi.");
                 return "redirect:/gv/bo-de?edit=" + cauhoi;
             }
 
@@ -115,7 +115,7 @@ public class QuestionBankController {
                     loginname, support.safeTrim(mamh).toUpperCase(), support.safeTrim(trinhdo).toUpperCase(),
                     support.safeTrim(noidung), support.safeTrim(a), support.safeTrim(b), support.safeTrim(c), support.safeTrim(d), support.safeTrim(dapAn).toUpperCase()
             );
-            redirect.addFlashAttribute("success", "ÄÃ£ thÃªm cÃ¢u há»i má»›i.");
+            redirect.addFlashAttribute("success", "Đã thêm câu hỏi mới.");
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
         }
@@ -127,7 +127,7 @@ public class QuestionBankController {
     public String restoreBoDe(@RequestParam("cauhoi") Integer cauhoi, HttpSession session, RedirectAttributes redirect) {
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_5_BoDe_PhucHoi ?, ?", session.getAttribute("LOGINNAME"), cauhoi);
-            redirect.addFlashAttribute("success", "ÄÃ£ phá»¥c há»“i cÃ¢u há»i.");
+            redirect.addFlashAttribute("success", "Đã phục hồi câu hỏi.");
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
         }
@@ -139,7 +139,7 @@ public class QuestionBankController {
     public String deleteBoDe(@RequestParam("cauhoi") Integer cauhoi, HttpSession session, RedirectAttributes redirect) {
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_5_BoDe_Xoa ?, ?", session.getAttribute("LOGINNAME"), cauhoi);
-            redirect.addFlashAttribute("success", "ÄÃ£ xÃ³a cÃ¢u há»i.");
+            redirect.addFlashAttribute("success", "Đã xóa câu hỏi.");
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
         }

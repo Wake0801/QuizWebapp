@@ -33,7 +33,7 @@ public class PasswordController {
             return "redirect:/login";
         }
 
-        support.addTeacherShell(model, session, "mat-khau", "Äá»•i máº­t kháº©u");
+        support.addTeacherShell(model, session, "mat-khau", "Đổi mật khẩu");
         return "auth/gv/mat-khau";
     }
 
@@ -55,27 +55,27 @@ public class PasswordController {
         confirmPassword = support.safeTrim(confirmPassword);
 
         if (loginname.isBlank()) {
-            redirect.addFlashAttribute("error", "PhiÃªn Ä‘Äƒng nháº­p khÃ´ng cÃ³ loginname. Vui lÃ²ng Ä‘Äƒng nháº­p láº¡i.");
+            redirect.addFlashAttribute("error", "Phiên đăng nhập không có loginname. Vui lòng đăng nhập lại.");
             return "redirect:/gv/mat-khau";
         }
 
         if (currentPassword.isBlank() || newPassword.isBlank() || confirmPassword.isBlank()) {
-            redirect.addFlashAttribute("error", "Vui lÃ²ng nháº­p Ä‘áº§y Ä‘á»§ máº­t kháº©u hiá»‡n táº¡i, máº­t kháº©u má»›i vÃ  xÃ¡c nháº­n.");
+            redirect.addFlashAttribute("error", "Vui lòng nhập đầy đủ mật khẩu hiện tại, mật khẩu mới và xác nhận.");
             return "redirect:/gv/mat-khau";
         }
 
         if (newPassword.length() < 6 || newPassword.length() > 128) {
-            redirect.addFlashAttribute("error", "Máº­t kháº©u má»›i pháº£i tá»« 6 Ä‘áº¿n 128 kÃ½ tá»±.");
+            redirect.addFlashAttribute("error", "Mật khẩu mới phải từ 6 đến 128 ký tự.");
             return "redirect:/gv/mat-khau";
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            redirect.addFlashAttribute("error", "XÃ¡c nháº­n máº­t kháº©u má»›i khÃ´ng khá»›p.");
+            redirect.addFlashAttribute("error", "Xác nhận mật khẩu mới không khớp.");
             return "redirect:/gv/mat-khau";
         }
 
         if (newPassword.equals(currentPassword)) {
-            redirect.addFlashAttribute("error", "Máº­t kháº©u má»›i pháº£i khÃ¡c máº­t kháº©u hiá»‡n táº¡i.");
+            redirect.addFlashAttribute("error", "Mật khẩu mới phải khác mật khẩu hiện tại.");
             return "redirect:/gv/mat-khau";
         }
 
@@ -96,7 +96,7 @@ public class PasswordController {
                     loginname,
                     newPassword
             );
-            redirect.addFlashAttribute("success", "ÄÃ£ Ä‘á»•i máº­t kháº©u cho tÃ i khoáº£n Ä‘ang Ä‘Äƒng nháº­p.");
+            redirect.addFlashAttribute("success", "Đã đổi mật khẩu cho tài khoản đang đăng nhập.");
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
         }

@@ -45,7 +45,7 @@ public class ClassStudentController {
             return "redirect:/login";
         }
 
-        support.addTeacherShell(model, session, "lop-sinh-vien", "Quáº£n lÃ½ lá»›p - sinh viÃªn");
+        support.addTeacherShell(model, session, "lop-sinh-vien", "Quản lý lớp - sinh viên");
         malop = support.safeTrim(malop).toUpperCase();
         classKeyword = support.safeTrim(classKeyword);
         studentKeyword = support.safeTrim(studentKeyword);
@@ -113,10 +113,10 @@ public class ClassStudentController {
         try {
             if ("edit".equals(mode)) {
                 jdbcTemplate.update("EXEC dbo.sp_4_3_Lop_Sua ?, ?", normalizedMalop, support.safeTrim(tenlop));
-                redirect.addFlashAttribute("success", "ÄÃ£ ghi thay Ä‘á»•i lá»›p.");
+                redirect.addFlashAttribute("success", "Đã ghi thay đổi lớp.");
             } else {
                 jdbcTemplate.update("EXEC dbo.sp_4_3_Lop_Them ?, ?", normalizedMalop, support.safeTrim(tenlop));
-                redirect.addFlashAttribute("success", "ÄÃ£ thÃªm lá»›p má»›i.");
+                redirect.addFlashAttribute("success", "Đã thêm lớp mới.");
             }
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
@@ -129,7 +129,7 @@ public class ClassStudentController {
     public String deleteLop(@RequestParam("malop") String malop, RedirectAttributes redirect) {
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_3_Lop_Xoa ?", support.safeTrim(malop).toUpperCase());
-            redirect.addFlashAttribute("success", "ÄÃ£ xÃ³a lá»›p.");
+            redirect.addFlashAttribute("success", "Đã xóa lớp.");
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
         }
@@ -142,7 +142,7 @@ public class ClassStudentController {
         String normalizedMalop = support.safeTrim(malop).toUpperCase();
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_3_Lop_PhucHoi ?", normalizedMalop);
-            redirect.addFlashAttribute("success", "ÄÃ£ phá»¥c há»“i lá»›p.");
+            redirect.addFlashAttribute("success", "Đã phục hồi lớp.");
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
         }
@@ -170,13 +170,13 @@ public class ClassStudentController {
                         "EXEC dbo.sp_4_3_SinhVien_Sua ?, ?, ?, ?, ?, ?",
                         support.safeTrim(masv).toUpperCase(), support.safeTrim(ho), support.safeTrim(ten), sqlDate, support.nullIfBlank(diachi), normalizedMalop
                 );
-                redirect.addFlashAttribute("success", "ÄÃ£ ghi thay Ä‘á»•i sinh viÃªn.");
+                redirect.addFlashAttribute("success", "Đã ghi thay đổi sinh viên.");
             } else {
                 jdbcTemplate.update(
                         "EXEC dbo.sp_4_3_SinhVien_Them ?, ?, ?, ?, ?, ?",
                         support.safeTrim(masv).toUpperCase(), support.safeTrim(ho), support.safeTrim(ten), sqlDate, support.nullIfBlank(diachi), normalizedMalop
                 );
-                redirect.addFlashAttribute("success", "ÄÃ£ thÃªm sinh viÃªn má»›i.");
+                redirect.addFlashAttribute("success", "Đã thêm sinh viên mới.");
             }
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
@@ -193,7 +193,7 @@ public class ClassStudentController {
     ) {
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_3_SinhVien_Xoa ?", support.safeTrim(masv).toUpperCase());
-            redirect.addFlashAttribute("success", "ÄÃ£ xÃ³a sinh viÃªn.");
+            redirect.addFlashAttribute("success", "Đã xóa sinh viên.");
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
         }
@@ -213,7 +213,7 @@ public class ClassStudentController {
         String normalizedMalop = support.safeTrim(malop).toUpperCase();
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_3_SinhVien_PhucHoi ?", support.safeTrim(masv).toUpperCase());
-            redirect.addFlashAttribute("success", "ÄÃ£ phá»¥c há»“i sinh viÃªn.");
+            redirect.addFlashAttribute("success", "Đã phục hồi sinh viên.");
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
         }
