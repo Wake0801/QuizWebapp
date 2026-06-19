@@ -110,9 +110,19 @@ body {
     padding: 28px;
 }
 
+.card-header {
+    margin-bottom: 18px;
+}
+
 .card-header h2 {
     margin: 0;
     font-size: 24px;
+}
+
+.card-subtitle {
+    margin: 6px 0 0;
+    color: var(--text-sub);
+    font-size: 14px;
 }
 
 .login-form {
@@ -130,6 +140,37 @@ label {
     font-size: 14px;
 }
 
+.role-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.role-option {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    background: #fff;
+    color: var(--text-main);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.role-option input {
+    accent-color: var(--brand-red);
+    margin: 0;
+}
+
+.role-option:has(input:checked) {
+    border-color: var(--brand-soft);
+    background: var(--brand-surface);
+    box-shadow: 0 0 0 3px rgba(201, 74, 90, 0.12);
+}
+
 .input-control {
     width: 100%;
     padding: 11px 12px;
@@ -144,6 +185,12 @@ label {
 .input-control:focus {
     border-color: var(--brand-soft);
     box-shadow: 0 0 0 3px rgba(201, 74, 90, 0.15);
+}
+
+.field-hint {
+    color: var(--text-sub);
+    font-size: 12px;
+    line-height: 1.4;
 }
 
 .password-wrapper {
@@ -225,3 +272,12 @@ label {
     }
 }
 
+@media (max-width: 560px) {
+    .role-options {
+        grid-template-columns: 1fr;
+    }
+
+    .login-card {
+        padding: 22px;
+    }
+}

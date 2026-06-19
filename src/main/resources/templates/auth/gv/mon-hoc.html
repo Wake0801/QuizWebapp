@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quan ly mon hoc | TTN</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark">TTN</div>
+            <div><h1>Thi trac nghiem</h1><p th:text="${role}">Giang vien</p></div>
+        </div>
+        <nav class="nav-menu">
+            <a class="nav-link" th:href="@{/gv/home}">Tong quan</a>
+            <a class="nav-link active" th:href="@{/gv/mon-hoc}">Quan ly mon hoc</a>
+            <a class="nav-link" th:href="@{/gv/lop-sinh-vien}">Quan ly lop - sinh vien</a>
+            <a class="nav-link" th:href="@{/gv/giao-vien}">Quan ly giao vien</a>
+            <a class="nav-link" th:href="@{/gv/bo-de}">Nhap cau hoi thi</a>
+            <a class="nav-link" th:href="@{/gv/mat-khau}">Doi mat khau</a>
+        </nav>
+        <a class="logout-link" th:href="@{/logout}">Dang xuat</a>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">4.2</p>
+                <h2>Nhap mon hoc</h2>
+            </div>
+            <div class="user-badge">
+                <strong th:text="${hoten}">Giang vien</strong>
+                <span th:text="${loginname}">login</span>
+            </div>
+        </header>
+
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+        <section class="workbench">
+            <div class="panel table-panel">
+                <div class="panel-head">
+                    <h3>Danh sach mon hoc</h3>
+                    <form class="search-form" th:action="@{/gv/mon-hoc}" method="get">
+                        <select class="input-control" name="mamh" onchange="this.form.submit()">
+                            <option value="">Tat ca mon hoc</option>
+                            <option th:each="subject : ${allSubjects}" th:value="${subject.MAMH}"
+                                    th:selected="${subject.MAMH == selectedMamh}"
+                                    th:text="${subject.MAMH + ' - ' + subject.TENMH}">CSDL - Co so du lieu</option>
+                        </select>
+                        <input class="input-control" name="keyword" placeholder="Tim ma hoac ten mon" th:value="${keyword}">
+                        <button class="btn btn-secondary" type="submit">Tim</button>
+                    </form>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Ma MH</th>
+                            <th>Ten mon hoc</th>
+                            <th class="actions-col">Thao tac</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="subject : ${subjects}">
+                            <td th:text="${subject.MAMH}">CSDL</td>
+                            <td th:text="${subject.TENMH}">Co so du lieu</td>
+                            <td class="row-actions">
+                                <a class="btn btn-small" th:href="@{/gv/mon-hoc(edit=${subject.MAMH})}">Sua</a>
+                                <form th:action="@{/gv/mon-hoc/delete}" method="post">
+                                    <input type="hidden" name="mamh" th:value="${subject.MAMH}">
+                                    <button class="btn btn-small btn-danger" type="submit">Xoa</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(subjects)}">
+                            <td colspan="3" class="empty-cell">Chua co du lieu mon hoc.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="restore-box" th:if="${!#lists.isEmpty(deletedSubjects)}">
+                    <h4>Mon hoc da xoa</h4>
+                    <div class="restore-list">
+                        <form class="restore-item" th:each="subject : ${deletedSubjects}" th:action="@{/gv/mon-hoc/restore}" method="post">
+                            <input type="hidden" name="mamh" th:value="${subject.MAMH}">
+                            <span th:text="${subject.MAMH + ' - ' + subject.TENMH}">CSDL - Co so du lieu</span>
+                            <button class="btn btn-small btn-light" type="submit">Phuc hoi</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <form class="panel form-panel" th:action="@{/gv/mon-hoc/save}" method="post">
+                <div class="panel-head">
+                    <h3 th:text="${mode == 'edit' ? 'Sua mon hoc' : 'Them mon hoc'}">Them mon hoc</h3>
+                    <span class="status-pill" th:text="${mode == 'edit' ? 'Dang sua' : 'Them moi'}">Them moi</span>
+                </div>
+                <input type="hidden" name="mode" th:value="${mode}">
+
+                <label>Ma mon hoc</label>
+                <input class="input-control" name="mamh" maxlength="5" required
+                       th:readonly="${mode == 'edit'}" th:value="${form['MAMH']}" placeholder="VD: CSDL">
+
+                <label>Ten mon hoc</label>
+                <input class="input-control" name="tenmh" maxlength="40" required
+                       th:value="${form['TENMH']}" placeholder="Nhap ten mon hoc">
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" type="submit">Ghi</button>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>

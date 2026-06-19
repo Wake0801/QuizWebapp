@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +13,7 @@
         <div class="brand-overlay"></div>
         <div class="brand-content">
             <div class="brand-header">
-                <div class="logo-slot" aria-label="Vị trí logo">
+                <div class="logo-slot" aria-label="Logo hệ thống">
                     <img th:src="@{/auth/img/logo.png}" src="/auth/img/logo.png" alt="Logo hệ thống">
                 </div>
                 <p class="brand-title">Hệ thống thi trắc nghiệm</p>
@@ -25,24 +25,53 @@
         <div class="login-card">
             <header class="card-header">
                 <h2>Đăng nhập</h2>
+                <p class="card-subtitle">Chọn đúng nhóm người dùng trước khi đăng nhập.</p>
             </header>
 
-            <form class="login-form" action="#" method="post" novalidate>
+            <form class="login-form" th:action="@{/login}" action="/login" method="post" novalidate>
                 <div class="field-group">
-                    <label for="username" id="usernameLabel">Tài khoản</label>
-                    <input
-                            id="username"
-                            name="username"
-                            type="text"
-                            class="input-control"
-                            placeholder="Nhập tài khoản"
-                            autocomplete="username"
-                            required
-                    >
+                    <label>Vai trò</label>
+
+                    <div class="role-options" role="radiogroup" aria-label="Chọn vai trò đăng nhập">
+                        <label class="role-option">
+                            <input type="radio" name="role" value="GIANGVIEN"
+                                   th:checked="${selectedRole == null || selectedRole == 'GIANGVIEN'}" checked>
+                            <span>Giảng viên</span>
+                        </label>
+
+                        <label class="role-option">
+                            <input type="radio" name="role" value="SINHVIEN"
+                                   th:checked="${selectedRole == 'SINHVIEN'}">
+                            <span>Sinh viên</span>
+                        </label>
+
+                        <label class="role-option">
+                            <input type="radio" name="role" value="PGV"
+                                   th:checked="${selectedRole == 'PGV'}">
+                            <span>PGV</span>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="field-group">
-                    <label for="password">Mật khẩu</label>
+                    <label for="account" id="accountLabel">Login</label>
+                    <input
+                            id="account"
+                            name="account"
+                            type="text"
+                            class="input-control"
+                            placeholder="Nhập login giảng viên"
+                            autocomplete="username"
+                            th:value="${account}"
+                            required
+                    >
+                    <small class="field-hint" id="accountHint">
+                        Giảng viên và PGV đăng nhập bằng loginname. Sinh viên nhập mã số sinh viên.
+                    </small>
+                </div>
+
+                <div class="field-group">
+                    <label for="password">Password</label>
                     <div class="password-wrapper">
                         <input
                                 id="password"
@@ -59,7 +88,7 @@
                     </div>
                 </div>
 
-                <div class="alert alert-error" id="errorBox" hidden>
+                <div class="alert alert-error" id="errorBox" th:if="${error}" th:text="${error}">
                     Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng kiểm tra lại.
                 </div>
 

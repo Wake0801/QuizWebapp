@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang sinh viên | Hệ thống thi trắc nghiệm</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark">TTN</div>
+            <div>
+                <h1>Thi trắc nghiệm</h1>
+                <p>Sinh viên</p>
+            </div>
+        </div>
+
+        <nav class="nav-menu">
+            <a class="nav-link active" href="/sv/home">Tổng quan</a>
+            <a class="nav-link" href="#">Lịch thi</a>
+            <a class="nav-link" href="#">Vào thi</a>
+            <a class="nav-link" href="#">Xem lại bài thi</a>
+            <a class="nav-link" href="#">Kết quả / điểm</a>
+        </nav>
+
+        <a class="logout-link" th:href="@{/logout}" href="/logout">Đăng xuất</a>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">Trang sinh viên</p>
+                <h2>Xin chào, <span th:text="${hoten}">Sinh viên</span></h2>
+            </div>
+
+            <div class="user-badge">
+                <strong th:text="${masv}">SV000001</strong>
+                <span th:text="${tenlop}">Tên lớp</span>
+            </div>
+        </header>
+
+        <section class="dashboard-grid">
+            <article class="feature-card">
+                <h3>Lịch thi</h3>
+                <p>Xem các môn thi đã được giáo viên đăng ký cho lớp của bạn.</p>
+                <a href="#">Mở chức năng</a>
+            </article>
+
+            <article class="feature-card">
+                <h3>Vào thi</h3>
+                <p>Chọn môn học, ngày thi, lần thi và bắt đầu làm bài.</p>
+                <a href="#">Mở chức năng</a>
+            </article>
+
+            <article class="feature-card">
+                <h3>Xem lại bài thi</h3>
+                <p>Xem câu hỏi đã thi, câu trả lời của sinh viên và đáp án đúng.</p>
+                <a href="#">Mở chức năng</a>
+            </article>
+
+            <article class="feature-card">
+                <h3>Kết quả / điểm</h3>
+                <p>Xem điểm sau khi nộp bài hoặc khi hết thời gian thi.</p>
+                <a href="#">Mở chức năng</a>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>
