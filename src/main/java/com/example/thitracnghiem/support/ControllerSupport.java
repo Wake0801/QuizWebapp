@@ -27,13 +27,31 @@ public class ControllerSupport {
         model.addAttribute("hoten", session.getAttribute("HOTEN"));
         model.addAttribute("loginname", session.getAttribute("LOGINNAME"));
         model.addAttribute("magv", session.getAttribute("MAGV"));
-        model.addAttribute("role", session.getAttribute("ROLE_NAME"));
-        model.addAttribute("isPgv", "PGV".equals(session.getAttribute("ROLE_NAME")));
+        String role = toStr(session.getAttribute("ROLE_NAME"));
+        model.addAttribute("role", role);
+        model.addAttribute("roleLabel", displayRole(role));
+        model.addAttribute("isPgv", "PGV".equals(role));
+    }
+
+    public void addStudentShell(Model model, HttpSession session, String active, String title) {
+        model.addAttribute("active", active);
+        model.addAttribute("pageTitle", title);
+        model.addAttribute("hoten", session.getAttribute("HOTEN"));
+        model.addAttribute("masv", session.getAttribute("MASV"));
+        model.addAttribute("malop", session.getAttribute("MALOP"));
+        model.addAttribute("tenlop", session.getAttribute("TENLOP"));
+        String role = toStr(session.getAttribute("ROLE_NAME"));
+        model.addAttribute("role", role);
+        model.addAttribute("roleLabel", displayRole(role));
     }
 
     public boolean isTeacher(HttpSession session) {
         String role = toStr(session.getAttribute("ROLE_NAME"));
         return "PGV".equals(role) || "GIANGVIEN".equals(role);
+    }
+
+    public boolean isPgv(HttpSession session) {
+        return "PGV".equals(toStr(session.getAttribute("ROLE_NAME")));
     }
 
     public boolean isStudent(HttpSession session) {
@@ -174,6 +192,15 @@ public class ControllerSupport {
             return number.intValue() != 0;
         }
         return Boolean.parseBoolean(toStr(value));
+    }
+
+    public String displayRole(String role) {
+        return switch (toStr(role)) {
+            case "GIANGVIEN" -> "Giảng viên";
+            case "SINHVIEN" -> "Sinh viên";
+            case "PGV" -> "PGV";
+            default -> toStr(role);
+        };
     }
 
     public String dbMessage(DataAccessException ex) {
