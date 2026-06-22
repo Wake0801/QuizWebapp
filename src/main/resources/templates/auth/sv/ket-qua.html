@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kết quả / điểm | TTN</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark">TTN</div>
+            <div><h1>Thi trắc nghiệm</h1><p>Sinh viên</p></div>
+        </div>
+        <nav class="nav-menu">
+            <a class="nav-link" th:href="@{/sv/home}">Tổng quan</a>
+            <a class="nav-link" th:href="@{/sv/thi}">Lịch thi / Vào thi</a>
+            <a class="nav-link active" th:href="@{/sv/ket-qua}">Kết quả / điểm</a>
+        </nav>
+        <a class="logout-link" th:href="@{/logout}">Đăng xuất</a>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">Kết quả bài thi</p>
+                <h2>Xem lại bài thi</h2>
+            </div>
+            <div class="user-badge">
+                <strong th:text="${masv}">SV</strong>
+                <span th:text="${tenlop}">Lớp</span>
+            </div>
+        </header>
+
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+        <section class="panel filter-panel">
+            <form class="search-form wide-search" method="get" th:action="@{/sv/ket-qua}">
+                <select class="input-control" name="maMh" required>
+                    <option value="">Chọn môn</option>
+                    <option th:each="subject : ${subjects}"
+                            th:value="${#strings.trim(subject.maMh)}"
+                            th:selected="${#strings.trim(subject.maMh) == maMh}"
+                            th:text="|${#strings.trim(subject.maMh)} - ${subject.tenMh}|"></option>
+                </select>
+                <select class="input-control" name="lan" required>
+                    <option value="1" th:selected="${lan == 1}">Lần 1</option>
+                    <option value="2" th:selected="${lan == 2}">Lần 2</option>
+                </select>
+                <button class="btn btn-primary" type="submit">Tra cứu</button>
+            </form>
+        </section>
+
+        <section class="panel result-panel" th:if="${result != null and result.summary != null}">
+            <div class="result-grid">
+                <div>
+                    <span class="muted">Sinh viên</span>
+                    <strong th:text="|${result.summary.hoTen} (${result.summary.maSv})|">Sinh viên</strong>
+                </div>
+                <div>
+                    <span class="muted">Lớp</span>
+                    <strong th:text="|${result.summary.maLop} - ${result.summary.tenLop}|">Lớp</strong>
+                </div>
+                <div>
+                    <span class="muted">Môn thi</span>
+                    <strong th:text="|${result.summary.maMh} - ${result.summary.tenMh}|">Môn</strong>
+                </div>
+                <div>
+                    <span class="muted">Lần thi</span>
+                    <strong th:text="${result.summary.lan}">1</strong>
+                </div>
+                <div>
+                    <span class="muted">Số câu đúng</span>
+                    <strong th:text="|${result.summary.soCauDung}/${result.summary.soCau}|">0/0</strong>
+                </div>
+                <div class="score-tile">
+                    <span>Điểm</span>
+                    <strong th:text="${#numbers.formatDecimal(result.summary.diem, 1, 2)}">0</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel table-panel" th:if="${result != null and result.summary != null and result.hasDetails()}">
+            <div class="panel-head">
+                <h3>Chi tiết câu trả lời</h3>
+                <span class="status-pill" th:text="${#lists.size(result.details)} + ' câu'">0 câu</span>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table result-table">
+                    <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Câu số</th>
+                        <th>Nội dung</th>
+                        <th>A</th>
+                        <th>B</th>
+                        <th>C</th>
+                        <th>D</th>
+                        <th>Trả lời</th>
+                        <th>Đáp án</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="detail : ${result.details}">
+                        <td th:text="${detail.thuTu}">1</td>
+                        <td th:text="${detail.cauHoi}">1</td>
+                        <td class="long-text" th:text="${detail.noiDung}">Nội dung</td>
+                        <td th:text="${detail.a}">A</td>
+                        <td th:text="${detail.b}">B</td>
+                        <td th:text="${detail.c}">C</td>
+                        <td th:text="${detail.d}">D</td>
+                        <td th:text="${detail.dapAnChon ?: 'Chưa chọn'}">A</td>
+                        <td><span class="status-pill" th:text="${detail.dapAnDung}">A</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel empty-cell" th:if="${result != null and result.summary == null}">
+            Chưa tìm thấy kết quả phù hợp.
+        </section>
+    </main>
+</div>
+</body>
+</html>
