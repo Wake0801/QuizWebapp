@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bảng điểm | TTN</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark">TTN</div>
+            <div><h1>Thi trắc nghiệm</h1><p th:text="${roleLabel}">Giảng viên</p></div>
+        </div>
+        <nav class="nav-menu">
+            <a class="nav-link" th:href="@{/gv/home}">Tổng quan</a>
+            <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/mon-hoc}">Quản lý môn học</a>
+            <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/lop-sinh-vien}">Quản lý lớp - sinh viên</a>
+            <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/giao-vien}">Quản lý giáo viên</a>
+            <a class="nav-link" th:href="@{/gv/bo-de}">Nhập câu hỏi thi</a>
+            <a class="nav-link" th:href="@{/gv/thi-thu}">Thi thử</a>
+            <a class="nav-link" th:href="@{/gv/mat-khau}">Đổi mật khẩu</a>
+            <a class="nav-link" th:href="@{/gv/dang-ky-thi}">Đăng ký thi</a>
+            <a class="nav-link" th:href="@{/gv/ket-qua}">Xem kết quả bài thi</a>
+            <a class="nav-link active" th:href="@{/gv/bang-diem}">Bảng điểm môn học</a>
+            <a class="nav-link highlight" th:if="${isPgv}" th:href="@{/gv/tai-khoan}" href="/gv/tai-khoan">Tạo tài khoản</a>
+        </nav>
+        <a class="logout-link" th:href="@{/logout}">Đăng xuất</a>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">Bảng điểm</p>
+                <h2>Bảng điểm môn học</h2>
+            </div>
+            <div class="user-badge">
+                <strong th:text="${hoten}">Giảng viên</strong>
+                <span th:text="${loginname}">login</span>
+            </div>
+        </header>
+
+        <section class="panel filter-panel">
+            <form class="search-form wide-search" method="get" th:action="@{/gv/bang-diem}">
+                <select class="input-control" name="maLop">
+                    <option value="">Tất cả lớp</option>
+                    <option th:each="lop : ${classes}"
+                            th:value="${#strings.trim(lop.maLop)}"
+                            th:selected="${#strings.trim(lop.maLop) == maLop}"
+                            th:text="|${#strings.trim(lop.maLop)} - ${lop.tenLop}|"></option>
+                </select>
+                <select class="input-control" name="maMh">
+                    <option value="">Tất cả môn</option>
+                    <option th:each="subject : ${subjects}"
+                            th:value="${#strings.trim(subject.maMh)}"
+                            th:selected="${#strings.trim(subject.maMh) == maMh}"
+                            th:text="|${#strings.trim(subject.maMh)} - ${subject.tenMh}|"></option>
+                </select>
+                <select class="input-control" name="lan">
+                    <option value="">Tất cả lần</option>
+                    <option value="1" th:selected="${lan == 1}">Lần 1</option>
+                    <option value="2" th:selected="${lan == 2}">Lần 2</option>
+                </select>
+                <button class="btn btn-primary" type="submit">Lọc bảng điểm</button>
+                <a class="btn btn-light"
+                   th:href="@{/gv/bang-diem/excel(maLop=${maLop},maMh=${maMh},lan=${lan})}"
+                   href="/gv/bang-diem/excel">Xuất Excel</a>
+            </form>
+        </section>
+
+        <section class="panel table-panel">
+            <div class="panel-head">
+                <h3>Danh sách điểm</h3>
+                <span class="status-pill" th:text="${#lists.size(scores)} + ' dòng'">0 dòng</span>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Mã SV</th>
+                        <th>Họ tên</th>
+                        <th>Lớp</th>
+                        <th>Môn</th>
+                        <th>Lần</th>
+                        <th>Ngày thi</th>
+                        <th>Điểm</th>
+                        <th>Điểm chữ</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="score, iter : ${scores}">
+                        <td th:text="${iter.index + 1}">1</td>
+                        <td th:text="${score.maSv}">SV</td>
+                        <td th:text="${score.hoTen}">Họ tên</td>
+                        <td th:text="|${score.maLop} - ${score.tenLop}|">Lớp</td>
+                        <td th:text="${score.maMh == null ? '' : score.maMh + ' - ' + score.tenMh}">Môn</td>
+                        <td th:text="${score.lan}">1</td>
+                        <td th:text="${score.ngayThi}">Ngày</td>
+                        <td th:text="${score.diem == null ? '' : #numbers.formatDecimal(score.diem, 1, 2)}">0</td>
+                        <td><span class="status-pill" th:text="${score.diemChu}">A</span></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(scores)}">
+                        <td colspan="9" class="empty-cell">Chưa có dữ liệu bảng điểm phù hợp.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>
