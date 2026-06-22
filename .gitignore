@@ -1,5 +1,6 @@
 # Bỏ toàn bộ markdown
 *.md
+!README.md
 
 # File cấu hình local / bí mật
 .env
