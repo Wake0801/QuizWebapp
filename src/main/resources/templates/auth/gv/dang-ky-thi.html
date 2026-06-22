@@ -1,0 +1,180 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng ký thi | TTN</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark">TTN</div>
+            <div><h1>Thi trắc nghiệm</h1><p th:text="${roleLabel}">Giảng viên</p></div>
+        </div>
+        <nav class="nav-menu">
+            <a class="nav-link" th:href="@{/gv/home}">Tổng quan</a>
+            <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/mon-hoc}">Quản lý môn học</a>
+            <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/lop-sinh-vien}">Quản lý lớp - sinh viên</a>
+            <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/giao-vien}">Quản lý giáo viên</a>
+            <a class="nav-link" th:href="@{/gv/bo-de}">Nhập câu hỏi thi</a>
+            <a class="nav-link" th:href="@{/gv/thi-thu}">Thi thử</a>
+            <a class="nav-link" th:href="@{/gv/mat-khau}">Đổi mật khẩu</a>
+            <a class="nav-link active" th:href="@{/gv/dang-ky-thi}">Đăng ký thi</a>
+            <a class="nav-link" th:href="@{/gv/ket-qua}">Xem kết quả bài thi</a>
+            <a class="nav-link" th:href="@{/gv/bang-diem}">Bảng điểm môn học</a>
+            <a class="nav-link highlight" th:if="${isPgv}" th:href="@{/gv/tai-khoan}" href="/gv/tai-khoan">Tạo tài khoản</a>
+        </nav>
+        <a class="logout-link" th:href="@{/logout}">Đăng xuất</a>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">GiaoVien_DangKy</p>
+                <h2>Đăng ký thi</h2>
+            </div>
+            <div class="user-badge">
+                <strong th:text="${hoten}">Giảng viên</strong>
+                <span th:text="${loginname}">login</span>
+            </div>
+        </header>
+
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+        <section class="split-workbench registration-workbench">
+            <form class="panel form-panel" method="post" th:action="@{/gv/dang-ky-thi}" th:object="${registrationForm}">
+                <div class="panel-head">
+                    <h3 th:text="${editingRegistration} ? 'Sửa lịch thi' : 'Thông tin kỳ thi'">Thông tin kỳ thi</h3>
+                    <span class="status-pill" th:text="${editingRegistration} ? 'Đang sửa' : '70/30 câu hỏi'">70/30 câu hỏi</span>
+                </div>
+
+                <label>Giáo viên</label>
+                <select class="input-control" th:field="*{maGv}" th:disabled="${!isPgv}" required>
+                    <option value="">-- Chọn giáo viên --</option>
+                    <option th:each="teacher : ${teachers}"
+                            th:value="${#strings.trim(teacher.maGv)}"
+                            th:text="|${#strings.trim(teacher.maGv)} - ${teacher.hoTen}|"></option>
+                </select>
+                <input type="hidden" th:if="${!isPgv}" th:field="*{maGv}">
+
+                <div class="form-grid two-cols">
+                    <div>
+                        <label>Lớp</label>
+                        <input class="input-control" th:if="${editingRegistration}" type="text"
+                               th:value="*{maLop}" readonly>
+                        <input type="hidden" th:if="${editingRegistration}" th:field="*{maLop}">
+                        <select class="input-control" th:if="${!editingRegistration}" th:field="*{maLop}" required>
+                            <option value="">-- Chọn lớp --</option>
+                            <option th:each="lop : ${classes}"
+                                    th:value="${#strings.trim(lop.maLop)}"
+                                    th:selected="${#strings.trim(lop.maLop) == #strings.trim(registrationForm.maLop)}"
+                                    th:text="|${#strings.trim(lop.maLop)} - ${lop.tenLop}|"></option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Môn học</label>
+                        <input class="input-control" th:if="${editingRegistration}" type="text"
+                               th:value="*{maMh}" readonly>
+                        <input type="hidden" th:if="${editingRegistration}" th:field="*{maMh}">
+                        <select class="input-control" th:if="${!editingRegistration}" th:field="*{maMh}" required>
+                            <option value="">-- Chọn môn --</option>
+                            <option th:each="subject : ${subjects}"
+                                    th:value="${#strings.trim(subject.maMh)}"
+                                    th:selected="${#strings.trim(subject.maMh) == #strings.trim(registrationForm.maMh)}"
+                                    th:text="|${#strings.trim(subject.maMh)} - ${subject.tenMh}|"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid two-cols">
+                    <div>
+                        <label>Trình độ</label>
+                        <select class="input-control" th:field="*{trinhDo}" required>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Lần thi</label>
+                        <select class="input-control" th:field="*{lan}" required>
+                            <option value="1">Lần 1</option>
+                            <option value="2">Lần 2</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label>Ngày thi</label>
+                <input class="input-control" type="datetime-local" th:field="*{ngayThi}" required>
+
+                <div class="form-grid two-cols">
+                    <div>
+                        <label>Số câu thi</label>
+                        <input class="input-control" type="number" th:field="*{soCauThi}" min="10" max="100" required>
+                    </div>
+                    <div>
+                        <label>Thời gian phút</label>
+                        <input class="input-control" type="number" th:field="*{thoiGian}" min="5" max="60" required>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" type="submit">Ghi đăng ký</button>
+                    <a class="btn btn-light" th:href="@{/gv/dang-ky-thi}">Tạo mới</a>
+                </div>
+            </form>
+
+            <section class="panel table-panel">
+                <div class="panel-head">
+                    <h3>Lịch thi đã đăng ký</h3>
+                    <span class="status-pill" th:text="${#lists.size(registrations)} + ' dòng'">0 dòng</span>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Lớp</th>
+                            <th>Môn</th>
+                            <th>Lần</th>
+                            <th>Trình độ</th>
+                            <th>Ngày thi</th>
+                            <th>Số câu</th>
+                            <th>Phút</th>
+                            <th class="actions-col">Thao tác</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="registration : ${registrations}">
+                            <td th:text="${#strings.trim(registration.maLop)}">Lớp</td>
+                            <td th:text="${#strings.trim(registration.maMh)}">Môn</td>
+                            <td th:text="${registration.lan}">1</td>
+                            <td th:text="${registration.trinhDo}">A</td>
+                            <td th:text="${#temporals.format(registration.ngayThi, 'dd/MM/yyyy HH:mm')}">Ngày thi</td>
+                            <td th:text="${registration.soCauThi}">10</td>
+                            <td th:text="${registration.thoiGian}">15</td>
+                            <td class="row-actions">
+                                <a class="btn btn-small btn-light"
+                                   th:href="@{/gv/dang-ky-thi(maLop=${#strings.trim(registration.maLop)},maMh=${#strings.trim(registration.maMh)},lan=${registration.lan})}">Sửa</a>
+                                <form method="post" th:action="@{/gv/dang-ky-thi/xoa}">
+                                    <input type="hidden" name="maLop" th:value="${#strings.trim(registration.maLop)}">
+                                    <input type="hidden" name="maMh" th:value="${#strings.trim(registration.maMh)}">
+                                    <input type="hidden" name="lan" th:value="${registration.lan}">
+                                    <button class="btn btn-small btn-danger" type="submit">Xóa</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(registrations)}">
+                            <td colspan="8" class="empty-cell">Chưa có lịch thi.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+    </main>
+</div>
+</body>
+</html>
