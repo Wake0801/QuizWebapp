@@ -1,6 +1,7 @@
 package com.example.thitracnghiem.controller.gv;
 
 import com.example.thitracnghiem.support.ControllerSupport;
+import com.example.thitracnghiem.support.SqlAuditContext;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,10 +23,12 @@ public class QuestionBankController {
 
     private final JdbcTemplate jdbcTemplate;
     private final ControllerSupport support;
+    private final SqlAuditContext auditContext;
 
-    public QuestionBankController(JdbcTemplate jdbcTemplate, ControllerSupport support) {
+    public QuestionBankController(JdbcTemplate jdbcTemplate, ControllerSupport support, SqlAuditContext auditContext) {
         this.jdbcTemplate = jdbcTemplate;
         this.support = support;
+        this.auditContext = auditContext;
     }
 
     @GetMapping("/bo-de")
@@ -98,22 +101,28 @@ public class QuestionBankController {
             HttpSession session,
             RedirectAttributes redirect
     ) {
+        if (!support.isTeacher(session)) {
+            return "redirect:/login";
+        }
+
         String loginname = support.toStr(session.getAttribute("LOGINNAME"));
         try {
             if ("edit".equals(mode) && cauhoi != null) {
                 jdbcTemplate.update(
-                        "EXEC dbo.sp_4_5_BoDe_Sua ?, ?, ?, ?, ?, ?, ?, ?, ?, ?",
-                        loginname, cauhoi, support.safeTrim(mamh).toUpperCase(), support.safeTrim(trinhdo).toUpperCase(),
-                        support.safeTrim(noidung), support.safeTrim(a), support.safeTrim(b), support.safeTrim(c), support.safeTrim(d), support.safeTrim(dapAn).toUpperCase()
+                        auditContext.withAppLogin("EXEC dbo.sp_4_5_BoDe_Sua ?, ?, ?, ?, ?, ?, ?, ?, ?, ?"),
+                        auditContext.params(loginname,
+                                loginname, cauhoi, support.safeTrim(mamh).toUpperCase(), support.safeTrim(trinhdo).toUpperCase(),
+                                support.safeTrim(noidung), support.safeTrim(a), support.safeTrim(b), support.safeTrim(c), support.safeTrim(d), support.safeTrim(dapAn).toUpperCase())
                 );
                 redirect.addFlashAttribute("success", "Đã ghi thay đổi câu hỏi.");
                 return "redirect:/gv/bo-de?edit=" + cauhoi;
             }
 
             jdbcTemplate.update(
-                    "EXEC dbo.sp_4_5_BoDe_Them ?, ?, ?, ?, ?, ?, ?, ?, ?",
-                    loginname, support.safeTrim(mamh).toUpperCase(), support.safeTrim(trinhdo).toUpperCase(),
-                    support.safeTrim(noidung), support.safeTrim(a), support.safeTrim(b), support.safeTrim(c), support.safeTrim(d), support.safeTrim(dapAn).toUpperCase()
+                    auditContext.withAppLogin("EXEC dbo.sp_4_5_BoDe_Them ?, ?, ?, ?, ?, ?, ?, ?, ?"),
+                    auditContext.params(loginname,
+                            loginname, support.safeTrim(mamh).toUpperCase(), support.safeTrim(trinhdo).toUpperCase(),
+                            support.safeTrim(noidung), support.safeTrim(a), support.safeTrim(b), support.safeTrim(c), support.safeTrim(d), support.safeTrim(dapAn).toUpperCase())
             );
             redirect.addFlashAttribute("success", "Đã thêm câu hỏi mới.");
         } catch (DataAccessException ex) {
@@ -125,8 +134,16 @@ public class QuestionBankController {
 
     @PostMapping("/bo-de/restore")
     public String restoreBoDe(@RequestParam("cauhoi") Integer cauhoi, HttpSession session, RedirectAttributes redirect) {
+        if (!support.isTeacher(session)) {
+            return "redirect:/login";
+        }
+
         try {
-            jdbcTemplate.update("EXEC dbo.sp_4_5_BoDe_PhucHoi ?, ?", session.getAttribute("LOGINNAME"), cauhoi);
+            String loginname = support.toStr(session.getAttribute("LOGINNAME"));
+            jdbcTemplate.update(
+                    auditContext.withAppLogin("EXEC dbo.sp_4_5_BoDe_PhucHoi ?, ?"),
+                    auditContext.params(loginname, loginname, cauhoi)
+            );
             redirect.addFlashAttribute("success", "Đã phục hồi câu hỏi.");
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
@@ -137,8 +154,16 @@ public class QuestionBankController {
 
     @PostMapping("/bo-de/delete")
     public String deleteBoDe(@RequestParam("cauhoi") Integer cauhoi, HttpSession session, RedirectAttributes redirect) {
+        if (!support.isTeacher(session)) {
+            return "redirect:/login";
+        }
+
         try {
-            jdbcTemplate.update("EXEC dbo.sp_4_5_BoDe_Xoa ?, ?", session.getAttribute("LOGINNAME"), cauhoi);
+            String loginname = support.toStr(session.getAttribute("LOGINNAME"));
+            jdbcTemplate.update(
+                    auditContext.withAppLogin("EXEC dbo.sp_4_5_BoDe_Xoa ?, ?"),
+                    auditContext.params(loginname, loginname, cauhoi)
+            );
             redirect.addFlashAttribute("success", "Đã xóa câu hỏi.");
         } catch (DataAccessException ex) {
             redirect.addFlashAttribute("error", support.dbMessage(ex));
