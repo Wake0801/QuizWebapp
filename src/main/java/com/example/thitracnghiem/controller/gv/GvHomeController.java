@@ -21,11 +21,7 @@ public class GvHomeController {
             return "redirect:/login";
         }
 
-        model.addAttribute("hoten", session.getAttribute("HOTEN"));
-        model.addAttribute("loginname", session.getAttribute("LOGINNAME"));
-        model.addAttribute("magv", session.getAttribute("MAGV"));
-        model.addAttribute("role", session.getAttribute("ROLE_NAME"));
-        model.addAttribute("isPgv", "PGV".equals(session.getAttribute("ROLE_NAME")));
+        support.addTeacherShell(model, session, "home", "Trang làm việc");
 
         return "auth/gv/home";
     }
