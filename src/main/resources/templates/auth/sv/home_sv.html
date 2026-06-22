@@ -1,7 +1,8 @@
-<!DOCTYPE html>
-<html lang="vi">
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Trang sinh viên | Hệ thống thi trắc nghiệm</title>
     <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css">
 </head>
@@ -17,11 +18,9 @@
         </div>
 
         <nav class="nav-menu">
-            <a class="nav-link active" href="/sv/home">Tổng quan</a>
-            <a class="nav-link" href="#">Lịch thi</a>
-            <a class="nav-link" href="#">Vào thi</a>
-            <a class="nav-link" href="#">Xem lại bài thi</a>
-            <a class="nav-link" href="#">Kết quả / điểm</a>
+            <a class="nav-link active" th:href="@{/sv/home}" href="/sv/home">Tổng quan</a>
+            <a class="nav-link" th:href="@{/sv/thi}" href="/sv/thi">Lịch thi / Vào thi</a>
+            <a class="nav-link" th:href="@{/sv/ket-qua}" href="/sv/ket-qua">Kết quả / điểm</a>
         </nav>
 
         <a class="logout-link" th:href="@{/logout}" href="/logout">Đăng xuất</a>
@@ -42,27 +41,15 @@
 
         <section class="dashboard-grid">
             <article class="feature-card">
-                <h3>Lịch thi</h3>
-                <p>Xem các môn thi đã được giáo viên đăng ký cho lớp của bạn.</p>
-                <a href="#">Mở chức năng</a>
-            </article>
-
-            <article class="feature-card">
-                <h3>Vào thi</h3>
-                <p>Chọn môn học, ngày thi, lần thi và bắt đầu làm bài.</p>
-                <a href="#">Mở chức năng</a>
-            </article>
-
-            <article class="feature-card">
-                <h3>Xem lại bài thi</h3>
-                <p>Xem câu hỏi đã thi, câu trả lời của sinh viên và đáp án đúng.</p>
-                <a href="#">Mở chức năng</a>
+                <h3>Lịch thi / Vào thi</h3>
+                <p>Xem lịch thi đã đăng ký cho lớp, vào thi và tiếp tục bài thi đang làm nếu bị ngắt kết nối.</p>
+                <a th:href="@{/sv/thi}" href="/sv/thi">Truy cập</a>
             </article>
 
             <article class="feature-card">
                 <h3>Kết quả / điểm</h3>
-                <p>Xem điểm sau khi nộp bài hoặc khi hết thời gian thi.</p>
-                <a href="#">Mở chức năng</a>
+                <p>Xem điểm sau khi nộp bài và xem lại chi tiết câu hỏi, câu trả lời, đáp án đúng.</p>
+                <a th:href="@{/sv/ket-qua}" href="/sv/ket-qua">Truy cập</a>
             </article>
         </section>
     </main>
