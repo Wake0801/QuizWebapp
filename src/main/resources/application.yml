@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: thitracnghiem
+  datasource:
+    url: ${DB_URL:jdbc:sqlserver://localhost:1433;databaseName=THI_TRAC_NGHIEM;encrypt=true;trustServerCertificate=true}
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD:1234}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+  thymeleaf:
+    cache: false
+

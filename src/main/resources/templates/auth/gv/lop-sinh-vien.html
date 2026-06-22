@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Quan ly lop - sinh vien | TTN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản lý lớp - sinh viên | TTN</title>
     <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css">
 </head>
 <body>
@@ -10,27 +11,32 @@
     <aside class="sidebar">
         <div class="sidebar-brand">
             <div class="brand-mark">TTN</div>
-            <div><h1>Thi trac nghiem</h1><p th:text="${role}">Giang vien</p></div>
+            <div><h1>Thi trắc nghiệm</h1><p th:text="${roleLabel}">Giảng viên</p></div>
         </div>
         <nav class="nav-menu">
-            <a class="nav-link" th:href="@{/gv/home}">Tong quan</a>
-            <a class="nav-link" th:href="@{/gv/mon-hoc}">Quan ly mon hoc</a>
-            <a class="nav-link active" th:href="@{/gv/lop-sinh-vien}">Quan ly lop - sinh vien</a>
-            <a class="nav-link" th:href="@{/gv/giao-vien}">Quan ly giao vien</a>
-            <a class="nav-link" th:href="@{/gv/bo-de}">Nhap cau hoi thi</a>
-            <a class="nav-link" th:href="@{/gv/mat-khau}">Doi mat khau</a>
+            <a class="nav-link" th:href="@{/gv/home}">Tổng quan</a>
+            <a class="nav-link" th:href="@{/gv/mon-hoc}">Quản lý môn học</a>
+            <a class="nav-link active" th:href="@{/gv/lop-sinh-vien}">Quản lý lớp - sinh viên</a>
+            <a class="nav-link" th:href="@{/gv/giao-vien}">Quản lý giáo viên</a>
+            <a class="nav-link" th:href="@{/gv/bo-de}">Nhập câu hỏi thi</a>
+            <a class="nav-link" th:href="@{/gv/thi-thu}">Thi thử</a>
+            <a class="nav-link" th:href="@{/gv/mat-khau}">Đổi mật khẩu</a>
+            <a class="nav-link" th:href="@{/gv/dang-ky-thi}">Đăng ký thi</a>
+            <a class="nav-link" th:href="@{/gv/ket-qua}">Xem kết quả bài thi</a>
+            <a class="nav-link" th:href="@{/gv/bang-diem}">Bảng điểm môn học</a>
+            <a class="nav-link highlight" th:if="${isPgv}" th:href="@{/gv/tai-khoan}">Tạo tài khoản</a>
         </nav>
-        <a class="logout-link" th:href="@{/logout}">Dang xuat</a>
+        <a class="logout-link" th:href="@{/logout}">Đăng xuất</a>
     </aside>
 
     <main class="main-content">
         <header class="topbar">
             <div>
                 <p class="eyebrow">4.3</p>
-                <h2>Nhap lop va sinh vien</h2>
+                <h2>Nhập lớp và sinh viên</h2>
             </div>
             <div class="user-badge">
-                <strong th:text="${hoten}">Giang vien</strong>
+                <strong th:text="${hoten}">Giảng viên</strong>
                 <span th:text="${loginname}">login</span>
             </div>
         </header>
@@ -41,16 +47,16 @@
         <section class="split-workbench">
             <div class="panel">
                 <div class="panel-head">
-                    <h3>Lop</h3>
+                    <h3>Lớp</h3>
                     <form class="search-form" th:action="@{/gv/lop-sinh-vien}" method="get">
                         <select class="input-control" name="malop" onchange="this.form.submit()">
-                            <option value="">Chon lop de xem sinh vien</option>
+                            <option value="">Chọn lớp để xem sinh viên</option>
                             <option th:each="clazz : ${allClasses}" th:value="${clazz.MALOP}"
                                     th:selected="${clazz.MALOP == selectedMalop}"
-                                    th:text="${clazz.MALOP + ' - ' + clazz.TENLOP}">D21CQCN01 - Lop</option>
+                                    th:text="${clazz.MALOP + ' - ' + clazz.TENLOP}">D21CQCN01 - Lớp</option>
                         </select>
-                        <input class="input-control" name="classKeyword" placeholder="Tim ma hoac ten lop" th:value="${classKeyword}">
-                        <button class="btn btn-secondary" type="submit">Tim</button>
+                        <input class="input-control" name="classKeyword" placeholder="Tìm mã hoặc tên lớp" th:value="${classKeyword}">
+                        <button class="btn btn-secondary" type="submit">Tìm</button>
                     </form>
                 </div>
 
@@ -58,10 +64,10 @@
                     <table class="data-table">
                         <thead>
                         <tr>
-                            <th>Ma lop</th>
-                            <th>Ten lop</th>
+                            <th>Mã lớp</th>
+                            <th>Tên lớp</th>
                             <th>SV</th>
-                            <th class="actions-col">Thao tac</th>
+                            <th class="actions-col">Thao tác</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -70,27 +76,27 @@
                             <td th:text="${clazz.TENLOP}">D21CQCN01</td>
                             <td th:text="${clazz.SO_SINH_VIEN}">0</td>
                             <td class="row-actions">
-                                <a class="btn btn-small" th:href="@{/gv/lop-sinh-vien(malop=${clazz.MALOP},editLop=${clazz.MALOP})}">Sua</a>
+                                <a class="btn btn-small" th:href="@{/gv/lop-sinh-vien(malop=${clazz.MALOP},editLop=${clazz.MALOP})}">Sửa</a>
                                 <form th:action="@{/gv/lop/delete}" method="post">
                                     <input type="hidden" name="malop" th:value="${clazz.MALOP}">
-                                    <button class="btn btn-small btn-danger" type="submit">Xoa</button>
+                                    <button class="btn btn-small btn-danger" type="submit">Xóa</button>
                                 </form>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(classes)}">
-                            <td colspan="4" class="empty-cell">Chua co lop.</td>
+                            <td colspan="4" class="empty-cell">Chưa có lớp.</td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div class="restore-box" th:if="${!#lists.isEmpty(deletedClasses)}">
-                    <h4>Lop da xoa</h4>
+                    <h4>Lớp đã xóa</h4>
                     <div class="restore-list">
                         <form class="restore-item" th:each="clazz : ${deletedClasses}" th:action="@{/gv/lop/restore}" method="post">
                             <input type="hidden" name="malop" th:value="${clazz.MALOP}">
-                            <span th:text="${clazz.MALOP + ' - ' + clazz.TENLOP}">D21CQCN01 - Lop</span>
-                            <button class="btn btn-small btn-light" type="submit">Phuc hoi</button>
+                            <span th:text="${clazz.MALOP + ' - ' + clazz.TENLOP}">D21CQCN01 - Lớp</span>
+                            <button class="btn btn-small btn-light" type="submit">Phục hồi</button>
                         </form>
                     </div>
                 </div>
@@ -99,28 +105,28 @@
                     <input type="hidden" name="mode" th:value="${classMode}">
                     <div class="form-grid two-cols">
                         <div>
-                            <label>Ma lop</label>
+                            <label>Mã lớp</label>
                             <input class="input-control" name="malop" maxlength="15" required
                                    th:readonly="${classMode == 'edit'}" th:value="${classForm['MALOP']}">
                         </div>
                         <div>
-                            <label>Ten lop</label>
+                            <label>Tên lớp</label>
                             <input class="input-control" name="tenlop" maxlength="40" required th:value="${classForm['TENLOP']}">
                         </div>
                     </div>
                     <div class="form-actions">
-                        <button class="btn btn-primary" type="submit">Ghi lop</button>
+                        <button class="btn btn-primary" type="submit">Ghi lớp</button>
                     </div>
                 </form>
             </div>
 
             <div class="panel">
                 <div class="panel-head">
-                    <h3>Sinh vien <span class="muted" th:if="${selectedMalop}" th:text="'lop ' + ${selectedMalop}"></span></h3>
+                    <h3>Sinh viên <span class="muted" th:if="${selectedMalop}" th:text="'lớp ' + ${selectedMalop}"></span></h3>
                     <form class="search-form" th:if="${selectedMalop}" th:action="@{/gv/lop-sinh-vien}" method="get">
                         <input type="hidden" name="malop" th:value="${selectedMalop}">
-                        <input class="input-control" name="studentKeyword" placeholder="Tim ma hoac ten sinh vien" th:value="${studentKeyword}">
-                        <button class="btn btn-secondary" type="submit">Tim</button>
+                        <input class="input-control" name="studentKeyword" placeholder="Tìm mã hoặc tên sinh viên" th:value="${studentKeyword}">
+                        <button class="btn btn-secondary" type="submit">Tìm</button>
                     </form>
                 </div>
 
@@ -128,28 +134,28 @@
                     <table class="data-table">
                         <thead>
                         <tr>
-                            <th>Ma SV</th>
-                            <th>Ho ten</th>
-                            <th>Ngay sinh</th>
-                            <th class="actions-col">Thao tac</th>
+                            <th>Mã SV</th>
+                            <th>Họ tên</th>
+                            <th>Ngày sinh</th>
+                            <th class="actions-col">Thao tác</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="student : ${students}">
                             <td th:text="${student.MASV}">SV000001</td>
-                            <td th:text="${student.HOTEN}">Nguyen Van A</td>
+                            <td th:text="${student.HOTEN}">Nguyễn Văn A</td>
                             <td th:text="${student.NGAYSINH}">2003-01-01</td>
                             <td class="row-actions">
-                                <a class="btn btn-small" th:href="@{/gv/lop-sinh-vien(malop=${student.MALOP},editSv=${student.MASV})}">Sua</a>
+                                <a class="btn btn-small" th:href="@{/gv/lop-sinh-vien(malop=${student.MALOP},editSv=${student.MASV})}">Sửa</a>
                                 <form th:action="@{/gv/sinh-vien/delete}" method="post">
                                     <input type="hidden" name="masv" th:value="${student.MASV}">
                                     <input type="hidden" name="malop" th:value="${student.MALOP}">
-                                    <button class="btn btn-small btn-danger" type="submit">Xoa</button>
+                                    <button class="btn btn-small btn-danger" type="submit">Xóa</button>
                                 </form>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(students)}">
-                            <td colspan="4" class="empty-cell" th:text="${selectedMalop == null || selectedMalop == '' ? 'Chon lop de xem sinh vien.' : 'Chua co sinh vien phu hop trong lop dang chon.'}">Chon lop de xem sinh vien.</td>
+                            <td colspan="4" class="empty-cell" th:text="${selectedMalop == null || selectedMalop == '' ? 'Chọn lớp để xem sinh viên.' : 'Chưa có sinh viên phù hợp trong lớp đang chọn.'}">Chọn lớp để xem sinh viên.</td>
                         </tr>
                         </tbody>
                     </table>
@@ -159,51 +165,51 @@
                     <input type="hidden" name="mode" th:value="${studentMode}">
                     <div class="form-grid two-cols">
                         <div>
-                            <label>Ma sinh vien</label>
+                            <label>Mã sinh viên</label>
                             <input class="input-control" name="masv" maxlength="10" required
                                    th:readonly="${studentMode == 'edit'}" th:value="${studentForm['MASV']}">
                         </div>
                         <div>
-                            <label>Lop</label>
+                            <label>Lớp</label>
                             <input type="hidden" name="malop" th:if="${selectedMalop}" th:value="${selectedMalop}">
                             <input class="input-control" th:if="${selectedMalop}" th:value="${selectedMalop}" readonly>
                             <select class="input-control" name="malop" th:unless="${selectedMalop}" required>
-                                <option value="">-- Chon lop --</option>
+                                <option value="">-- Chọn lớp --</option>
                                 <option th:each="clazz : ${allClasses}" th:value="${clazz.MALOP}"
                                         th:selected="${clazz.MALOP == studentForm['MALOP'] || (studentForm['MALOP'] == null && clazz.MALOP == selectedMalop)}"
-                                        th:text="${clazz.MALOP + ' - ' + clazz.TENLOP}">D21CQCN01 - Lop</option>
+                                        th:text="${clazz.MALOP + ' - ' + clazz.TENLOP}">D21CQCN01 - Lớp</option>
                             </select>
                         </div>
                         <div>
-                            <label>Ho</label>
+                            <label>Họ</label>
                             <input class="input-control" name="ho" maxlength="40" required th:value="${studentForm['HO']}">
                         </div>
                         <div>
-                            <label>Ten</label>
+                            <label>Tên</label>
                             <input class="input-control" name="ten" maxlength="10" required th:value="${studentForm['TEN']}">
                         </div>
                         <div>
-                            <label>Ngay sinh</label>
+                            <label>Ngày sinh</label>
                             <input class="input-control" type="date" name="ngaysinh" th:value="${studentForm['NGAYSINH']}">
                         </div>
                         <div>
-                            <label>Dia chi</label>
+                            <label>Địa chỉ</label>
                             <input class="input-control" name="diachi" maxlength="100" th:value="${studentForm['DIACHI']}">
                         </div>
                     </div>
                     <div class="form-actions">
-                        <button class="btn btn-primary" type="submit">Ghi sinh vien</button>
+                        <button class="btn btn-primary" type="submit">Ghi sinh viên</button>
                     </div>
                 </form>
 
                 <div class="restore-box" th:if="${!#lists.isEmpty(deletedStudents)}">
-                    <h4>Sinh vien da xoa</h4>
+                    <h4>Sinh viên đã xóa</h4>
                     <div class="restore-list">
                         <form class="restore-item" th:each="student : ${deletedStudents}" th:action="@{/gv/sinh-vien/restore}" method="post">
                             <input type="hidden" name="masv" th:value="${student.MASV}">
                             <input type="hidden" name="malop" th:value="${student.MALOP}">
-                            <span th:text="${student.MASV + ' - ' + student.HOTEN + ' - ' + student.MALOP}">SV000001 - Nguyen Van A</span>
-                            <button class="btn btn-small btn-light" type="submit">Phuc hoi</button>
+                            <span th:text="${student.MASV + ' - ' + student.HOTEN + ' - ' + student.MALOP}">SV000001 - Nguyễn Văn A</span>
+                            <button class="btn btn-small btn-light" type="submit">Phục hồi</button>
                         </form>
                     </div>
                 </div>

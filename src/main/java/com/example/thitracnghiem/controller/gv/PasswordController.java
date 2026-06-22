@@ -87,7 +87,7 @@ public class PasswordController {
                     currentPassword
             );
             if (loginRows.isEmpty() || !support.toBoolean(loginRows.get(0).get("SUCCESS"))) {
-                redirect.addFlashAttribute("error", "Mat khau hien tai khong dung.");
+                redirect.addFlashAttribute("error", "Mật khẩu hiện tại không đúng.");
                 return "redirect:/gv/mat-khau";
             }
 

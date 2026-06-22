@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Quan ly giao vien | TTN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản lý giáo viên | TTN</title>
     <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css">
 </head>
 <body>
@@ -10,27 +11,32 @@
     <aside class="sidebar">
         <div class="sidebar-brand">
             <div class="brand-mark">TTN</div>
-            <div><h1>Thi trac nghiem</h1><p th:text="${role}">Giang vien</p></div>
+            <div><h1>Thi trắc nghiệm</h1><p th:text="${roleLabel}">Giảng viên</p></div>
         </div>
         <nav class="nav-menu">
-            <a class="nav-link" th:href="@{/gv/home}">Tong quan</a>
-            <a class="nav-link" th:href="@{/gv/mon-hoc}">Quan ly mon hoc</a>
-            <a class="nav-link" th:href="@{/gv/lop-sinh-vien}">Quan ly lop - sinh vien</a>
-            <a class="nav-link active" th:href="@{/gv/giao-vien}">Quan ly giao vien</a>
-            <a class="nav-link" th:href="@{/gv/bo-de}">Nhap cau hoi thi</a>
-            <a class="nav-link" th:href="@{/gv/mat-khau}">Doi mat khau</a>
+            <a class="nav-link" th:href="@{/gv/home}">Tổng quan</a>
+            <a class="nav-link" th:href="@{/gv/mon-hoc}">Quản lý môn học</a>
+            <a class="nav-link" th:href="@{/gv/lop-sinh-vien}">Quản lý lớp - sinh viên</a>
+            <a class="nav-link active" th:href="@{/gv/giao-vien}">Quản lý giáo viên</a>
+            <a class="nav-link" th:href="@{/gv/bo-de}">Nhập câu hỏi thi</a>
+            <a class="nav-link" th:href="@{/gv/thi-thu}">Thi thử</a>
+            <a class="nav-link" th:href="@{/gv/mat-khau}">Đổi mật khẩu</a>
+            <a class="nav-link" th:href="@{/gv/dang-ky-thi}">Đăng ký thi</a>
+            <a class="nav-link" th:href="@{/gv/ket-qua}">Xem kết quả bài thi</a>
+            <a class="nav-link" th:href="@{/gv/bang-diem}">Bảng điểm môn học</a>
+            <a class="nav-link highlight" th:if="${isPgv}" th:href="@{/gv/tai-khoan}">Tạo tài khoản</a>
         </nav>
-        <a class="logout-link" th:href="@{/logout}">Dang xuat</a>
+        <a class="logout-link" th:href="@{/logout}">Đăng xuất</a>
     </aside>
 
     <main class="main-content">
         <header class="topbar">
             <div>
                 <p class="eyebrow">4.4</p>
-                <h2>Nhap giao vien</h2>
+                <h2>Nhập giáo viên</h2>
             </div>
             <div class="user-badge">
-                <strong th:text="${hoten}">Giang vien</strong>
+                <strong th:text="${hoten}">Giảng viên</strong>
                 <span th:text="${loginname}">login</span>
             </div>
         </header>
@@ -41,16 +47,16 @@
         <section class="workbench">
             <div class="panel table-panel">
                 <div class="panel-head">
-                    <h3>Danh sach giao vien</h3>
+                    <h3>Danh sách giáo viên</h3>
                     <form class="search-form" th:action="@{/gv/giao-vien}" method="get">
                         <select class="input-control" name="magv" onchange="this.form.submit()">
-                            <option value="">Tat ca giao vien</option>
+                            <option value="">Tất cả giáo viên</option>
                             <option th:each="teacher : ${allTeachers}" th:value="${teacher.MAGV}"
                                     th:selected="${teacher.MAGV == selectedMagv}"
-                                    th:text="${teacher.MAGV + ' - ' + teacher.HOTEN}">GV000001 - Nguyen Van A</option>
+                                    th:text="${teacher.MAGV + ' - ' + teacher.HOTEN}">GV000001 - Nguyễn Văn A</option>
                         </select>
-                        <input class="input-control" name="keyword" placeholder="Tim ma, ten hoac SDT" th:value="${keyword}">
-                        <button class="btn btn-secondary" type="submit">Tim</button>
+                        <input class="input-control" name="keyword" placeholder="Tìm mã, tên hoặc SĐT" th:value="${keyword}">
+                        <button class="btn btn-secondary" type="submit">Tìm</button>
                     </form>
                 </div>
 
@@ -58,41 +64,41 @@
                     <table class="data-table">
                         <thead>
                         <tr>
-                            <th>Ma GV</th>
-                            <th>Ho ten</th>
-                            <th>SDT</th>
-                            <th>So cau</th>
-                            <th class="actions-col">Thao tac</th>
+                            <th>Mã GV</th>
+                            <th>Họ tên</th>
+                            <th>SĐT</th>
+                            <th>Số câu</th>
+                            <th class="actions-col">Thao tác</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="teacher : ${teachers}">
                             <td th:text="${teacher.MAGV}">GV000001</td>
-                            <td th:text="${teacher.HOTEN}">Nguyen Van A</td>
+                            <td th:text="${teacher.HOTEN}">Nguyễn Văn A</td>
                             <td th:text="${teacher.SODTLL}">0900</td>
                             <td th:text="${teacher.SO_CAU_DA_SOAN}">0</td>
                             <td class="row-actions">
-                                <a class="btn btn-small" th:href="@{/gv/giao-vien(edit=${teacher.MAGV})}">Sua</a>
+                                <a class="btn btn-small" th:href="@{/gv/giao-vien(edit=${teacher.MAGV})}">Sửa</a>
                                 <form th:action="@{/gv/giao-vien/delete}" method="post">
                                     <input type="hidden" name="magv" th:value="${teacher.MAGV}">
-                                    <button class="btn btn-small btn-danger" type="submit">Xoa</button>
+                                    <button class="btn btn-small btn-danger" type="submit">Xóa</button>
                                 </form>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(teachers)}">
-                            <td colspan="5" class="empty-cell">Chua co du lieu giao vien.</td>
+                            <td colspan="5" class="empty-cell">Chưa có dữ liệu giáo viên.</td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div class="restore-box" th:if="${!#lists.isEmpty(deletedTeachers)}">
-                    <h4>Giao vien da xoa</h4>
+                    <h4>Giáo viên đã xóa</h4>
                     <div class="restore-list">
                         <form class="restore-item" th:each="teacher : ${deletedTeachers}" th:action="@{/gv/giao-vien/restore}" method="post">
                             <input type="hidden" name="magv" th:value="${teacher.MAGV}">
-                            <span th:text="${teacher.MAGV + ' - ' + teacher.HOTEN}">GV000001 - Nguyen Van A</span>
-                            <button class="btn btn-small btn-light" type="submit">Phuc hoi</button>
+                            <span th:text="${teacher.MAGV + ' - ' + teacher.HOTEN}">GV000001 - Nguyễn Văn A</span>
+                            <button class="btn btn-small btn-light" type="submit">Phục hồi</button>
                         </form>
                     </div>
                 </div>
@@ -100,25 +106,25 @@
 
             <form class="panel form-panel" th:action="@{/gv/giao-vien/save}" method="post">
                 <div class="panel-head">
-                    <h3 th:text="${mode == 'edit' ? 'Sua giao vien' : 'Them giao vien'}">Them giao vien</h3>
-                    <span class="status-pill" th:text="${mode == 'edit' ? 'Dang sua' : 'Them moi'}">Them moi</span>
+                    <h3 th:text="${mode == 'edit' ? 'Sửa giáo viên' : 'Thêm giáo viên'}">Thêm giáo viên</h3>
+                    <span class="status-pill" th:text="${mode == 'edit' ? 'Đang sửa' : 'Thêm mới'}">Thêm mới</span>
                 </div>
                 <input type="hidden" name="mode" th:value="${mode}">
 
-                <label>Ma giao vien</label>
+                <label>Mã giáo viên</label>
                 <input class="input-control" name="magv" maxlength="8" required
                        th:readonly="${mode == 'edit'}" th:value="${form['MAGV']}" placeholder="VD: GV000001">
 
-                <label>Ho</label>
+                <label>Họ</label>
                 <input class="input-control" name="ho" maxlength="40" required th:value="${form['HO']}">
 
-                <label>Ten</label>
+                <label>Tên</label>
                 <input class="input-control" name="ten" maxlength="10" required th:value="${form['TEN']}">
 
-                <label>So dien thoai lien lac</label>
+                <label>Số điện thoại liên lạc</label>
                 <input class="input-control" name="sodtll" maxlength="15" th:value="${form['SODTLL']}">
 
-                <label>Dia chi</label>
+                <label>Địa chỉ</label>
                 <input class="input-control" name="diachi" maxlength="50" th:value="${form['DIACHI']}">
 
                 <div class="form-actions">

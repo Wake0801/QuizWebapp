@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Đổi mật khẩu | TTN</title>
+    <title>Thi thử | TTN</title>
     <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css">
 </head>
 <body>
@@ -19,8 +19,8 @@
             <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/lop-sinh-vien}">Quản lý lớp - sinh viên</a>
             <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/giao-vien}">Quản lý giáo viên</a>
             <a class="nav-link" th:href="@{/gv/bo-de}">Nhập câu hỏi thi</a>
-            <a class="nav-link" th:href="@{/gv/thi-thu}">Thi thử</a>
-            <a class="nav-link active" th:href="@{/gv/mat-khau}">Đổi mật khẩu</a>
+            <a class="nav-link active" th:href="@{/gv/thi-thu}">Thi thử</a>
+            <a class="nav-link" th:href="@{/gv/mat-khau}">Đổi mật khẩu</a>
             <a class="nav-link" th:href="@{/gv/dang-ky-thi}">Đăng ký thi</a>
             <a class="nav-link" th:href="@{/gv/ket-qua}">Xem kết quả bài thi</a>
             <a class="nav-link" th:href="@{/gv/bang-diem}">Bảng điểm môn học</a>
@@ -32,8 +32,8 @@
     <main class="main-content">
         <header class="topbar">
             <div>
-                <p class="eyebrow">Tài khoản</p>
-                <h2>Đổi mật khẩu</h2>
+                <p class="eyebrow">Không ghi điểm</p>
+                <h2>Thi thử</h2>
             </div>
             <div class="user-badge">
                 <strong th:text="${hoten}">Giảng viên</strong>
@@ -41,31 +41,28 @@
             </div>
         </header>
 
-        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
         <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
 
-        <section class="account-workbench">
-            <form class="panel form-panel account-panel" th:action="@{/gv/mat-khau/doi}" method="post">
-                <div class="panel-head">
-                    <h3>Tài khoản đang đăng nhập</h3>
-                    <span class="status-pill" th:text="${loginname}">login</span>
-                </div>
-
-                <label for="currentPassword">Mật khẩu hiện tại</label>
-                <input id="currentPassword" class="input-control" name="currentPassword" type="password"
-                       autocomplete="current-password" maxlength="128" required>
-
-                <label for="newPassword">Mật khẩu mới</label>
-                <input id="newPassword" class="input-control" name="newPassword" type="password"
-                       autocomplete="new-password" minlength="6" maxlength="128" required>
-
-                <label for="confirmPassword">Xác nhận mật khẩu mới</label>
-                <input id="confirmPassword" class="input-control" name="confirmPassword" type="password"
-                       autocomplete="new-password" minlength="6" maxlength="128" required>
-
-                <div class="form-actions">
-                    <button class="btn btn-primary" type="submit">Đổi mật khẩu</button>
-                </div>
+        <section class="panel filter-panel">
+            <form class="search-form wide-search" method="post" th:action="@{/gv/thi-thu/bat-dau}">
+                <select class="input-control" name="mamh" required>
+                    <option value="">Chọn môn</option>
+                    <option th:each="subject : ${subjects}"
+                            th:value="${subject.MAMH}"
+                            th:selected="${subject.MAMH == mamh}"
+                            th:text="${subject.MAMH + ' - ' + subject.TENMH}">Môn</option>
+                </select>
+                <select class="input-control" name="trinhdo" required>
+                    <option value="A" th:selected="${trinhdo == 'A'}">Trình độ A</option>
+                    <option value="B" th:selected="${trinhdo == 'B'}">Trình độ B</option>
+                    <option value="C" th:selected="${trinhdo == 'C'}">Trình độ C</option>
+                </select>
+                <input class="input-control" type="number" name="socau" min="1" max="100" th:value="${socau}" required
+                       aria-label="Số câu">
+                <input class="input-control" type="number" name="thoigian" min="1" max="180" th:value="${thoigian}" required
+                       aria-label="Thời gian phút">
+                <button class="btn btn-primary" type="submit">Bắt đầu thi</button>
             </form>
         </section>
     </main>

@@ -1,7 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Trang giảng viên | Hệ thống thi trắc nghiệm</title>
     <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css">
 </head>
@@ -12,21 +13,22 @@
             <div class="brand-mark">TTN</div>
             <div>
                 <h1>Thi trắc nghiệm</h1>
-                <p>Giảng viên</p>
+                <p th:text="${roleLabel}">Giảng viên</p>
             </div>
         </div>
 
         <nav class="nav-menu">
             <a class="nav-link active" th:href="@{/gv/home}" href="/gv/home">Tổng quan</a>
-            <a class="nav-link" th:href="@{/gv/mon-hoc}" href="/gv/mon-hoc">Quản lý môn học</a>
-            <a class="nav-link" th:href="@{/gv/lop-sinh-vien}" href="/gv/lop-sinh-vien">Quản lý lớp - sinh viên</a>
-            <a class="nav-link" th:href="@{/gv/giao-vien}" href="/gv/giao-vien">Quản lý giáo viên</a>
+            <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/mon-hoc}" href="/gv/mon-hoc">Quản lý môn học</a>
+            <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/lop-sinh-vien}" href="/gv/lop-sinh-vien">Quản lý lớp - sinh viên</a>
+            <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/giao-vien}" href="/gv/giao-vien">Quản lý giáo viên</a>
             <a class="nav-link" th:href="@{/gv/bo-de}" href="/gv/bo-de">Nhập câu hỏi thi</a>
+            <a class="nav-link" th:href="@{/gv/thi-thu}" href="/gv/thi-thu">Thi thử</a>
             <a class="nav-link" th:href="@{/gv/mat-khau}" href="/gv/mat-khau">Đổi mật khẩu</a>
-            <a class="nav-link" href="#">Đăng ký thi</a>
-            <a class="nav-link" href="#">Xem kết quả bài thi</a>
-            <a class="nav-link" href="#">Bảng điểm môn học</a>
-            <a class="nav-link highlight" th:if="${isPgv}" href="#">Tạo tài khoản</a>
+            <a class="nav-link" th:href="@{/gv/dang-ky-thi}" href="/gv/dang-ky-thi">Đăng ký thi</a>
+            <a class="nav-link" th:href="@{/gv/ket-qua}" href="/gv/ket-qua">Xem kết quả bài thi</a>
+            <a class="nav-link" th:href="@{/gv/bang-diem}" href="/gv/bang-diem">Bảng điểm môn học</a>
+            <a class="nav-link highlight" th:if="${isPgv}" th:href="@{/gv/tai-khoan}" href="/gv/tai-khoan">Tạo tài khoản</a>
         </nav>
 
         <a class="logout-link" th:href="@{/logout}" href="/logout">Đăng xuất</a>
@@ -40,40 +42,70 @@
             </div>
 
             <div class="user-badge">
-                <strong th:text="${role}">GIANGVIEN</strong>
+                <strong th:text="${roleLabel}">Giảng viên</strong>
                 <span th:text="${magv}">GV000001</span>
             </div>
         </header>
 
         <section class="dashboard-grid">
-            <article class="feature-card">
+            <article class="feature-card" th:if="${isPgv}">
                 <h3>Quản lý môn học</h3>
                 <p>Thêm, xóa, hiệu chỉnh, tìm và ghi các môn học sẽ thi trắc nghiệm.</p>
-                <a th:href="@{/gv/mon-hoc}" href="/gv/mon-hoc">Mở chức năng</a>
+                <a th:href="@{/gv/mon-hoc}" href="/gv/mon-hoc">Truy cập</a>
             </article>
 
-            <article class="feature-card">
+            <article class="feature-card" th:if="${isPgv}">
                 <h3>Quản lý lớp - sinh viên</h3>
                 <p>Nhập lớp và danh sách sinh viên theo lớp dưới dạng subform.</p>
-                <a th:href="@{/gv/lop-sinh-vien}" href="/gv/lop-sinh-vien">Mở chức năng</a>
+                <a th:href="@{/gv/lop-sinh-vien}" href="/gv/lop-sinh-vien">Truy cập</a>
             </article>
 
-            <article class="feature-card">
+            <article class="feature-card" th:if="${isPgv}">
                 <h3>Quản lý giáo viên</h3>
                 <p>Thêm, xóa, hiệu chỉnh, tìm và ghi thông tin giáo viên.</p>
-                <a th:href="@{/gv/giao-vien}" href="/gv/giao-vien">Mở chức năng</a>
+                <a th:href="@{/gv/giao-vien}" href="/gv/giao-vien">Truy cập</a>
             </article>
 
             <article class="feature-card">
                 <h3>Nhập câu hỏi thi</h3>
                 <p>Giáo viên nhập và cập nhật bộ đề theo môn học, trình độ A/B/C.</p>
-                <a th:href="@{/gv/bo-de}" href="/gv/bo-de">Mở chức năng</a>
+                <a th:href="@{/gv/bo-de}" href="/gv/bo-de">Truy cập</a>
+            </article>
+
+            <article class="feature-card">
+                <h3>Thi thử</h3>
+                <p>Phát đề ngẫu nhiên theo môn và trình độ để giảng viên kiểm tra bộ đề, không ghi điểm.</p>
+                <a th:href="@{/gv/thi-thu}" href="/gv/thi-thu">Truy cập</a>
+            </article>
+
+            <article class="feature-card">
+                <h3>Đăng ký thi</h3>
+                <p>Lập lịch thi theo lớp, môn, lần thi, trình độ, số câu và thời gian.</p>
+                <a th:href="@{/gv/dang-ky-thi}" href="/gv/dang-ky-thi">Truy cập</a>
+            </article>
+
+            <article class="feature-card">
+                <h3>Xem kết quả bài thi</h3>
+                <p>Tra cứu chi tiết câu hỏi, câu trả lời của sinh viên và đáp án đúng.</p>
+                <a th:href="@{/gv/ket-qua}" href="/gv/ket-qua">Truy cập</a>
+            </article>
+
+            <article class="feature-card">
+                <h3>Bảng điểm môn học</h3>
+                <p>Lọc bảng điểm theo lớp, môn học và lần thi, kèm điểm chữ.</p>
+                <a th:href="@{/gv/bang-diem}" href="/gv/bang-diem">Truy cập</a>
+            </article>
+
+            <article class="feature-card" th:if="${isPgv}">
+                <h3>Tạo tài khoản</h3>
+                <p>PGV tạo tài khoản mới cho giảng viên hoặc PGV.</p>
+                <a th:href="@{/gv/tai-khoan}" href="/gv/tai-khoan">Truy cập</a>
             </article>
 
             <article class="feature-card">
                 <h3>Đổi mật khẩu</h3>
                 <p>Giảng viên và PGV được tự đổi mật khẩu của tài khoản đang đăng nhập.</p>
-                <a th:href="@{/gv/mat-khau}" href="/gv/mat-khau">Mở chức năng</a>
+                <a th:href="@{/gv/mat-khau}" href="/gv/mat-khau">Truy cập</a>
             </article>
         </section>
     </main>

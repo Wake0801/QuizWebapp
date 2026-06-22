@@ -44,6 +44,9 @@ public class ClassStudentController {
         if (!support.isTeacher(session)) {
             return "redirect:/login";
         }
+        if (!support.isPgv(session)) {
+            return "redirect:/gv/home";
+        }
 
         support.addTeacherShell(model, session, "lop-sinh-vien", "Quản lý lớp - sinh viên");
         malop = support.safeTrim(malop).toUpperCase();
@@ -107,8 +110,17 @@ public class ClassStudentController {
             @RequestParam(value = "mode", required = false) String mode,
             @RequestParam("malop") String malop,
             @RequestParam("tenlop") String tenlop,
+            HttpSession session,
             RedirectAttributes redirect
     ) {
+        if (!support.isTeacher(session)) {
+            return "redirect:/login";
+        }
+        if (!support.isPgv(session)) {
+            redirect.addFlashAttribute("error", "Chỉ PGV được quản lý lớp và sinh viên.");
+            return "redirect:/gv/home";
+        }
+
         String normalizedMalop = support.safeTrim(malop).toUpperCase();
         try {
             if ("edit".equals(mode)) {
@@ -126,7 +138,15 @@ public class ClassStudentController {
     }
 
     @PostMapping("/lop/delete")
-    public String deleteLop(@RequestParam("malop") String malop, RedirectAttributes redirect) {
+    public String deleteLop(@RequestParam("malop") String malop, HttpSession session, RedirectAttributes redirect) {
+        if (!support.isTeacher(session)) {
+            return "redirect:/login";
+        }
+        if (!support.isPgv(session)) {
+            redirect.addFlashAttribute("error", "Chỉ PGV được quản lý lớp và sinh viên.");
+            return "redirect:/gv/home";
+        }
+
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_3_Lop_Xoa ?", support.safeTrim(malop).toUpperCase());
             redirect.addFlashAttribute("success", "Đã xóa lớp.");
@@ -138,7 +158,15 @@ public class ClassStudentController {
     }
 
     @PostMapping("/lop/restore")
-    public String restoreLop(@RequestParam("malop") String malop, RedirectAttributes redirect) {
+    public String restoreLop(@RequestParam("malop") String malop, HttpSession session, RedirectAttributes redirect) {
+        if (!support.isTeacher(session)) {
+            return "redirect:/login";
+        }
+        if (!support.isPgv(session)) {
+            redirect.addFlashAttribute("error", "Chỉ PGV được quản lý lớp và sinh viên.");
+            return "redirect:/gv/home";
+        }
+
         String normalizedMalop = support.safeTrim(malop).toUpperCase();
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_3_Lop_PhucHoi ?", normalizedMalop);
@@ -159,8 +187,17 @@ public class ClassStudentController {
             @RequestParam(value = "ngaysinh", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngaysinh,
             @RequestParam(value = "diachi", required = false) String diachi,
             @RequestParam("malop") String malop,
+            HttpSession session,
             RedirectAttributes redirect
     ) {
+        if (!support.isTeacher(session)) {
+            return "redirect:/login";
+        }
+        if (!support.isPgv(session)) {
+            redirect.addFlashAttribute("error", "Chỉ PGV được quản lý lớp và sinh viên.");
+            return "redirect:/gv/home";
+        }
+
         String normalizedMalop = support.safeTrim(malop).toUpperCase();
         Object sqlDate = ngaysinh == null ? null : Date.valueOf(ngaysinh);
 
@@ -189,8 +226,17 @@ public class ClassStudentController {
     public String deleteSinhVien(
             @RequestParam("masv") String masv,
             @RequestParam(value = "malop", required = false) String malop,
+            HttpSession session,
             RedirectAttributes redirect
     ) {
+        if (!support.isTeacher(session)) {
+            return "redirect:/login";
+        }
+        if (!support.isPgv(session)) {
+            redirect.addFlashAttribute("error", "Chỉ PGV được quản lý lớp và sinh viên.");
+            return "redirect:/gv/home";
+        }
+
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_3_SinhVien_Xoa ?", support.safeTrim(masv).toUpperCase());
             redirect.addFlashAttribute("success", "Đã xóa sinh viên.");
@@ -208,8 +254,17 @@ public class ClassStudentController {
     public String restoreSinhVien(
             @RequestParam("masv") String masv,
             @RequestParam(value = "malop", required = false) String malop,
+            HttpSession session,
             RedirectAttributes redirect
     ) {
+        if (!support.isTeacher(session)) {
+            return "redirect:/login";
+        }
+        if (!support.isPgv(session)) {
+            redirect.addFlashAttribute("error", "Chỉ PGV được quản lý lớp và sinh viên.");
+            return "redirect:/gv/home";
+        }
+
         String normalizedMalop = support.safeTrim(malop).toUpperCase();
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_3_SinhVien_PhucHoi ?", support.safeTrim(masv).toUpperCase());

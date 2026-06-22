@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Nhap cau hoi thi | TTN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Nhập câu hỏi thi | TTN</title>
     <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css">
 </head>
 <body>
@@ -10,27 +11,32 @@
     <aside class="sidebar">
         <div class="sidebar-brand">
             <div class="brand-mark">TTN</div>
-            <div><h1>Thi trac nghiem</h1><p th:text="${role}">Giang vien</p></div>
+            <div><h1>Thi trắc nghiệm</h1><p th:text="${roleLabel}">Giảng viên</p></div>
         </div>
         <nav class="nav-menu">
-            <a class="nav-link" th:href="@{/gv/home}">Tong quan</a>
-            <a class="nav-link" th:href="@{/gv/mon-hoc}">Quan ly mon hoc</a>
-            <a class="nav-link" th:href="@{/gv/lop-sinh-vien}">Quan ly lop - sinh vien</a>
-            <a class="nav-link" th:href="@{/gv/giao-vien}">Quan ly giao vien</a>
-            <a class="nav-link active" th:href="@{/gv/bo-de}">Nhap cau hoi thi</a>
-            <a class="nav-link" th:href="@{/gv/mat-khau}">Doi mat khau</a>
+            <a class="nav-link" th:href="@{/gv/home}">Tổng quan</a>
+            <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/mon-hoc}">Quản lý môn học</a>
+            <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/lop-sinh-vien}">Quản lý lớp - sinh viên</a>
+            <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/giao-vien}">Quản lý giáo viên</a>
+            <a class="nav-link active" th:href="@{/gv/bo-de}">Nhập câu hỏi thi</a>
+            <a class="nav-link" th:href="@{/gv/thi-thu}">Thi thử</a>
+            <a class="nav-link" th:href="@{/gv/mat-khau}">Đổi mật khẩu</a>
+            <a class="nav-link" th:href="@{/gv/dang-ky-thi}">Đăng ký thi</a>
+            <a class="nav-link" th:href="@{/gv/ket-qua}">Xem kết quả bài thi</a>
+            <a class="nav-link" th:href="@{/gv/bang-diem}">Bảng điểm môn học</a>
+            <a class="nav-link highlight" th:if="${isPgv}" th:href="@{/gv/tai-khoan}">Tạo tài khoản</a>
         </nav>
-        <a class="logout-link" th:href="@{/logout}">Dang xuat</a>
+        <a class="logout-link" th:href="@{/logout}">Đăng xuất</a>
     </aside>
 
     <main class="main-content">
         <header class="topbar">
             <div>
                 <p class="eyebrow">4.5</p>
-                <h2>Nhap cau hoi thi</h2>
+                <h2>Nhập câu hỏi thi</h2>
             </div>
             <div class="user-badge">
-                <strong th:text="${hoten}">Giang vien</strong>
+                <strong th:text="${hoten}">Giảng viên</strong>
                 <span th:text="${loginname}">login</span>
             </div>
         </header>
@@ -41,22 +47,22 @@
         <section class="workbench wide-form">
             <div class="panel table-panel">
                 <div class="panel-head">
-                    <h3>Bo de</h3>
+                    <h3>Bộ đề</h3>
                     <form class="search-form" th:action="@{/gv/bo-de}" method="get">
                         <select class="input-control" name="mamh" onchange="this.form.submit()">
-                            <option value="">Tat ca mon</option>
+                            <option value="">Tất cả môn</option>
                             <option th:each="subject : ${subjects}" th:value="${subject.MAMH}"
                                     th:selected="${subject.MAMH == selectedMamh}"
-                                    th:text="${subject.MAMH + ' - ' + subject.TENMH}">CSDL - Co so du lieu</option>
+                                    th:text="${subject.MAMH + ' - ' + subject.TENMH}">CSDL - Cơ sở dữ liệu</option>
                         </select>
                         <select class="input-control" name="trinhdo" onchange="this.form.submit()">
-                            <option value="">Tat ca trinh do</option>
+                            <option value="">Tất cả trình độ</option>
                             <option value="A" th:selected="${selectedTrinhdo == 'A'}">A</option>
                             <option value="B" th:selected="${selectedTrinhdo == 'B'}">B</option>
                             <option value="C" th:selected="${selectedTrinhdo == 'C'}">C</option>
                         </select>
-                        <input class="input-control" name="keyword" placeholder="Tim cau hoi hoac noi dung" th:value="${keyword}">
-                        <button class="btn btn-secondary" type="submit">Tim</button>
+                        <input class="input-control" name="keyword" placeholder="Tìm câu hỏi hoặc nội dung" th:value="${keyword}">
+                        <button class="btn btn-secondary" type="submit">Tìm</button>
                     </form>
                 </div>
 
@@ -64,13 +70,13 @@
                     <table class="data-table">
                         <thead>
                         <tr>
-                            <th>Cau</th>
-                            <th>Mon</th>
-                            <th>Trinh do</th>
-                            <th>Noi dung</th>
-                            <th>Dap an</th>
-                            <th>Giao vien</th>
-                            <th class="actions-col">Thao tac</th>
+                            <th>Câu</th>
+                            <th>Môn</th>
+                            <th>Trình độ</th>
+                            <th>Nội dung</th>
+                            <th>Đáp án</th>
+                            <th>Giáo viên</th>
+                            <th class="actions-col">Thao tác</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -78,31 +84,31 @@
                             <td th:text="${question.CAUHOI}">1</td>
                             <td th:text="${question.MAMH}">CSDL</td>
                             <td th:text="${question.TRINHDO}">A</td>
-                            <td class="long-text" th:text="${question.NOIDUNG}">Noi dung cau hoi</td>
+                            <td class="long-text" th:text="${question.NOIDUNG}">Nội dung câu hỏi</td>
                             <td th:text="${question.DAP_AN}">A</td>
                             <td th:text="${question.HOTEN_GV}">GV</td>
                             <td class="row-actions">
-                                <a class="btn btn-small" th:href="@{/gv/bo-de(edit=${question.CAUHOI})}">Sua</a>
+                                <a class="btn btn-small" th:href="@{/gv/bo-de(edit=${question.CAUHOI})}">Sửa</a>
                                 <form th:action="@{/gv/bo-de/delete}" method="post">
                                     <input type="hidden" name="cauhoi" th:value="${question.CAUHOI}">
-                                    <button class="btn btn-small btn-danger" type="submit">Xoa</button>
+                                    <button class="btn btn-small btn-danger" type="submit">Xóa</button>
                                 </form>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(questions)}">
-                            <td colspan="7" class="empty-cell">Chua co cau hoi.</td>
+                            <td colspan="7" class="empty-cell">Chưa có câu hỏi.</td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div class="restore-box" th:if="${!#lists.isEmpty(deletedQuestions)}">
-                    <h4>Cau hoi da xoa</h4>
+                    <h4>Câu hỏi đã xóa</h4>
                     <div class="restore-list">
                         <form class="restore-item" th:each="question : ${deletedQuestions}" th:action="@{/gv/bo-de/restore}" method="post">
                             <input type="hidden" name="cauhoi" th:value="${question.CAUHOI}">
-                            <span th:text="${'Cau ' + question.CAUHOI + ' - ' + question.MAMH + ' - ' + question.NOIDUNG}">Cau 1 - CSDL</span>
-                            <button class="btn btn-small btn-light" type="submit">Phuc hoi</button>
+                            <span th:text="${'Câu ' + question.CAUHOI + ' - ' + question.MAMH + ' - ' + question.NOIDUNG}">Câu 1 - CSDL</span>
+                            <button class="btn btn-small btn-light" type="submit">Phục hồi</button>
                         </form>
                     </div>
                 </div>
@@ -110,23 +116,23 @@
 
             <form class="panel form-panel question-form" th:action="@{/gv/bo-de/save}" method="post">
                 <div class="panel-head">
-                    <h3 th:text="${mode == 'edit' ? 'Sua cau hoi' : 'Them cau hoi'}">Them cau hoi</h3>
-                    <span class="status-pill" th:text="${mode == 'edit' ? 'Dang sua' : 'Them moi'}">Them moi</span>
+                    <h3 th:text="${mode == 'edit' ? 'Sửa câu hỏi' : 'Thêm câu hỏi'}">Thêm câu hỏi</h3>
+                    <span class="status-pill" th:text="${mode == 'edit' ? 'Đang sửa' : 'Thêm mới'}">Thêm mới</span>
                 </div>
                 <input type="hidden" name="mode" th:value="${mode}">
                 <input type="hidden" name="cauhoi" th:value="${form['CAUHOI']}">
 
-                <label>Mon hoc</label>
+                <label>Môn học</label>
                 <select class="input-control" name="mamh" required>
-                    <option value="">-- Chon mon --</option>
+                    <option value="">-- Chọn môn --</option>
                     <option th:each="subject : ${subjects}" th:value="${subject.MAMH}"
                             th:selected="${subject.MAMH == form['MAMH']}"
-                            th:text="${subject.MAMH + ' - ' + subject.TENMH}">CSDL - Co so du lieu</option>
+                            th:text="${subject.MAMH + ' - ' + subject.TENMH}">CSDL - Cơ sở dữ liệu</option>
                 </select>
 
                 <div class="form-grid two-cols">
                     <div>
-                        <label>Trinh do</label>
+                        <label>Trình độ</label>
                         <select class="input-control" name="trinhdo" required>
                             <option value="A" th:selected="${form['TRINHDO'] == 'A'}">A</option>
                             <option value="B" th:selected="${form['TRINHDO'] == 'B'}">B</option>
@@ -134,7 +140,7 @@
                         </select>
                     </div>
                     <div>
-                        <label>Dap an dung</label>
+                        <label>Đáp án đúng</label>
                         <select class="input-control" name="dapAn" required>
                             <option value="A" th:selected="${form['DAP_AN'] == 'A'}">A</option>
                             <option value="B" th:selected="${form['DAP_AN'] == 'B'}">B</option>
@@ -144,19 +150,19 @@
                     </div>
                 </div>
 
-                <label>Noi dung cau hoi</label>
+                <label>Nội dung câu hỏi</label>
                 <textarea class="input-control" name="noidung" maxlength="200" required rows="4" th:text="${form['NOIDUNG']}"></textarea>
 
-                <label>Dap an A</label>
+                <label>Đáp án A</label>
                 <input class="input-control" name="a" maxlength="50" required th:value="${form['A']}">
 
-                <label>Dap an B</label>
+                <label>Đáp án B</label>
                 <input class="input-control" name="b" maxlength="50" required th:value="${form['B']}">
 
-                <label>Dap an C</label>
+                <label>Đáp án C</label>
                 <input class="input-control" name="c" maxlength="50" required th:value="${form['C']}">
 
-                <label>Dap an D</label>
+                <label>Đáp án D</label>
                 <input class="input-control" name="d" maxlength="50" required th:value="${form['D']}">
 
                 <div class="form-actions">
