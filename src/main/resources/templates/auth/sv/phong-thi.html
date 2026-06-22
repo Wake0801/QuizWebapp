@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Phòng thi | TTN</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css">
+</head>
+<body>
+<main class="exam-main">
+    <section class="exam-toolbar"
+             th:attr="data-remaining-seconds=${exam.remainingSeconds},data-total-questions=${#lists.size(exam.questions)},data-attempt-id=${exam.maBt},data-autosave-url=@{/sv/thi/luu-cau-tra-loi}">
+        <div>
+            <p class="eyebrow">Phòng thi</p>
+            <h1 th:text="|${exam.tenMh} - lần ${exam.lan}|">Môn thi</h1>
+            <p class="muted"
+               th:text="|Mã bài ${exam.maBt} - ${exam.hoTenSinhVien} (${exam.maSv}) - ${exam.maLop} ${exam.tenLop}|">Thông tin bài thi</p>
+        </div>
+    </section>
+
+    <form id="examForm" method="post" th:action="@{/sv/thi/nop-bai}" class="exam-layout">
+        <input type="hidden" name="maBt" th:value="${exam.maBt}">
+        <aside class="question-map" aria-label="Danh sách câu hỏi">
+            <div class="timer-box">
+                <span>Còn lại</span>
+                <strong id="timerText">--:--</strong>
+            </div>
+            <div class="exam-side-actions">
+                <div>
+                    <strong id="answeredCounter">0</strong>
+                    <span th:text="|/${#lists.size(exam.questions)} câu đã trả lời|">/0 câu đã trả lời</span>
+                </div>
+                <button class="btn btn-primary" type="submit">Nộp bài</button>
+            </div>
+            <button type="button"
+                    class="question-index"
+                    th:each="question, iter : ${exam.questions}"
+                    th:data-target="|#q-${iter.index}|"
+                    th:data-question-id="${question.cauHoi}"
+                    th:text="${iter.index + 1}">1</button>
+        </aside>
+
+        <section class="question-list">
+            <article class="question-card"
+                     th:each="question, iter : ${exam.questions}"
+                     th:id="|q-${iter.index}|"
+                     th:data-question-id="${question.cauHoi}">
+                <div class="question-title">
+                    <span class="status-pill" th:text="|Câu ${iter.index + 1}|">Câu 1</span>
+                    <small th:text="|Mã câu ${question.cauHoi} - trình độ ${question.trinhDoCau}|">Mã câu</small>
+                </div>
+                <p class="question-text" th:text="${question.noiDung}">Nội dung câu hỏi</p>
+                <div class="option-list">
+                    <label>
+                        <input type="radio" th:name="|answers[${question.cauHoi}]|" value="A"
+                               th:checked="${question.dapAnChon == 'A'}">
+                        <span>A. <span th:text="${question.a}">Đáp án A</span></span>
+                    </label>
+                    <label>
+                        <input type="radio" th:name="|answers[${question.cauHoi}]|" value="B"
+                               th:checked="${question.dapAnChon == 'B'}">
+                        <span>B. <span th:text="${question.b}">Đáp án B</span></span>
+                    </label>
+                    <label>
+                        <input type="radio" th:name="|answers[${question.cauHoi}]|" value="C"
+                               th:checked="${question.dapAnChon == 'C'}">
+                        <span>C. <span th:text="${question.c}">Đáp án C</span></span>
+                    </label>
+                    <label>
+                        <input type="radio" th:name="|answers[${question.cauHoi}]|" value="D"
+                               th:checked="${question.dapAnChon == 'D'}">
+                        <span>D. <span th:text="${question.d}">Đáp án D</span></span>
+                    </label>
+                </div>
+            </article>
+
+        </section>
+    </form>
+</main>
+<script th:src="@{/js/exam.js}" src="/js/exam.js"></script>
+</body>
+</html>
