@@ -1,16 +1,16 @@
 :root {
-    --brand-red: #a91d2e;
-    --brand-soft: #c94a5a;
-    --brand-surface: #f9edee;
-    --primary-btn: #c65b68;
-    --primary-btn-hover: #b54c59;
-    --bg: #f6f7f9;
-    --card-bg: #ffffff;
-    --panel-bg: #fbfafa;
-    --text-main: #1f2937;
-    --text-sub: #6b7280;
-    --border: #e5e7eb;
+    --brand-red: #b51d32;
+    --brand-red-dark: #8f1728;
+    --brand-soft: #fff1f3;
+    --ink: #172033;
+    --ink-2: #344054;
+    --muted: #667085;
+    --line: #e4e7ec;
+    --line-strong: #d0d5dd;
+    --page: #f4f6f8;
+    --surface: #ffffff;
     --error: #b42318;
+    --shadow: 0 18px 48px rgba(16, 24, 40, 0.12);
 }
 
 * {
@@ -19,63 +19,80 @@
 
 body {
     margin: 0;
-    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text-main);
+    font-family: "Segoe UI Variable", "Segoe UI", "Inter", "Helvetica Neue", Arial, sans-serif;
+    font-size: 18px;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    background: var(--page);
+    color: var(--ink);
+}
+
+button,
+input {
+    font: inherit;
 }
 
 .login-page {
     min-height: 100vh;
     display: grid;
-    grid-template-columns: minmax(320px, 1fr) minmax(420px, 520px);
+    grid-template-columns: minmax(560px, 1fr) minmax(620px, 720px);
 }
 
 .brand-panel {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
     background-image: url("/auth/img/background.jpg");
     background-size: cover;
     background-position: center;
-    background-repeat: no-repeat;
-    border-right: 1px solid var(--border);
-    position: relative;
-    overflow: hidden;
+    border-right: 1px solid var(--line);
 }
 
 .brand-strip {
+    position: absolute;
+    inset: 0 0 auto;
     height: 8px;
-    background: linear-gradient(90deg, var(--brand-red), var(--brand-soft));
+    z-index: 2;
+    background: linear-gradient(90deg, var(--brand-red), #e15c70);
 }
 
 .brand-overlay {
     position: absolute;
-    inset: 8px 0 0;
-    background: linear-gradient(180deg, rgba(20, 31, 53, 0.2) 0%, rgba(20, 31, 53, 0.45) 100%);
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(12, 18, 32, 0.68) 0%, rgba(12, 18, 32, 0.2) 55%, rgba(12, 18, 32, 0.1) 100%),
+        linear-gradient(180deg, rgba(181, 29, 50, 0.1), rgba(12, 18, 32, 0.42));
 }
 
 .brand-content {
     position: relative;
-    z-index: 1;
+    z-index: 3;
+    min-height: 100vh;
+    padding: 50px;
     display: flex;
     align-items: flex-start;
-    justify-content: flex-start;
-    min-height: calc(100vh - 8px);
-    padding: 40px;
 }
 
 .brand-header {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 14px;
+    gap: 20px;
+    padding: 16px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
 }
 
 .logo-slot {
     width: 140px;
-    min-height: 70px;
-    border-radius: 12px;
+    min-height: 108px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.08);
-    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.96);
+    padding: 10px;
 }
 
 .logo-slot img {
@@ -86,78 +103,89 @@ body {
 }
 
 .brand-title {
+    max-width: 420px;
     margin: 0;
-    color: #ffffff;
-    font-size: 28px;
-    font-weight: 700;
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+    color: #fff;
+    font-size: 40px;
+    line-height: 1.2;
+    font-weight: 850;
+    letter-spacing: 0;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
 }
 
 .form-panel {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 36px;
-    background: var(--panel-bg);
+    padding: 56px;
+    background:
+        radial-gradient(circle at 100% 0, rgba(181, 29, 50, 0.1), transparent 32%),
+        var(--page);
 }
 
 .login-card {
     width: 100%;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(31, 41, 55, 0.08);
-    padding: 28px;
+    max-width: 620px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 42px;
 }
 
 .card-header {
-    margin-bottom: 18px;
+    margin-bottom: 28px;
 }
 
 .card-header h2 {
     margin: 0;
-    font-size: 24px;
+    font-size: 38px;
+    line-height: 1.2;
 }
 
 .card-subtitle {
-    margin: 6px 0 0;
-    color: var(--text-sub);
-    font-size: 14px;
+    margin: 7px 0 0;
+    color: var(--muted);
+    font-size: 18px;
 }
 
 .login-form {
     display: grid;
-    gap: 16px;
+    gap: 24px;
 }
 
 .field-group {
     display: grid;
-    gap: 8px;
+    gap: 11px;
 }
 
 label {
-    font-weight: 600;
-    font-size: 14px;
+    color: var(--ink-2);
+    font-weight: 800;
+    font-size: 18px;
 }
 
 .role-options {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
 }
 
 .role-option {
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 10px 10px;
+    min-height: 58px;
+    padding: 14px 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    cursor: pointer;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
     background: #fff;
-    color: var(--text-main);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    color: var(--ink);
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 18px;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
 }
 
 .role-option input {
@@ -166,61 +194,66 @@ label {
 }
 
 .role-option:has(input:checked) {
-    border-color: var(--brand-soft);
-    background: var(--brand-surface);
-    box-shadow: 0 0 0 3px rgba(201, 74, 90, 0.12);
+    border-color: var(--brand-red);
+    background: var(--brand-soft);
+    box-shadow: 0 0 0 4px rgba(181, 29, 50, 0.1);
 }
 
 .input-control {
     width: 100%;
-    padding: 11px 12px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    min-height: 58px;
+    padding: 15px 17px;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
     outline: none;
-    font-size: 15px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-size: 19px;
     background: #fff;
+    color: var(--ink);
+    transition: border-color 0.16s ease, box-shadow 0.16s ease;
 }
 
 .input-control:focus {
-    border-color: var(--brand-soft);
-    box-shadow: 0 0 0 3px rgba(201, 74, 90, 0.15);
+    border-color: var(--brand-red);
+    box-shadow: 0 0 0 4px rgba(181, 29, 50, 0.11);
 }
 
 .field-hint {
-    color: var(--text-sub);
-    font-size: 12px;
-    line-height: 1.4;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.45;
 }
 
 .password-wrapper {
     display: grid;
     grid-template-columns: 1fr auto;
-    gap: 8px;
+    gap: 10px;
 }
 
 .toggle-password {
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    min-width: 70px;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
     background: #fff;
-    color: #4b5563;
+    color: var(--ink-2);
     padding: 0 14px;
     cursor: pointer;
+    font-weight: 800;
 }
 
 .toggle-password:hover {
-    border-color: #c9ced8;
+    background: #f8fafc;
 }
 
 .alert {
-    border-radius: 10px;
-    padding: 10px 12px;
-    font-size: 14px;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 18px;
+    font-weight: 750;
 }
 
 .alert-error {
-    border: 1px solid #f2c5c2;
-    background: #fef3f2;
+    border: 1px solid #f8c9c4;
+    background: #fff4f3;
     color: var(--error);
 }
 
@@ -231,21 +264,22 @@ label {
 }
 
 .btn {
+    min-height: 58px;
+    padding: 15px 18px;
     border: 1px solid transparent;
-    border-radius: 10px;
-    padding: 11px 14px;
-    font-size: 14px;
-    font-weight: 600;
+    border-radius: 8px;
+    font-size: 19px;
+    font-weight: 900;
     cursor: pointer;
 }
 
 .btn-primary {
-    background: var(--primary-btn);
+    background: var(--brand-red);
     color: #fff;
 }
 
 .btn-primary:hover {
-    background: var(--primary-btn-hover);
+    background: var(--brand-red-dark);
 }
 
 @media (max-width: 1024px) {
@@ -254,30 +288,41 @@ label {
     }
 
     .brand-panel {
+        min-height: 280px;
         border-right: none;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid var(--line);
     }
 
     .brand-content {
-        min-height: 220px;
-        padding: 24px;
+        min-height: 280px;
+        padding: 28px;
     }
 
     .brand-title {
-        font-size: 22px;
+        font-size: 32px;
     }
 
     .form-panel {
-        padding: 24px;
+        padding: 28px;
     }
 }
 
 @media (max-width: 560px) {
+    .brand-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .logo-slot {
+        width: 98px;
+        min-height: 76px;
+    }
+
     .role-options {
         grid-template-columns: 1fr;
     }
 
     .login-card {
-        padding: 22px;
+        padding: 28px;
     }
 }
