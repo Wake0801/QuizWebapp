@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Thi thử | TTN</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark">TTN</div>
+            <div><h1>Thi trắc nghiệm</h1><p th:text="${roleLabel}">Giảng viên</p></div>
+        </div>
+        <nav class="nav-menu">
+            <a class="nav-link" th:href="@{/gv/home}">Tổng quan</a>
+            <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/mon-hoc}">Quản lý môn học</a>
+            <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/lop-sinh-vien}">Quản lý lớp - sinh viên</a>
+            <a class="nav-link" th:if="${isPgv}" th:href="@{/gv/giao-vien}">Quản lý giáo viên</a>
+            <a class="nav-link" th:href="@{/gv/bo-de}">Nhập câu hỏi thi</a>
+            <a class="nav-link active" th:href="@{/gv/thi-thu}">Thi thử</a>
+            <a class="nav-link" th:href="@{/gv/mat-khau}">Đổi mật khẩu</a>
+            <a class="nav-link" th:href="@{/gv/dang-ky-thi}">Đăng ký thi</a>
+            <a class="nav-link" th:href="@{/gv/ket-qua}">Xem kết quả bài thi</a>
+            <a class="nav-link" th:href="@{/gv/bang-diem}">Bảng điểm môn học</a>
+            <a class="nav-link highlight" th:if="${isPgv}" th:href="@{/gv/tai-khoan}">Tạo tài khoản</a>
+        </nav>
+        <a class="logout-link" th:href="@{/logout}">Đăng xuất</a>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">Không ghi điểm</p>
+                <h2>Thi thử</h2>
+            </div>
+            <div class="user-badge">
+                <strong th:text="${hoten}">Giảng viên</strong>
+                <span th:text="${loginname}">login</span>
+            </div>
+        </header>
+
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+
+        <section class="panel filter-panel">
+            <form class="search-form wide-search" method="post" th:action="@{/gv/thi-thu/bat-dau}">
+                <select class="input-control" name="mamh" required>
+                    <option value="">Chọn môn</option>
+                    <option th:each="subject : ${subjects}"
+                            th:value="${subject.MAMH}"
+                            th:selected="${subject.MAMH == mamh}"
+                            th:text="${subject.MAMH + ' - ' + subject.TENMH}">Môn</option>
+                </select>
+                <select class="input-control" name="trinhdo" required>
+                    <option value="A" th:selected="${trinhdo == 'A'}">Trình độ A</option>
+                    <option value="B" th:selected="${trinhdo == 'B'}">Trình độ B</option>
+                    <option value="C" th:selected="${trinhdo == 'C'}">Trình độ C</option>
+                </select>
+                <input class="input-control" type="number" name="socau" min="1" max="100" th:value="${socau}" required
+                       aria-label="Số câu">
+                <input class="input-control" type="number" name="thoigian" min="1" max="180" th:value="${thoigian}" required
+                       aria-label="Thời gian phút">
+                <button class="btn btn-primary" type="submit">Bắt đầu thi</button>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>
