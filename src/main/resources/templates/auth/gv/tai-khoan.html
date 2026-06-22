@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tạo tài khoản | TTN</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark">TTN</div>
+            <div><h1>Thi trắc nghiệm</h1><p th:text="${roleLabel}">PGV</p></div>
+        </div>
+        <nav class="nav-menu">
+            <a class="nav-link" th:href="@{/gv/home}">Tổng quan</a>
+            <a class="nav-link" th:href="@{/gv/mon-hoc}">Quản lý môn học</a>
+            <a class="nav-link" th:href="@{/gv/lop-sinh-vien}">Quản lý lớp - sinh viên</a>
+            <a class="nav-link" th:href="@{/gv/giao-vien}">Quản lý giáo viên</a>
+            <a class="nav-link" th:href="@{/gv/bo-de}">Nhập câu hỏi thi</a>
+            <a class="nav-link" th:href="@{/gv/thi-thu}">Thi thử</a>
+            <a class="nav-link" th:href="@{/gv/mat-khau}">Đổi mật khẩu</a>
+            <a class="nav-link" th:href="@{/gv/dang-ky-thi}">Đăng ký thi</a>
+            <a class="nav-link" th:href="@{/gv/ket-qua}">Xem kết quả bài thi</a>
+            <a class="nav-link" th:href="@{/gv/bang-diem}">Bảng điểm môn học</a>
+            <a class="nav-link highlight active" th:href="@{/gv/tai-khoan}">Tạo tài khoản</a>
+        </nav>
+        <a class="logout-link" th:href="@{/logout}">Đăng xuất</a>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">4.11</p>
+                <h2>Tạo tài khoản</h2>
+            </div>
+            <div class="user-badge">
+                <strong th:text="${hoten}">PGV</strong>
+                <span th:text="${loginname}">login</span>
+            </div>
+        </header>
+
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+        <section class="split-workbench registration-workbench">
+            <form class="panel form-panel" th:action="@{/gv/tai-khoan}" method="post">
+                <div class="panel-head">
+                    <h3>Thông tin tài khoản</h3>
+                    <span class="status-pill">PGV</span>
+                </div>
+
+                <label>Login name</label>
+                <input class="input-control" name="loginname" maxlength="50" required>
+
+                <label>Mật khẩu</label>
+                <input class="input-control" type="password" name="matkhau" minlength="6" maxlength="255" required>
+
+                <label>Vai trò</label>
+                <select class="input-control" name="roleName" required>
+                    <option value="GIANGVIEN">Giảng viên</option>
+                    <option value="PGV">PGV</option>
+                </select>
+
+                <label>Giáo viên</label>
+                <select class="input-control" name="magv" required>
+                    <option value="">-- Chọn giáo viên --</option>
+                    <option th:each="teacher : ${teachers}"
+                            th:value="${teacher.MAGV}"
+                            th:text="${teacher.MAGV + ' - ' + teacher.HOTEN}">GV</option>
+                </select>
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" type="submit">Tạo tài khoản</button>
+                </div>
+            </form>
+
+            <section class="panel table-panel">
+                <div class="panel-head">
+                    <h3>Danh sách tài khoản</h3>
+                    <span class="status-pill" th:text="${#lists.size(accounts)} + ' tài khoản'">0 tài khoản</span>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Login</th>
+                            <th>Vai trò</th>
+                            <th>Mã GV</th>
+                            <th>Họ tên</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="account : ${accounts}">
+                            <td th:text="${account.LOGINNAME}">login</td>
+                            <td><span class="status-pill" th:text="${account.ROLE_LABEL}">Vai trò</span></td>
+                            <td th:text="${account.MAGV}">GV</td>
+                            <td th:text="${account.HOTEN}">Họ tên</td>
+                            <td th:text="${account.STATUS_LABEL}">Đang hoạt động</td>
+                            <td th:text="${account.CREATED_AT}">Ngày tạo</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(accounts)}">
+                            <td colspan="6" class="empty-cell">Chưa có tài khoản.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+    </main>
+</div>
+</body>
+</html>
