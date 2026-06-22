@@ -39,6 +39,9 @@ public class TeacherController {
         if (!support.isTeacher(session)) {
             return "redirect:/login";
         }
+        if (!support.isPgv(session)) {
+            return "redirect:/gv/home";
+        }
 
         support.addTeacherShell(model, session, "giao-vien", "Quản lý giáo viên");
         magv = support.safeTrim(magv).toUpperCase();
@@ -82,8 +85,17 @@ public class TeacherController {
             @RequestParam("ten") String ten,
             @RequestParam(value = "sodtll", required = false) String sodtll,
             @RequestParam(value = "diachi", required = false) String diachi,
+            HttpSession session,
             RedirectAttributes redirect
     ) {
+        if (!support.isTeacher(session)) {
+            return "redirect:/login";
+        }
+        if (!support.isPgv(session)) {
+            redirect.addFlashAttribute("error", "Chỉ PGV được quản lý giáo viên.");
+            return "redirect:/gv/home";
+        }
+
         String normalizedMagv = support.safeTrim(magv).toUpperCase();
         try {
             if ("edit".equals(mode)) {
@@ -107,7 +119,15 @@ public class TeacherController {
     }
 
     @PostMapping("/giao-vien/delete")
-    public String deleteGiaoVien(@RequestParam("magv") String magv, RedirectAttributes redirect) {
+    public String deleteGiaoVien(@RequestParam("magv") String magv, HttpSession session, RedirectAttributes redirect) {
+        if (!support.isTeacher(session)) {
+            return "redirect:/login";
+        }
+        if (!support.isPgv(session)) {
+            redirect.addFlashAttribute("error", "Chỉ PGV được quản lý giáo viên.");
+            return "redirect:/gv/home";
+        }
+
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_4_GiaoVien_Xoa ?", support.safeTrim(magv).toUpperCase());
             redirect.addFlashAttribute("success", "Đã xóa giáo viên.");
@@ -119,7 +139,15 @@ public class TeacherController {
     }
 
     @PostMapping("/giao-vien/restore")
-    public String restoreGiaoVien(@RequestParam("magv") String magv, RedirectAttributes redirect) {
+    public String restoreGiaoVien(@RequestParam("magv") String magv, HttpSession session, RedirectAttributes redirect) {
+        if (!support.isTeacher(session)) {
+            return "redirect:/login";
+        }
+        if (!support.isPgv(session)) {
+            redirect.addFlashAttribute("error", "Chỉ PGV được quản lý giáo viên.");
+            return "redirect:/gv/home";
+        }
+
         String normalizedMagv = support.safeTrim(magv).toUpperCase();
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_4_GiaoVien_PhucHoi ?", normalizedMagv);
