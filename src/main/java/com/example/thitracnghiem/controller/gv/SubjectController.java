@@ -39,6 +39,9 @@ public class SubjectController {
         if (!support.isTeacher(session)) {
             return "redirect:/login";
         }
+        if (!support.isPgv(session)) {
+            return "redirect:/gv/home";
+        }
 
         support.addTeacherShell(model, session, "mon-hoc", "Quản lý môn học");
         mamh = support.safeTrim(mamh).toUpperCase();
@@ -81,8 +84,17 @@ public class SubjectController {
             @RequestParam(value = "mode", required = false) String mode,
             @RequestParam("mamh") String mamh,
             @RequestParam("tenmh") String tenmh,
+            HttpSession session,
             RedirectAttributes redirect
     ) {
+        if (!support.isTeacher(session)) {
+            return "redirect:/login";
+        }
+        if (!support.isPgv(session)) {
+            redirect.addFlashAttribute("error", "Chỉ PGV được quản lý môn học.");
+            return "redirect:/gv/home";
+        }
+
         try {
             if ("edit".equals(mode)) {
                 jdbcTemplate.update("EXEC dbo.sp_4_2_MonHoc_Sua ?, ?", support.safeTrim(mamh).toUpperCase(), support.safeTrim(tenmh));
@@ -100,7 +112,15 @@ public class SubjectController {
     }
 
     @PostMapping("/mon-hoc/restore")
-    public String restoreMonHoc(@RequestParam("mamh") String mamh, RedirectAttributes redirect) {
+    public String restoreMonHoc(@RequestParam("mamh") String mamh, HttpSession session, RedirectAttributes redirect) {
+        if (!support.isTeacher(session)) {
+            return "redirect:/login";
+        }
+        if (!support.isPgv(session)) {
+            redirect.addFlashAttribute("error", "Chỉ PGV được quản lý môn học.");
+            return "redirect:/gv/home";
+        }
+
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_2_MonHoc_PhucHoi ?", support.safeTrim(mamh).toUpperCase());
             redirect.addFlashAttribute("success", "Đã phục hồi môn học.");
@@ -112,7 +132,15 @@ public class SubjectController {
     }
 
     @PostMapping("/mon-hoc/delete")
-    public String deleteMonHoc(@RequestParam("mamh") String mamh, RedirectAttributes redirect) {
+    public String deleteMonHoc(@RequestParam("mamh") String mamh, HttpSession session, RedirectAttributes redirect) {
+        if (!support.isTeacher(session)) {
+            return "redirect:/login";
+        }
+        if (!support.isPgv(session)) {
+            redirect.addFlashAttribute("error", "Chỉ PGV được quản lý môn học.");
+            return "redirect:/gv/home";
+        }
+
         try {
             jdbcTemplate.update("EXEC dbo.sp_4_2_MonHoc_Xoa ?", support.safeTrim(mamh).toUpperCase());
             redirect.addFlashAttribute("success", "Đã xóa môn học.");
