@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Vào thi | TTN</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark">TTN</div>
+            <div><h1>Thi trắc nghiệm</h1><p>Sinh viên</p></div>
+        </div>
+        <nav class="nav-menu">
+            <a class="nav-link" th:href="@{/sv/home}">Tổng quan</a>
+            <a class="nav-link active" th:href="@{/sv/thi}">Lịch thi / Vào thi</a>
+            <a class="nav-link" th:href="@{/sv/ket-qua}">Kết quả / điểm</a>
+        </nav>
+        <a class="logout-link" th:href="@{/logout}">Đăng xuất</a>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">Phòng thi</p>
+                <h2>Lịch thi của sinh viên</h2>
+            </div>
+            <div class="user-badge">
+                <strong th:text="${masv}">SV</strong>
+                <span th:text="${tenlop}">Lớp</span>
+            </div>
+        </header>
+
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+        <section class="panel table-panel content-panel">
+            <div class="panel-head">
+                <h3>Lịch thi có thể làm</h3>
+                <span class="status-pill" th:text="${#lists.size(availableExams)} + ' lịch'">0 lịch</span>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Lớp</th>
+                        <th>Môn</th>
+                        <th>Lần</th>
+                        <th>Trình độ</th>
+                        <th>Ngày thi</th>
+                        <th>Số câu</th>
+                        <th>Thời gian</th>
+                        <th class="actions-col">Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="exam : ${availableExams}">
+                        <td th:text="${#strings.trim(exam.maLop)}">Lớp</td>
+                        <td th:text="${#strings.trim(exam.maMh)}">Môn</td>
+                        <td th:text="${exam.lan}">1</td>
+                        <td th:text="${exam.trinhDo}">A</td>
+                        <td th:text="${#temporals.format(exam.ngayThi, 'dd/MM/yyyy HH:mm')}">Ngày</td>
+                        <td th:text="${exam.soCauThi}">10</td>
+                        <td th:text="${exam.thoiGian} + ' phút'">15 phút</td>
+                        <td>
+                            <form method="post" th:action="@{/sv/thi/bat-dau}">
+                                <input type="hidden" name="maMh" th:value="${#strings.trim(exam.maMh)}">
+                                <input type="hidden" name="lan" th:value="${exam.lan}">
+                                <button class="btn btn-small btn-primary" type="submit">Vào thi</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(availableExams)}">
+                        <td colspan="8" class="empty-cell">Chưa có lịch thi mới hoặc sinh viên đã có điểm cho các lịch hiện tại.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel manual-start-panel">
+            <div class="panel-head">
+                <h3>Chọn nhanh môn thi</h3>
+                <span class="muted">Dùng khi giáo viên đã thông báo mã môn và lần thi.</span>
+            </div>
+            <form class="search-form wide-search" method="post" th:action="@{/sv/thi/bat-dau}">
+                <select class="input-control" name="maMh" required>
+                    <option value="">Chọn môn</option>
+                    <option th:each="subject : ${subjects}"
+                            th:value="${#strings.trim(subject.maMh)}"
+                            th:text="|${#strings.trim(subject.maMh)} - ${subject.tenMh}|"></option>
+                </select>
+                <select class="input-control" name="lan" required>
+                    <option value="1">Lần 1</option>
+                    <option value="2">Lần 2</option>
+                </select>
+                <button class="btn btn-primary" type="submit">Bắt đầu thi</button>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>
