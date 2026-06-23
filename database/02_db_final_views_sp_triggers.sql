@@ -18,7 +18,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER FUNCTION [dbo].[fn_4_1_LaPGV]
+IF OBJECT_ID(N'[dbo].[fn_4_1_LaPGV]', N'FN') IS NOT NULL
+    DROP FUNCTION [dbo].[fn_4_1_LaPGV];
+GO
+
+CREATE FUNCTION [dbo].[fn_4_1_LaPGV]
 (
     @LOGINNAME NVARCHAR(50)
 )
@@ -49,7 +53,11 @@ GO
    3. FUNCTION
    ========================================================= */
 
-CREATE OR ALTER FUNCTION [dbo].[fn_4_1_MatKhauDung]
+IF OBJECT_ID(N'[dbo].[fn_4_1_MatKhauDung]', N'FN') IS NOT NULL
+    DROP FUNCTION [dbo].[fn_4_1_MatKhauDung];
+GO
+
+CREATE FUNCTION [dbo].[fn_4_1_MatKhauDung]
 (
     @LOGINNAME NVARCHAR(50),
     @MATKHAU NVARCHAR(255)
@@ -77,7 +85,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER FUNCTION [dbo].[fn_4_2_MonHocCoPhatSinh]
+IF OBJECT_ID(N'[dbo].[fn_4_2_MonHocCoPhatSinh]', N'FN') IS NOT NULL
+    DROP FUNCTION [dbo].[fn_4_2_MonHocCoPhatSinh];
+GO
+
+CREATE FUNCTION [dbo].[fn_4_2_MonHocCoPhatSinh]
 (
     @MAMH NCHAR(5)
 )
@@ -100,7 +112,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER FUNCTION [dbo].[fn_4_3_DemSinhVienTheoLop]
+IF OBJECT_ID(N'[dbo].[fn_4_3_DemSinhVienTheoLop]', N'FN') IS NOT NULL
+    DROP FUNCTION [dbo].[fn_4_3_DemSinhVienTheoLop];
+GO
+
+CREATE FUNCTION [dbo].[fn_4_3_DemSinhVienTheoLop]
 (
     @MALOP NCHAR(15)
 )
@@ -122,7 +138,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER FUNCTION [dbo].[fn_4_4_DemCauHoiCuaGV]
+IF OBJECT_ID(N'[dbo].[fn_4_4_DemCauHoiCuaGV]', N'FN') IS NOT NULL
+    DROP FUNCTION [dbo].[fn_4_4_DemCauHoiCuaGV];
+GO
+
+CREATE FUNCTION [dbo].[fn_4_4_DemCauHoiCuaGV]
 (
     @MAGV NCHAR(8)
 )
@@ -144,7 +164,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER FUNCTION [dbo].[fn_4_5_CoQuyenSuaCauHoi]
+IF OBJECT_ID(N'[dbo].[fn_4_5_CoQuyenSuaCauHoi]', N'FN') IS NOT NULL
+    DROP FUNCTION [dbo].[fn_4_5_CoQuyenSuaCauHoi];
+GO
+
+CREATE FUNCTION [dbo].[fn_4_5_CoQuyenSuaCauHoi]
 (
     @LOGINNAME NVARCHAR(50),
     @CAUHOI INT
@@ -185,7 +209,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER FUNCTION [dbo].[fn_4_5_DemCauHoiTheoMonTrinhDo]
+IF OBJECT_ID(N'[dbo].[fn_4_5_DemCauHoiTheoMonTrinhDo]', N'FN') IS NOT NULL
+    DROP FUNCTION [dbo].[fn_4_5_DemCauHoiTheoMonTrinhDo];
+GO
+
+CREATE FUNCTION [dbo].[fn_4_5_DemCauHoiTheoMonTrinhDo]
 (
     @MAMH NCHAR(5),
     @TRINHDO CHAR(1)
@@ -209,7 +237,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER FUNCTION [dbo].[fn_DuSoCauThi] (
+IF OBJECT_ID(N'[dbo].[fn_DuSoCauThi]', N'FN') IS NOT NULL
+    DROP FUNCTION [dbo].[fn_DuSoCauThi];
+GO
+
+CREATE FUNCTION [dbo].[fn_DuSoCauThi] (
     @MAMH NCHAR(5),
     @TRINHDO NCHAR(1),
     @SOCAUTHI SMALLINT
@@ -262,7 +294,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER FUNCTION [dbo].[fn_KiemTraDieuKienThi] (
+IF OBJECT_ID(N'[dbo].[fn_KiemTraDieuKienThi]', N'FN') IS NOT NULL
+    DROP FUNCTION [dbo].[fn_KiemTraDieuKienThi];
+GO
+
+CREATE FUNCTION [dbo].[fn_KiemTraDieuKienThi] (
     @MASV NCHAR(10),
     @MAMH NCHAR(5),
     @LAN SMALLINT
@@ -312,7 +348,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER FUNCTION [dbo].[fn_LayDiemCaoNhat] (
+IF OBJECT_ID(N'[dbo].[fn_LayDiemCaoNhat]', N'FN') IS NOT NULL
+    DROP FUNCTION [dbo].[fn_LayDiemCaoNhat];
+GO
+
+CREATE FUNCTION [dbo].[fn_LayDiemCaoNhat] (
     @MASV NCHAR(10),
     @MAMH NCHAR(5)
 )
@@ -335,7 +375,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER FUNCTION [dbo].[fn_TinhDiemThi] (
+IF OBJECT_ID(N'[dbo].[fn_TinhDiemThi]', N'FN') IS NOT NULL
+    DROP FUNCTION [dbo].[fn_TinhDiemThi];
+GO
+
+CREATE FUNCTION [dbo].[fn_TinhDiemThi] (
     @SoCauDung INT,
     @TongCau INT
 )
@@ -363,7 +407,11 @@ GO
    ========================================================= */
 
 /* 4.1 - Dang nhap GV / PGV */
-CREATE OR ALTER VIEW [dbo].[vw_4_1_DangNhapGiaoVien]
+IF OBJECT_ID(N'[dbo].[vw_4_1_DangNhapGiaoVien]', N'V') IS NOT NULL
+    DROP VIEW [dbo].[vw_4_1_DangNhapGiaoVien];
+GO
+
+CREATE VIEW [dbo].[vw_4_1_DangNhapGiaoVien]
 AS
 SELECT
     TK.LOGINNAME,
@@ -383,7 +431,11 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 /* 4.1 - Dang nhap sinh vien: lay tu bang SinhVien, KHONG lay TaiKhoan */
-CREATE OR ALTER VIEW [dbo].[vw_4_1_DangNhapSinhVien]
+IF OBJECT_ID(N'[dbo].[vw_4_1_DangNhapSinhVien]', N'V') IS NOT NULL
+    DROP VIEW [dbo].[vw_4_1_DangNhapSinhVien];
+GO
+
+CREATE VIEW [dbo].[vw_4_1_DangNhapSinhVien]
 AS
 SELECT
     RTRIM(SV.MASV) AS MASV,
@@ -401,7 +453,11 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 /* 4.2 */
-CREATE OR ALTER VIEW [dbo].[vw_4_2_MonHoc]
+IF OBJECT_ID(N'[dbo].[vw_4_2_MonHoc]', N'V') IS NOT NULL
+    DROP VIEW [dbo].[vw_4_2_MonHoc];
+GO
+
+CREATE VIEW [dbo].[vw_4_2_MonHoc]
 AS
 SELECT
     RTRIM(MAMH) AS MAMH,
@@ -415,7 +471,11 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 /* 4.3 - Lop */
-CREATE OR ALTER VIEW [dbo].[vw_4_3_Lop]
+IF OBJECT_ID(N'[dbo].[vw_4_3_Lop]', N'V') IS NOT NULL
+    DROP VIEW [dbo].[vw_4_3_Lop];
+GO
+
+CREATE VIEW [dbo].[vw_4_3_Lop]
 AS
 SELECT
     RTRIM(L.MALOP) AS MALOP,
@@ -431,7 +491,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER VIEW [dbo].[v_4_7_SinhVien_ThongTin]
+IF OBJECT_ID(N'[dbo].[v_4_7_SinhVien_ThongTin]', N'V') IS NOT NULL
+    DROP VIEW [dbo].[v_4_7_SinhVien_ThongTin];
+GO
+
+CREATE VIEW [dbo].[v_4_7_SinhVien_ThongTin]
 AS
 SELECT
     SV.MASV,
@@ -450,7 +514,11 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 /* 4.3 - Sinh vien */
-CREATE OR ALTER VIEW [dbo].[vw_4_3_SinhVien]
+IF OBJECT_ID(N'[dbo].[vw_4_3_SinhVien]', N'V') IS NOT NULL
+    DROP VIEW [dbo].[vw_4_3_SinhVien];
+GO
+
+CREATE VIEW [dbo].[vw_4_3_SinhVien]
 AS
 SELECT
     RTRIM(SV.MASV) AS MASV,
@@ -470,7 +538,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER VIEW [dbo].[v_4_6_LichThi]
+IF OBJECT_ID(N'[dbo].[v_4_6_LichThi]', N'V') IS NOT NULL
+    DROP VIEW [dbo].[v_4_6_LichThi];
+GO
+
+CREATE VIEW [dbo].[v_4_6_LichThi]
 AS
 SELECT
     GDK.MAGV,
@@ -517,7 +589,11 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 /* 4.4 */
-CREATE OR ALTER VIEW [dbo].[vw_4_4_GiaoVien]
+IF OBJECT_ID(N'[dbo].[vw_4_4_GiaoVien]', N'V') IS NOT NULL
+    DROP VIEW [dbo].[vw_4_4_GiaoVien];
+GO
+
+CREATE VIEW [dbo].[vw_4_4_GiaoVien]
 AS
 SELECT
     RTRIM(GV.MAGV) AS MAGV,
@@ -537,7 +613,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER VIEW [dbo].[v_4_8_KetQuaThi]
+IF OBJECT_ID(N'[dbo].[v_4_8_KetQuaThi]', N'V') IS NOT NULL
+    DROP VIEW [dbo].[v_4_8_KetQuaThi];
+GO
+
+CREATE VIEW [dbo].[v_4_8_KetQuaThi]
 AS
 SELECT
     BT.MABT,
@@ -574,7 +654,11 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 /* 4.5 */
-CREATE OR ALTER VIEW [dbo].[vw_4_5_BoDe]
+IF OBJECT_ID(N'[dbo].[vw_4_5_BoDe]', N'V') IS NOT NULL
+    DROP VIEW [dbo].[vw_4_5_BoDe];
+GO
+
+CREATE VIEW [dbo].[vw_4_5_BoDe]
 AS
 SELECT
     BD.CAUHOI,
@@ -599,7 +683,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER VIEW [dbo].[v_4_9_BangDiem_Thi]
+IF OBJECT_ID(N'[dbo].[v_4_9_BangDiem_Thi]', N'V') IS NOT NULL
+    DROP VIEW [dbo].[v_4_9_BangDiem_Thi];
+GO
+
+CREATE VIEW [dbo].[v_4_9_BangDiem_Thi]
 AS
 SELECT
     BD.MASV,
@@ -638,7 +726,11 @@ GO
    ========================================================= */
 
 /* -------------------- 4.1 DANG NHAP -------------------- */
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_1_DangNhap]
+IF OBJECT_ID(N'[dbo].[sp_4_1_DangNhap]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_1_DangNhap];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_1_DangNhap]
     @VAITRO NVARCHAR(20),
     @LOGIN_OR_MASV NVARCHAR(50),
     @MATKHAU NVARCHAR(255)
@@ -730,7 +822,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_1_KiemTraQuyenTaoTaiKhoan]
+IF OBJECT_ID(N'[dbo].[sp_4_1_KiemTraQuyenTaoTaiKhoan]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_1_KiemTraQuyenTaoTaiKhoan];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_1_KiemTraQuyenTaoTaiKhoan]
     @LOGINNAME NVARCHAR(50)
 AS
 BEGIN
@@ -755,7 +851,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_11_TaoTaiKhoan]
+IF OBJECT_ID(N'[dbo].[sp_4_11_TaoTaiKhoan]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_11_TaoTaiKhoan];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_11_TaoTaiKhoan]
     @NGUOI_TAO NVARCHAR(50),
     @LOGINNAME NVARCHAR(50),
     @MATKHAU NVARCHAR(255),
@@ -852,7 +952,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_2_MonHoc_DanhSach]
+IF OBJECT_ID(N'[dbo].[sp_4_2_MonHoc_DanhSach]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_2_MonHoc_DanhSach];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_2_MonHoc_DanhSach]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -869,7 +973,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_2_MonHoc_DaXoa]
+IF OBJECT_ID(N'[dbo].[sp_4_2_MonHoc_DaXoa]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_2_MonHoc_DaXoa];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_2_MonHoc_DaXoa]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -886,7 +994,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_2_MonHoc_PhucHoi]
+IF OBJECT_ID(N'[dbo].[sp_4_2_MonHoc_PhucHoi]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_2_MonHoc_PhucHoi];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_2_MonHoc_PhucHoi]
     @MAMH NCHAR(5)
 AS
 BEGIN
@@ -909,7 +1021,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_2_MonHoc_Sua]
+IF OBJECT_ID(N'[dbo].[sp_4_2_MonHoc_Sua]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_2_MonHoc_Sua];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_2_MonHoc_Sua]
     @MAMH NCHAR(5),
     @TENMH NVARCHAR(40)
 AS
@@ -932,7 +1048,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_2_MonHoc_Them]
+IF OBJECT_ID(N'[dbo].[sp_4_2_MonHoc_Them]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_2_MonHoc_Them];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_2_MonHoc_Them]
     @MAMH NCHAR(5),
     @TENMH NVARCHAR(40)
 AS
@@ -953,7 +1073,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_2_MonHoc_Tim]
+IF OBJECT_ID(N'[dbo].[sp_4_2_MonHoc_Tim]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_2_MonHoc_Tim];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_2_MonHoc_Tim]
     @KEYWORD NVARCHAR(100)
 AS
 BEGIN
@@ -973,7 +1097,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_2_MonHoc_Xoa]
+IF OBJECT_ID(N'[dbo].[sp_4_2_MonHoc_Xoa]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_2_MonHoc_Xoa];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_2_MonHoc_Xoa]
     @MAMH NCHAR(5)
 AS
 BEGIN
@@ -996,7 +1124,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_3_Lop_DanhSach]
+IF OBJECT_ID(N'[dbo].[sp_4_3_Lop_DanhSach]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_3_Lop_DanhSach];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_3_Lop_DanhSach]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1016,7 +1148,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_3_Lop_DaXoa]
+IF OBJECT_ID(N'[dbo].[sp_4_3_Lop_DaXoa]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_3_Lop_DaXoa];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_3_Lop_DaXoa]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1033,7 +1169,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_3_Lop_PhucHoi]
+IF OBJECT_ID(N'[dbo].[sp_4_3_Lop_PhucHoi]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_3_Lop_PhucHoi];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_3_Lop_PhucHoi]
     @MALOP NCHAR(15)
 AS
 BEGIN
@@ -1056,7 +1196,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_3_Lop_Sua]
+IF OBJECT_ID(N'[dbo].[sp_4_3_Lop_Sua]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_3_Lop_Sua];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_3_Lop_Sua]
     @MALOP NCHAR(15),
     @TENLOP NVARCHAR(40)
 AS
@@ -1079,7 +1223,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_3_Lop_Them]
+IF OBJECT_ID(N'[dbo].[sp_4_3_Lop_Them]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_3_Lop_Them];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_3_Lop_Them]
     @MALOP NCHAR(15),
     @TENLOP NVARCHAR(40)
 AS
@@ -1100,7 +1248,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_3_Lop_Tim]
+IF OBJECT_ID(N'[dbo].[sp_4_3_Lop_Tim]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_3_Lop_Tim];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_3_Lop_Tim]
     @KEYWORD NVARCHAR(100)
 AS
 BEGIN
@@ -1123,7 +1275,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_3_Lop_Xoa]
+IF OBJECT_ID(N'[dbo].[sp_4_3_Lop_Xoa]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_3_Lop_Xoa];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_3_Lop_Xoa]
     @MALOP NCHAR(15)
 AS
 BEGIN
@@ -1149,7 +1305,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_3_SinhVien_DanhSachTheoLop]
+IF OBJECT_ID(N'[dbo].[sp_4_3_SinhVien_DanhSachTheoLop]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_3_SinhVien_DanhSachTheoLop];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_3_SinhVien_DanhSachTheoLop]
     @MALOP NCHAR(15)
 AS
 BEGIN
@@ -1169,7 +1329,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_3_SinhVien_DaXoa]
+IF OBJECT_ID(N'[dbo].[sp_4_3_SinhVien_DaXoa]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_3_SinhVien_DaXoa];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_3_SinhVien_DaXoa]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1187,7 +1351,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_3_SinhVien_DaXoaTheoLop]
+IF OBJECT_ID(N'[dbo].[sp_4_3_SinhVien_DaXoaTheoLop]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_3_SinhVien_DaXoaTheoLop];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_3_SinhVien_DaXoaTheoLop]
     @MALOP NCHAR(15)
 AS
 BEGIN
@@ -1207,7 +1375,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_3_SinhVien_PhucHoi]
+IF OBJECT_ID(N'[dbo].[sp_4_3_SinhVien_PhucHoi]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_3_SinhVien_PhucHoi];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_3_SinhVien_PhucHoi]
     @MASV NCHAR(8)
 AS
 BEGIN
@@ -1239,7 +1411,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_3_SinhVien_Sua]
+IF OBJECT_ID(N'[dbo].[sp_4_3_SinhVien_Sua]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_3_SinhVien_Sua];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_3_SinhVien_Sua]
     @MASV NCHAR(8),
     @HO NVARCHAR(40),
     @TEN NVARCHAR(10),
@@ -1273,7 +1449,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_3_SinhVien_Them]
+IF OBJECT_ID(N'[dbo].[sp_4_3_SinhVien_Them]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_3_SinhVien_Them];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_3_SinhVien_Them]
     @MASV NCHAR(8),
     @HO NVARCHAR(40),
     @TEN NVARCHAR(10),
@@ -1302,7 +1482,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_3_SinhVien_Tim]
+IF OBJECT_ID(N'[dbo].[sp_4_3_SinhVien_Tim]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_3_SinhVien_Tim];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_3_SinhVien_Tim]
     @KEYWORD NVARCHAR(100)
 AS
 BEGIN
@@ -1323,7 +1507,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_3_SinhVien_Xoa]
+IF OBJECT_ID(N'[dbo].[sp_4_3_SinhVien_Xoa]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_3_SinhVien_Xoa];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_3_SinhVien_Xoa]
     @MASV NCHAR(8)
 AS
 BEGIN
@@ -1346,7 +1534,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_4_GiaoVien_DanhSach]
+IF OBJECT_ID(N'[dbo].[sp_4_4_GiaoVien_DanhSach]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_4_GiaoVien_DanhSach];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_4_GiaoVien_DanhSach]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1368,7 +1560,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_4_GiaoVien_DaXoa]
+IF OBJECT_ID(N'[dbo].[sp_4_4_GiaoVien_DaXoa]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_4_GiaoVien_DaXoa];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_4_GiaoVien_DaXoa]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1386,7 +1582,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_4_GiaoVien_PhucHoi]
+IF OBJECT_ID(N'[dbo].[sp_4_4_GiaoVien_PhucHoi]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_4_GiaoVien_PhucHoi];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_4_GiaoVien_PhucHoi]
     @MAGV NCHAR(8)
 AS
 BEGIN
@@ -1409,7 +1609,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_4_GiaoVien_Sua]
+IF OBJECT_ID(N'[dbo].[sp_4_4_GiaoVien_Sua]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_4_GiaoVien_Sua];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_4_GiaoVien_Sua]
     @MAGV NCHAR(8),
     @HO NVARCHAR(40),
     @TEN NVARCHAR(10),
@@ -1437,7 +1641,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_4_GiaoVien_Them]
+IF OBJECT_ID(N'[dbo].[sp_4_4_GiaoVien_Them]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_4_GiaoVien_Them];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_4_GiaoVien_Them]
     @MAGV NCHAR(8),
     @HO NVARCHAR(40),
     @TEN NVARCHAR(10),
@@ -1461,7 +1669,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_4_GiaoVien_Tim]
+IF OBJECT_ID(N'[dbo].[sp_4_4_GiaoVien_Tim]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_4_GiaoVien_Tim];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_4_GiaoVien_Tim]
     @KEYWORD NVARCHAR(100)
 AS
 BEGIN
@@ -1491,7 +1703,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_4_GiaoVien_Xoa]
+IF OBJECT_ID(N'[dbo].[sp_4_4_GiaoVien_Xoa]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_4_GiaoVien_Xoa];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_4_GiaoVien_Xoa]
     @MAGV NCHAR(8)
 AS
 BEGIN
@@ -1518,7 +1734,11 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 /* -------------------- 4.5 BO DE -------------------- */
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_5_BoDe_DanhSach]
+IF OBJECT_ID(N'[dbo].[sp_4_5_BoDe_DanhSach]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_5_BoDe_DanhSach];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_5_BoDe_DanhSach]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1534,7 +1754,11 @@ GO
 /* =================
    6. Question bank procedures aligned with application login accounts
    ================= */
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_5_BoDe_DanhSachCuaNguoiDung]
+IF OBJECT_ID(N'[dbo].[sp_4_5_BoDe_DanhSachCuaNguoiDung]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_5_BoDe_DanhSachCuaNguoiDung];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_5_BoDe_DanhSachCuaNguoiDung]
     @LOGINNAME NVARCHAR(128)
 AS
 BEGIN
@@ -1568,7 +1792,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_5_BoDe_DaXoaCuaNguoiDung]
+IF OBJECT_ID(N'[dbo].[sp_4_5_BoDe_DaXoaCuaNguoiDung]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_5_BoDe_DaXoaCuaNguoiDung];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_5_BoDe_DaXoaCuaNguoiDung]
     @LOGINNAME NVARCHAR(128)
 AS
 BEGIN
@@ -1602,7 +1830,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_5_BoDe_PhucHoi]
+IF OBJECT_ID(N'[dbo].[sp_4_5_BoDe_PhucHoi]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_5_BoDe_PhucHoi];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_5_BoDe_PhucHoi]
     @LOGINNAME NVARCHAR(128),
     @CAUHOI INT
 AS
@@ -1650,7 +1882,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_5_BoDe_Sua]
+IF OBJECT_ID(N'[dbo].[sp_4_5_BoDe_Sua]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_5_BoDe_Sua];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_5_BoDe_Sua]
     @LOGINNAME NVARCHAR(128),
     @CAUHOI INT,
     @MAMH NCHAR(5),
@@ -1706,7 +1942,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_5_BoDe_Them]
+IF OBJECT_ID(N'[dbo].[sp_4_5_BoDe_Them]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_5_BoDe_Them];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_5_BoDe_Them]
     @LOGINNAME NVARCHAR(128),
     @MAMH NCHAR(5),
     @TRINHDO NCHAR(1),
@@ -1748,7 +1988,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_5_BoDe_Tim]
+IF OBJECT_ID(N'[dbo].[sp_4_5_BoDe_Tim]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_5_BoDe_Tim];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_5_BoDe_Tim]
     @KEYWORD NVARCHAR(100)
 AS
 BEGIN
@@ -1777,7 +2021,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_5_BoDe_Xoa]
+IF OBJECT_ID(N'[dbo].[sp_4_5_BoDe_Xoa]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_5_BoDe_Xoa];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_5_BoDe_Xoa]
     @LOGINNAME NVARCHAR(128),
     @CAUHOI INT
 AS
@@ -1828,7 +2076,11 @@ GO
     - Chay file nay tren database THI_TRAC_NGHIEM bang tai khoan co quyen ALTER PROCEDURE.
 */
 
-CREATE OR ALTER PROCEDURE [dbo].[sp_4_6_DoiMatKhauGiangVien]
+IF OBJECT_ID(N'[dbo].[sp_4_6_DoiMatKhauGiangVien]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_4_6_DoiMatKhauGiangVien];
+GO
+
+CREATE PROCEDURE [dbo].[sp_4_6_DoiMatKhauGiangVien]
     @LOGINNAME NVARCHAR(128),
     @CURRENT_PASSWORD NVARCHAR(128),
     @NEW_PASSWORD NVARCHAR(128)
@@ -1896,7 +2148,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_BangDiemMonHoc]
+IF OBJECT_ID(N'[dbo].[sp_BangDiemMonHoc]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_BangDiemMonHoc];
+GO
+
+CREATE PROCEDURE [dbo].[sp_BangDiemMonHoc]
     @MALOP NCHAR(15),
     @MAMH NCHAR(5),
     @LAN SMALLINT
@@ -1932,7 +2188,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_BatDauThi]
+IF OBJECT_ID(N'[dbo].[sp_BatDauThi]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_BatDauThi];
+GO
+
+CREATE PROCEDURE [dbo].[sp_BatDauThi]
     @MASV NCHAR(10),
     @MAMH NCHAR(5),
     @LAN SMALLINT
@@ -2074,7 +2334,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_ChamDiem]
+IF OBJECT_ID(N'[dbo].[sp_ChamDiem]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_ChamDiem];
+GO
+
+CREATE PROCEDURE [dbo].[sp_ChamDiem]
     @MABT BIGINT
 AS
 BEGIN
@@ -2108,7 +2372,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_DangKyThi]
+IF OBJECT_ID(N'[dbo].[sp_DangKyThi]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_DangKyThi];
+GO
+
+CREATE PROCEDURE [dbo].[sp_DangKyThi]
     @MAGV NCHAR(8),
     @MALOP NCHAR(15),
     @MAMH NCHAR(5),
@@ -2174,7 +2442,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_LuuTamCauTraLoi]
+IF OBJECT_ID(N'[dbo].[sp_LuuTamCauTraLoi]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_LuuTamCauTraLoi];
+GO
+
+CREATE PROCEDURE [dbo].[sp_LuuTamCauTraLoi]
     @MABT BIGINT,
     @CAUHOI INT,
     @DAP_AN_CHON NCHAR(1) = NULL
@@ -2224,7 +2496,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_NopBai]
+IF OBJECT_ID(N'[dbo].[sp_NopBai]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_NopBai];
+GO
+
+CREATE PROCEDURE [dbo].[sp_NopBai]
     @MABT BIGINT
 AS
 BEGIN
@@ -2323,7 +2599,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_SuaSinhVien]
+IF OBJECT_ID(N'[dbo].[sp_SuaSinhVien]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_SuaSinhVien];
+GO
+
+CREATE PROCEDURE [dbo].[sp_SuaSinhVien]
     @MASV NCHAR(10),
     @HO NVARCHAR(40),
     @TEN NVARCHAR(10),
@@ -2352,7 +2632,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_ThemSinhVien]
+IF OBJECT_ID(N'[dbo].[sp_ThemSinhVien]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_ThemSinhVien];
+GO
+
+CREATE PROCEDURE [dbo].[sp_ThemSinhVien]
     @MASV NCHAR(10),
     @HO NVARCHAR(40),
     @TEN NVARCHAR(10),
@@ -2376,7 +2660,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_Thi_PhatDeNgauNhien]
+IF OBJECT_ID(N'[dbo].[sp_Thi_PhatDeNgauNhien]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_Thi_PhatDeNgauNhien];
+GO
+
+CREATE PROCEDURE [dbo].[sp_Thi_PhatDeNgauNhien]
     @MASV NCHAR(10),
     @MAMH NCHAR(5),
     @LAN SMALLINT
@@ -2584,7 +2872,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_ThiThu_PhatDe]
+IF OBJECT_ID(N'[dbo].[sp_ThiThu_PhatDe]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_ThiThu_PhatDe];
+GO
+
+CREATE PROCEDURE [dbo].[sp_ThiThu_PhatDe]
     @MAMH NCHAR(5),
     @TRINHDO NCHAR(1),
     @SOCAU INT
@@ -2665,7 +2957,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_TraCuuKetQua]
+IF OBJECT_ID(N'[dbo].[sp_TraCuuKetQua]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_TraCuuKetQua];
+GO
+
+CREATE PROCEDURE [dbo].[sp_TraCuuKetQua]
     @MASV NCHAR(10),
     @MAMH NCHAR(5),
     @LAN SMALLINT
@@ -2715,35 +3011,59 @@ BEGIN
 END;
 GO
 
--- SP BACKUP: liệt kê lịch sử backup từ msdb.
+-- SP BACKUP: tạo backup device DEVICE_TENCSDL.
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_TTN_Backup_DanhSach]
-    @DatabaseName SYSNAME = N'THI_TRAC_NGHIEM'
+IF OBJECT_ID(N'[dbo].[sp_TTN_Backup_TaoDevice]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_TTN_Backup_TaoDevice];
+GO
+
+CREATE PROCEDURE [dbo].[sp_TTN_Backup_TaoDevice]
+    @DatabaseName SYSNAME = N'THI_TRAC_NGHIEM',
+    @BackupDirectory NVARCHAR(4000) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT TOP 100
-        BS.database_name AS DATABASE_NAME,
-        CASE BS.type
-            WHEN 'D' THEN N'FULL'
-            WHEN 'I' THEN N'DIFFERENTIAL'
-            WHEN 'L' THEN N'LOG'
-            ELSE BS.type
-        END AS BACKUP_TYPE,
-        BS.backup_start_date AS START_TIME,
-        BS.backup_finish_date AS FINISH_TIME,
-        CONVERT(DECIMAL(18,2), BS.backup_size / 1024.0 / 1024.0) AS SIZE_MB,
-        BMF.physical_device_name AS FILE_PATH,
-        BS.name AS BACKUP_NAME
-    FROM msdb.dbo.backupset AS BS
-    INNER JOIN msdb.dbo.backupmediafamily AS BMF
-        ON BMF.media_set_id = BS.media_set_id
-    WHERE BS.database_name = @DatabaseName
-    ORDER BY BS.backup_finish_date DESC;
+    IF DB_ID(@DatabaseName) IS NULL
+        THROW 56001, N'Co so du lieu can backup khong ton tai.', 1;
+
+    DECLARE
+        @DeviceName SYSNAME = N'DEVICE_' + REPLACE(UPPER(@DatabaseName), N' ', N'_'),
+        @DefaultBackupPath NVARCHAR(4000) = CONVERT(NVARCHAR(4000), SERVERPROPERTY('InstanceDefaultBackupPath')),
+        @BackupPath NVARCHAR(4000);
+
+    SET @BackupDirectory = NULLIF(LTRIM(RTRIM(@BackupDirectory)), N'');
+    SET @BackupDirectory = COALESCE(@BackupDirectory, NULLIF(@DefaultBackupPath, N''), N'C:\SQLBackup');
+
+    IF RIGHT(@BackupDirectory, 1) IN (N'\', N'/')
+        SET @BackupDirectory = LEFT(@BackupDirectory, LEN(@BackupDirectory) - 1);
+
+    BEGIN TRY
+        EXEC master.dbo.xp_create_subdir @BackupDirectory;
+    END TRY
+    BEGIN CATCH
+        -- If SQL Server cannot create the directory, BACKUP will raise the real path error below.
+    END CATCH;
+
+    SET @BackupPath = @BackupDirectory + N'\' + @DatabaseName + N'.bak';
+
+    IF EXISTS (SELECT 1 FROM master.sys.backup_devices WHERE name = @DeviceName)
+        EXEC master.dbo.sp_dropdevice @logicalname = @DeviceName;
+
+    EXEC master.dbo.sp_addumpdevice
+        @devtype = N'disk',
+        @logicalname = @DeviceName,
+        @physicalname = @BackupPath;
+
+    INSERT INTO dbo.BackupRestoreHistory(ACTION_NAME, DATABASE_NAME, BACKUP_TYPE, FILE_PATH, DEVICE_NAME, NOTE)
+    VALUES (N'CREATE_DEVICE', @DatabaseName, N'DEVICE', @BackupPath, @DeviceName, N'Tao backup device theo format DEVICE_TENCSDL.');
+
+    SELECT
+        @DeviceName AS DEVICE_NAME,
+        @BackupPath AS BACKUP_FILE;
 END;
 GO
 
@@ -2752,7 +3072,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_TTN_Backup_Full]
+IF OBJECT_ID(N'[dbo].[sp_TTN_Backup_Full]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_TTN_Backup_Full];
+GO
+
+CREATE PROCEDURE [dbo].[sp_TTN_Backup_Full]
     @DatabaseName SYSNAME = N'THI_TRAC_NGHIEM',
     @BackupDirectory NVARCHAR(4000) = NULL
 AS
@@ -2798,7 +3122,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_TTN_Backup_Log]
+IF OBJECT_ID(N'[dbo].[sp_TTN_Backup_Log]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_TTN_Backup_Log];
+GO
+
+CREATE PROCEDURE [dbo].[sp_TTN_Backup_Log]
     @DatabaseName SYSNAME = N'THI_TRAC_NGHIEM',
     @BackupDirectory NVARCHAR(4000) = NULL
 AS
@@ -2856,55 +3184,39 @@ BEGIN
 END;
 GO
 
--- SP BACKUP: tạo backup device DEVICE_TENCSDL.
+-- SP BACKUP: liệt kê lịch sử backup từ msdb.
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_TTN_Backup_TaoDevice]
-    @DatabaseName SYSNAME = N'THI_TRAC_NGHIEM',
-    @BackupDirectory NVARCHAR(4000) = NULL
+IF OBJECT_ID(N'[dbo].[sp_TTN_Backup_DanhSach]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_TTN_Backup_DanhSach];
+GO
+
+CREATE PROCEDURE [dbo].[sp_TTN_Backup_DanhSach]
+    @DatabaseName SYSNAME = N'THI_TRAC_NGHIEM'
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    IF DB_ID(@DatabaseName) IS NULL
-        THROW 56001, N'Co so du lieu can backup khong ton tai.', 1;
-
-    DECLARE
-        @DeviceName SYSNAME = N'DEVICE_' + REPLACE(UPPER(@DatabaseName), N' ', N'_'),
-        @DefaultBackupPath NVARCHAR(4000) = CONVERT(NVARCHAR(4000), SERVERPROPERTY('InstanceDefaultBackupPath')),
-        @BackupPath NVARCHAR(4000);
-
-    SET @BackupDirectory = NULLIF(LTRIM(RTRIM(@BackupDirectory)), N'');
-    SET @BackupDirectory = COALESCE(@BackupDirectory, NULLIF(@DefaultBackupPath, N''), N'C:\SQLBackup');
-
-    IF RIGHT(@BackupDirectory, 1) IN (N'\', N'/')
-        SET @BackupDirectory = LEFT(@BackupDirectory, LEN(@BackupDirectory) - 1);
-
-    BEGIN TRY
-        EXEC master.dbo.xp_create_subdir @BackupDirectory;
-    END TRY
-    BEGIN CATCH
-        -- If SQL Server cannot create the directory, BACKUP will raise the real path error below.
-    END CATCH;
-
-    SET @BackupPath = @BackupDirectory + N'\' + @DatabaseName + N'.bak';
-
-    IF EXISTS (SELECT 1 FROM master.sys.backup_devices WHERE name = @DeviceName)
-        EXEC master.dbo.sp_dropdevice @logicalname = @DeviceName;
-
-    EXEC master.dbo.sp_addumpdevice
-        @devtype = N'disk',
-        @logicalname = @DeviceName,
-        @physicalname = @BackupPath;
-
-    INSERT INTO dbo.BackupRestoreHistory(ACTION_NAME, DATABASE_NAME, BACKUP_TYPE, FILE_PATH, DEVICE_NAME, NOTE)
-    VALUES (N'CREATE_DEVICE', @DatabaseName, N'DEVICE', @BackupPath, @DeviceName, N'Tao backup device theo format DEVICE_TENCSDL.');
-
-    SELECT
-        @DeviceName AS DEVICE_NAME,
-        @BackupPath AS BACKUP_FILE;
+    SELECT TOP 100
+        BS.database_name AS DATABASE_NAME,
+        CASE BS.type
+            WHEN 'D' THEN N'FULL'
+            WHEN 'I' THEN N'DIFFERENTIAL'
+            WHEN 'L' THEN N'LOG'
+            ELSE BS.type
+        END AS BACKUP_TYPE,
+        BS.backup_start_date AS START_TIME,
+        BS.backup_finish_date AS FINISH_TIME,
+        CONVERT(DECIMAL(18,2), BS.backup_size / 1024.0 / 1024.0) AS SIZE_MB,
+        BMF.physical_device_name AS FILE_PATH,
+        BS.name AS BACKUP_NAME
+    FROM msdb.dbo.backupset AS BS
+    INNER JOIN msdb.dbo.backupmediafamily AS BMF
+        ON BMF.media_set_id = BS.media_set_id
+    WHERE BS.database_name = @DatabaseName
+    ORDER BY BS.backup_finish_date DESC;
 END;
 GO
 
@@ -2913,7 +3225,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_TTN_TuDongNopBaiHetGio]
+IF OBJECT_ID(N'[dbo].[sp_TTN_TuDongNopBaiHetGio]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_TTN_TuDongNopBaiHetGio];
+GO
+
+CREATE PROCEDURE [dbo].[sp_TTN_TuDongNopBaiHetGio]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -2991,7 +3307,11 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE OR ALTER PROCEDURE [dbo].[sp_XoaSinhVien]
+IF OBJECT_ID(N'[dbo].[sp_XoaSinhVien]', N'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[sp_XoaSinhVien];
+GO
+
+CREATE PROCEDURE [dbo].[sp_XoaSinhVien]
     @MASV NCHAR(10)
 AS
 BEGIN
@@ -3734,52 +4054,58 @@ GO
 */
 
 DECLARE
-    @JobName SYSNAME = N'TTN_TuDongNopBaiHetGio',
-    @DatabaseName SYSNAME = N'THI_TRAC_NGHIEM';
-
-IF EXISTS (SELECT 1 FROM msdb.dbo.sysjobs WHERE name = @JobName)
-BEGIN
-    EXEC msdb.dbo.sp_delete_job @job_name = @JobName, @delete_unused_schedule = 1;
-END;
-GO
-
-DECLARE
     @JobId UNIQUEIDENTIFIER,
     @JobName SYSNAME = N'TTN_TuDongNopBaiHetGio',
     @DatabaseName SYSNAME = N'THI_TRAC_NGHIEM',
     @ScheduleName SYSNAME = N'TTN_Moi_1_Phut_Kiem_Tra_Het_Gio';
 
-EXEC msdb.dbo.sp_add_job
-    @job_name = @JobName,
-    @enabled = 1,
-    @description = N'Tu dong nop cac bai thi da het gio trong he thong thi trac nghiem.',
-    @category_name = N'[Uncategorized (Local)]',
-    @owner_login_name = N'sa',
-    @job_id = @JobId OUTPUT;
+IF NOT EXISTS (
+    SELECT 1
+    FROM master.dbo.sysprocesses
+    WHERE program_name LIKE N'SQLAgent%'
+)
+BEGIN
+    PRINT N'SQL Server Agent chua chay, bo qua buoc tao job TTN_TuDongNopBaiHetGio.';
+END
+ELSE
+BEGIN
+    IF EXISTS (SELECT 1 FROM msdb.dbo.sysjobs WHERE name = @JobName)
+    BEGIN
+        EXEC msdb.dbo.sp_delete_job @job_name = @JobName, @delete_unused_schedule = 1;
+    END;
 
-EXEC msdb.dbo.sp_add_jobstep
-    @job_id = @JobId,
-    @step_name = N'Kiem tra va nop bai het gio',
-    @subsystem = N'TSQL',
-    @database_name = @DatabaseName,
-    @command = N'EXEC dbo.sp_TTN_TuDongNopBaiHetGio;',
-    @retry_attempts = 3,
-    @retry_interval = 1;
+    EXEC msdb.dbo.sp_add_job
+        @job_name = @JobName,
+        @enabled = 1,
+        @description = N'Tu dong nop cac bai thi da het gio trong he thong thi trac nghiem.',
+        @category_name = N'[Uncategorized (Local)]',
+        @owner_login_name = NULL,
+        @job_id = @JobId OUTPUT;
 
-EXEC msdb.dbo.sp_add_schedule
-    @schedule_name = @ScheduleName,
-    @enabled = 1,
-    @freq_type = 4,
-    @freq_interval = 1,
-    @freq_subday_type = 4,
-    @freq_subday_interval = 1,
-    @active_start_time = 0;
+    EXEC msdb.dbo.sp_add_jobstep
+        @job_id = @JobId,
+        @step_name = N'Kiem tra va nop bai het gio',
+        @subsystem = N'TSQL',
+        @database_name = @DatabaseName,
+        @command = N'EXEC dbo.sp_TTN_TuDongNopBaiHetGio;',
+        @retry_attempts = 3,
+        @retry_interval = 1;
 
-EXEC msdb.dbo.sp_attach_schedule
-    @job_id = @JobId,
-    @schedule_name = @ScheduleName;
+    EXEC msdb.dbo.sp_add_schedule
+        @schedule_name = @ScheduleName,
+        @enabled = 1,
+        @freq_type = 4,
+        @freq_interval = 1,
+        @freq_subday_type = 4,
+        @freq_subday_interval = 1,
+        @active_start_time = 0;
 
-EXEC msdb.dbo.sp_add_jobserver
-    @job_id = @JobId,
-    @server_name = N'(LOCAL)';
+    EXEC msdb.dbo.sp_attach_schedule
+        @job_id = @JobId,
+        @schedule_name = @ScheduleName;
+
+    EXEC msdb.dbo.sp_add_jobserver
+        @job_id = @JobId,
+        @server_name = N'(LOCAL)';
+END;
 GO
