@@ -1,304 +1,13 @@
-﻿/*
-    ============================================================
-    FILE 02 - VIEW, FUNCTION, STORED PROCEDURE, TRIGGER, PHÂN QUYỀN
-    Tổng hợp từ db_final.sql và các phần đã triển khai trong thư mục database.
-    Chạy sau file 01_db_final_tao_database.sql.
-    ============================================================
-
-    MỤC ĐÍCH FILE
-    - Dùng để tạo toàn bộ phần nghiệp vụ SQL Server sau khi file 01 đã tạo bảng.
-    - File này tập trung vào các thành phần cần thuyết trình trong môn HQT CSDL:
-      view, function, stored procedure, trigger, phân quyền, backup/restore và job.
-    - Script đã dùng cú pháp DROP + CREATE để tương thích SQL Server 2014.
-
-    NỘI DUNG ĐÃ TRIỂN KHAI
-    1. FUNCTIONS
-       - fn_4_1_LaPGV: kiểm tra login có thuộc role PGV trong bảng TaiKhoan.
-       - fn_4_1_MatKhauDung: kiểm tra mật khẩu tài khoản ứng dụng.
-       - fn_4_2_MonHocCoPhatSinh: kiểm tra môn học đã có câu hỏi/lịch thi/điểm.
-       - fn_4_3_DemSinhVienTheoLop: đếm sinh viên theo lớp.
-       - fn_4_4_DemCauHoiCuaGV: đếm số câu hỏi do một giảng viên soạn.
-       - fn_4_5_CoQuyenSuaCauHoi: kiểm tra quyền sửa câu hỏi theo PGV/GV.
-       - fn_4_5_DemCauHoiTheoMonTrinhDo: đếm câu hỏi theo môn và trình độ.
-       - fn_DuSoCauThi: kiểm tra bộ đề đủ số câu theo quy tắc 70/30.
-       - fn_KiemTraDieuKienThi: kiểm tra sinh viên đủ điều kiện thi.
-       - fn_LayDiemCaoNhat: lấy điểm cao nhất của sinh viên trong một môn.
-       - fn_TinhDiemThi: tính điểm thang 10 từ số câu đúng.
-
-    2. VIEWS
-       - vw_4_1_DangNhapGiaoVien: dữ liệu đăng nhập GV/PGV.
-       - vw_4_1_DangNhapSinhVien: dữ liệu đăng nhập sinh viên.
-       - vw_4_2_MonHoc: danh mục môn học còn hoạt động.
-       - vw_4_3_Lop: danh sách lớp kèm số sinh viên.
-       - vw_4_3_SinhVien, v_4_7_SinhVien_ThongTin: thông tin sinh viên kèm lớp.
-       - v_4_6_LichThi: lịch thi kèm thông tin bộ đề.
-       - vw_4_4_GiaoVien: danh sách giáo viên kèm số câu đã soạn.
-       - vw_4_5_BoDe: ngân hàng câu hỏi kèm môn học/giảng viên.
-       - v_4_8_KetQuaThi: chi tiết kết quả từng bài thi.
-       - v_4_9_BangDiem_Thi: bảng điểm kèm điểm chữ.
-
-    3. STORED PROCEDURES
-       - Nhóm đăng nhập/tài khoản: sp_4_1_DangNhap,
-         sp_4_1_KiemTraQuyenTaoTaiKhoan, sp_4_11_TaoTaiKhoan,
-         sp_4_6_DoiMatKhauGiangVien.
-       - Nhóm quản lý danh mục: sp_4_2_MonHoc_*, sp_4_3_Lop_*,
-         sp_4_3_SinhVien_*, sp_4_4_GiaoVien_*.
-       - Nhóm ngân hàng câu hỏi: sp_4_5_BoDe_* có kiểm tra quyền PGV/GV.
-       - Nhóm thi trắc nghiệm: sp_DangKyThi, sp_Thi_PhatDeNgauNhien,
-         sp_BatDauThi, sp_LuuTamCauTraLoi, sp_NopBai,
-         sp_TraCuuKetQua, sp_BangDiemMonHoc, sp_ThiThu_PhatDe.
-       - Nhóm quản trị CSDL: sp_TTN_Backup_*, sp_TTN_TuDongNopBaiHetGio.
-
-    4. TRIGGERS
-       - Trigger bảo vệ nghiệp vụ: không xóa lớp còn sinh viên, không xóa sinh viên
-         đã có bài thi/điểm, kiểm tra lịch thi, kiểm tra điểm và câu trả lời.
-       - Trigger audit: ghi lịch sử thay đổi GiaoVien_DangKy, BoDe, BangDiem,
-         TaiKhoan vào AuditLog.
-
-    5. PHÂN QUYỀN
-       - Tạo/cấp quyền cho role Sinhvien, Giangvien, PGV.
-       - Hạn chế truy cập trực tiếp bảng gốc, ưu tiên thao tác qua view/SP.
-
-    6. BACKUP/RESTORE VÀ SQL SERVER AGENT JOB
-       - Tạo thủ tục backup full, backup log, liệt kê backup.
-       - Tạo thủ tục restore trong master để demo restore full/point-in-time.
-       - Tạo job tự động nộp bài hết giờ nếu SQL Server Agent đang chạy.
-
-    LƯU Ý KHI CHẠY
-    - Chạy sau file 01_db_final_tao_database.sql.
-    - Nếu chạy trên SQL Server 2014, file này dùng DROP + CREATE thay vì
-      CREATE OR ALTER.
-    - Nếu SQL Server Agent chưa chạy, phần tạo job sẽ được bỏ qua và chỉ in thông báo.
-*/
-
 /*
     ============================================================
-    TÀI LIỆU CHÚ THÍCH CHI TIẾT CÁC FUNCTION, SP, TRIGGER
+    FILE 02 - VIEW, FUNCTION, STORED PROCEDURE, TRIGGER, PHÂN QUYỀN
+    Chạy sau file 01_db_final_tao_database.sql.
+
+    Ghi chú:
+    - Chú thích chi tiết được đặt ngay trước từng function, view, stored procedure và trigger.
+    - Script dùng DROP + CREATE để tương thích SQL Server 2014.
+    - Nếu SQL Server Agent chưa chạy, phần tạo job tự động sẽ được bỏ qua và chỉ in thông báo.
     ============================================================
-
-    A. FUNCTIONS
-
-    1. fn_4_1_LaPGV(@LOGINNAME)
-       - Kiểm tra một tài khoản trong bảng TaiKhoan có phải PGV hay không.
-       - Chỉ trả về 1 khi ROLE_NAME = PGV và tài khoản còn hoạt động.
-       - Được dùng trong các SP cần kiểm tra quyền quản trị như tạo tài khoản.
-
-    2. fn_4_1_MatKhauDung(@LOGINNAME, @MATKHAU)
-       - Kiểm tra mật khẩu tài khoản ứng dụng của giảng viên/PGV.
-       - So khớp LOGINNAME, MATKHAU và IS_ACTIVE.
-       - Giúp gom logic kiểm tra mật khẩu tại tầng database.
-
-    3. fn_4_2_MonHocCoPhatSinh(@MAMH)
-       - Kiểm tra môn học đã được sử dụng trong câu hỏi, lịch thi, điểm hoặc bài thi chưa.
-       - Nếu đã phát sinh thì không nên xóa cứng để tránh mất dữ liệu lịch sử.
-
-    4. fn_4_3_DemSinhVienTheoLop(@MALOP)
-       - Đếm số sinh viên còn hoạt động trong một lớp.
-       - Dùng cho view danh sách lớp và kiểm tra lớp có sinh viên hay chưa.
-
-    5. fn_4_4_DemCauHoiCuaGV(@MAGV)
-       - Đếm số câu hỏi đang hoạt động do một giảng viên biên soạn.
-       - Dùng để hiển thị thống kê trong phần quản lý giảng viên.
-
-    6. fn_4_5_CoQuyenSuaCauHoi(@LOGINNAME, @CAUHOI)
-       - Kiểm tra quyền sửa/xóa/phục hồi câu hỏi trong ngân hàng đề.
-       - PGV được thao tác tất cả câu hỏi.
-       - Giảng viên chỉ được thao tác câu hỏi do chính mình tạo.
-
-    7. fn_4_5_DemCauHoiTheoMonTrinhDo(@MAMH, @TRINHDO)
-       - Đếm số câu hỏi theo môn học và trình độ A/B/C.
-       - Hỗ trợ kiểm tra nhanh ngân hàng đề trước khi đăng ký hoặc phát đề.
-
-    8. fn_DuSoCauThi(@MAMH, @TRINHDO, @SOCAUTHI)
-       - Kiểm tra bộ đề có đủ số câu để tạo đề thi hay không.
-       - Với trình độ A/B: yêu cầu tối thiểu 70% câu cùng trình độ, phần còn lại có thể lấy trình độ thấp hơn.
-       - Với trình độ C: chỉ lấy câu trình độ C.
-       - Trigger đăng ký thi gọi function này để chặn tạo lịch thi khi ngân hàng đề chưa đủ.
-
-    9. fn_KiemTraDieuKienThi(@MASV, @MAMH, @LAN)
-       - Kiểm tra sinh viên có thuộc lớp đã đăng ký thi môn/lần thi đó không.
-       - Kiểm tra sinh viên chưa có điểm ở môn/lần thi tương ứng.
-       - Dùng để ngăn thi sai lịch hoặc thi lại lần đã có điểm.
-
-    10. fn_LayDiemCaoNhat(@MASV, @MAMH)
-        - Lấy điểm cao nhất của sinh viên trong một môn.
-        - Phục vụ tra cứu kết quả học tập hoặc tổng hợp điểm.
-
-    11. fn_TinhDiemThi(@SoCauDung, @TongCau)
-        - Tính điểm theo thang 10 từ số câu đúng và tổng số câu.
-        - Công thức: số câu đúng / tổng số câu * 10.
-        - Được dùng khi nộp bài và chấm điểm để mọi nơi dùng cùng một công thức.
-
-    B. STORED PROCEDURES
-
-    1. Nhóm đăng nhập và tài khoản
-       - sp_4_1_DangNhap:
-         Xử lý đăng nhập cho PGV, GIANGVIEN và SINHVIEN. Với giảng viên/PGV,
-         SP kiểm tra TaiKhoan, role và trạng thái hoạt động. Với sinh viên,
-         SP kiểm tra mã sinh viên theo dữ liệu SinhVien. Kết quả trả về SUCCESS,
-         MESSAGE và thông tin cần lưu vào session ứng dụng.
-
-       - sp_4_1_KiemTraQuyenTaoTaiKhoan:
-         Kiểm tra login hiện tại có quyền tạo tài khoản hay không. Quy tắc là
-         chỉ PGV đang hoạt động mới được tạo tài khoản.
-
-       - sp_4_11_TaoTaiKhoan:
-         Cho PGV tạo tài khoản ứng dụng cho giảng viên hoặc PGV khác. SP kiểm tra
-         người tạo có quyền PGV, login mới không trùng, role hợp lệ và MAGV tồn tại.
-         Khi có quyền SQL Server phù hợp, SP còn tạo SQL login/user và gán role DB.
-
-       - sp_4_6_DoiMatKhauGiangVien:
-         Đổi mật khẩu cho tài khoản giảng viên/PGV. SP kiểm tra mật khẩu hiện tại,
-         độ dài mật khẩu mới, mật khẩu mới khác mật khẩu cũ, sau đó cập nhật
-         TaiKhoan.MATKHAU và SQL login nếu login tồn tại.
-
-    2. Nhóm quản lý danh mục
-       - sp_4_2_MonHoc_*:
-         Quản lý môn học: danh sách, tìm kiếm, thêm, sửa, xóa mềm, xem đã xóa,
-         phục hồi. Khi môn học đã phát sinh dữ liệu, hệ thống ưu tiên xóa mềm
-         để bảo toàn lịch sử.
-
-       - sp_4_3_Lop_*:
-         Quản lý lớp: danh sách, tìm kiếm, thêm, sửa, xóa, phục hồi. Lớp là dữ liệu
-         nền để quản lý sinh viên và đăng ký lịch thi.
-
-       - sp_4_3_SinhVien_*:
-         Quản lý sinh viên theo lớp: thêm, sửa, tìm, xóa mềm, phục hồi. Sinh viên
-         đã có bài thi hoặc điểm cần được bảo vệ để không mất lịch sử thi.
-
-       - sp_4_4_GiaoVien_*:
-         Quản lý giảng viên: thêm, sửa, tìm, xóa mềm, phục hồi. Giảng viên có thể
-         liên quan đến tài khoản, câu hỏi và lịch thi nên các thao tác xóa cần kiểm tra phát sinh.
-
-    3. Nhóm ngân hàng câu hỏi
-       - sp_4_5_BoDe_*:
-         Quản lý câu hỏi trắc nghiệm: danh sách, tìm kiếm, thêm, sửa, xóa mềm,
-         phục hồi và danh sách theo người dùng. Quy tắc quyền là PGV được thao tác
-         toàn bộ, giảng viên chỉ thao tác câu hỏi của mình. SP kiểm tra môn học,
-         trình độ, nội dung, đáp án A/B/C/D và đáp án đúng.
-
-    4. Nhóm đăng ký thi và làm bài
-       - sp_DangKyThi:
-         Tạo hoặc cập nhật lịch thi cho một lớp. SP kiểm tra môn, lớp, giảng viên,
-         lần thi, số câu, thời gian và bộ đề có đủ câu. Sau khi ghi dữ liệu, trigger
-         trg_GiaoVienDangKy_KiemTraHopLe tiếp tục bảo vệ ở tầng DB.
-
-       - sp_Thi_PhatDeNgauNhien:
-         Phát đề ngẫu nhiên theo lịch thi. SP chọn câu không trùng, áp dụng quy tắc
-         70/30 theo trình độ, xáo thứ tự đáp án A/B/C/D và tính lại đáp án đúng sau khi xáo.
-
-       - sp_BatDauThi:
-         Tạo phiên bài thi chính thức. Nếu sinh viên đã có bài DANG_THI thì trả lại
-         bài cũ để tiếp tục làm. Nếu chưa có thì phát đề, tạo BaiThi và lưu từng câu
-         vào BaiThi_CauTraLoi.
-
-       - sp_LuuTamCauTraLoi:
-         Lưu đáp án sinh viên chọn khi đang làm bài. SP chỉ cho lưu khi bài còn
-         trạng thái DANG_THI và chưa quá thời gian kết thúc.
-
-       - sp_NopBai:
-         Kết thúc bài thi, đếm số câu đúng, tính điểm bằng fn_TinhDiemThi, cập nhật
-         BaiThi và ghi BangDiem. Nếu quá giờ thì trạng thái bài thi là HET_GIO.
-
-       - sp_TTN_TuDongNopBaiHetGio:
-         Tự động tìm các bài DANG_THI đã quá KETTHUC_LUC, gọi sp_NopBai để nộp bài.
-         Nếu có lỗi thì ghi AuditLog với APP_LOGINNAME = AUTO_TIMEOUT.
-
-       - sp_ThiThu_PhatDe:
-         Phát đề thi thử cho giảng viên/PGV. SP không tạo BaiThi và không ghi điểm,
-         chỉ dùng để kiểm tra chất lượng ngân hàng đề.
-
-    5. Nhóm kết quả và bảng điểm
-       - sp_TraCuuKetQua:
-         Trả về hai tập kết quả: thông tin tổng quan bài thi và chi tiết từng câu
-         gồm đáp án sinh viên chọn, đáp án đúng.
-
-       - sp_BangDiemMonHoc:
-         Lập bảng điểm theo lớp, môn và lần thi. Dữ liệu dùng cho màn hình xem điểm
-         và xuất báo cáo bảng điểm.
-
-       - sp_ChamDiem:
-         Tính số câu đúng và điểm của bài thi dựa trên BaiThi_CauTraLoi.
-
-    6. Nhóm backup, restore và quản trị
-       - sp_TTN_Backup_TaoDevice:
-         Tạo backup device theo tên database.
-
-       - sp_TTN_Backup_Full:
-         Backup full database, kiểm tra bằng RESTORE VERIFYONLY và ghi lịch sử.
-
-       - sp_TTN_Backup_Log:
-         Backup transaction log để phục vụ restore theo thời điểm. Database cần dùng
-         recovery model FULL hoặc BULK_LOGGED.
-
-       - sp_TTN_Backup_DanhSach:
-         Liệt kê lịch sử backup từ msdb.
-
-       - master.dbo.sp_TTN_Restore_Full:
-         Restore full backup, chuyển database sang SINGLE_USER rồi trả về MULTI_USER.
-
-       - master.dbo.sp_TTN_Restore_PointInTime:
-         Restore database về một thời điểm bằng full backup và log backup.
-
-       - master.dbo.sp_TTN_Restore_SinhLenh:
-         Sinh câu lệnh restore để kiểm tra hoặc demo trước khi chạy restore thật.
-
-    C. TRIGGERS
-
-    1. trg_Lop_KhongXoaKhiConSinhVien
-       - Loại: INSTEAD OF DELETE trên bảng Lop.
-       - Chặn xóa lớp nếu lớp vẫn còn sinh viên.
-       - Nếu lớp không còn sinh viên thì trigger tự thực hiện DELETE.
-       - Mục đích là bảo vệ quan hệ lớp - sinh viên.
-
-    2. trg_SinhVien_KhongXoaKhiDaCoDiem
-       - Loại: INSTEAD OF DELETE trên bảng SinhVien.
-       - Chặn xóa sinh viên đã có BangDiem hoặc BaiThi.
-       - Nếu sinh viên chưa phát sinh dữ liệu thi thì trigger mới cho xóa.
-       - Mục đích là giữ lịch sử bài thi và điểm.
-
-    3. trg_GiaoVienDangKy_KiemTraHopLe
-       - Loại: AFTER INSERT, UPDATE trên bảng GiaoVien_DangKy.
-       - Kiểm tra lần thi chỉ được 1 hoặc 2.
-       - Kiểm tra số câu từ 10 đến 100, thời gian từ 5 đến 60 phút.
-       - Kiểm tra trình độ chỉ thuộc A/B/C và ngày thi không nằm trong quá khứ.
-       - Gọi fn_DuSoCauThi để đảm bảo bộ đề đủ câu theo quy tắc 70/30.
-       - Không cho đăng ký thi cho lớp chưa có sinh viên.
-       - Không cho sửa lịch thi nếu đã phát sinh BangDiem hoặc BaiThi.
-       - Đây là trigger bảo vệ nghiệp vụ đăng ký thi quan trọng nhất.
-
-    4. trg_BangDiem_KiemTraHopLe
-       - Loại: AFTER INSERT, UPDATE trên bảng BangDiem.
-       - Kiểm tra điểm nằm trong khoảng 0 đến 10.
-       - Kiểm tra lần thi chỉ được 1 hoặc 2.
-       - Chỉ cho ghi điểm khi sinh viên có lịch thi tương ứng theo lớp, môn và lần thi.
-       - Không cho ngày ghi điểm trước ngày thi đã đăng ký.
-
-    5. trg_BaiThiCauTraLoi_KiemTraHopLe
-       - Loại: AFTER INSERT, UPDATE trên bảng BaiThi_CauTraLoi.
-       - Kiểm tra thứ tự câu, môn học, trình độ câu, nội dung và đáp án hợp lệ.
-       - Không cho sửa câu trả lời nếu bài thi đã nộp hoặc đã hết giờ.
-       - Kiểm tra câu hỏi trong bài thi phải thuộc đúng môn của BaiThi.
-
-    6. trg_Audit_GiaoVienDangKy
-       - Ghi AuditLog khi thêm, sửa hoặc xóa lịch thi.
-       - Audit lưu khóa MALOP|MAMH|LAN, giảng viên đăng ký, số câu và thời gian.
-       - Dùng để truy vết thay đổi lịch thi.
-
-    7. trg_Audit_BoDe
-       - Ghi AuditLog khi thêm, sửa hoặc xóa câu hỏi trong BoDe.
-       - Audit lưu mã câu hỏi, môn, trình độ và đáp án đúng.
-       - Dùng để truy vết thay đổi ngân hàng câu hỏi.
-
-    8. trg_Audit_BangDiem
-       - Ghi AuditLog khi thêm, sửa hoặc xóa bảng điểm.
-       - Audit lưu MASV|MAMH|LAN, điểm cũ và điểm mới.
-       - Dùng để giải trình mọi thay đổi điểm.
-
-    9. trg_Audit_TaiKhoan
-       - Ghi AuditLog khi thêm, sửa hoặc xóa tài khoản.
-       - Audit lưu LOGINNAME, role và MAGV liên quan.
-       - Dùng để truy vết việc quản lý tài khoản giảng viên/PGV.
 */
 
 USE [THI_TRAC_NGHIEM]
@@ -313,6 +22,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH FUNCTION: fn_4_1_LaPGV
+   - Kiểm tra tài khoản ứng dụng có thuộc nhóm PGV hay không.
+   - Trả về 1 khi LOGINNAME tồn tại trong TaiKhoan, ROLE_NAME = PGV và tài khoản đang active.
+   - Được dùng bởi các SP cần quyết định quyền quản trị.
+*/
 IF OBJECT_ID(N'[dbo].[fn_4_1_LaPGV]', N'FN') IS NOT NULL
     DROP FUNCTION [dbo].[fn_4_1_LaPGV];
 GO
@@ -348,6 +63,12 @@ GO
    3. FUNCTION
    ========================================================= */
 
+/*
+   CHÚ THÍCH FUNCTION: fn_4_1_MatKhauDung
+   - Kiểm tra mật khẩu đăng nhập của tài khoản giảng viên/PGV trong bảng TaiKhoan.
+   - Gom logic so khớp LOGINNAME, MATKHAU, IS_ACTIVE xuống tầng database.
+   - Giúp các SP đăng nhập hoặc đổi mật khẩu không phải lặp lại điều kiện kiểm tra tài khoản.
+*/
 IF OBJECT_ID(N'[dbo].[fn_4_1_MatKhauDung]', N'FN') IS NOT NULL
     DROP FUNCTION [dbo].[fn_4_1_MatKhauDung];
 GO
@@ -380,6 +101,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH FUNCTION: fn_4_2_MonHocCoPhatSinh
+   - Kiểm tra môn học đã phát sinh dữ liệu nghiệp vụ hay chưa.
+   - Một môn được xem là đã phát sinh nếu có câu hỏi, lịch thi, bảng điểm hoặc bài thi liên quan.
+   - Dùng để tránh xóa dữ liệu làm mất lịch sử thi.
+*/
 IF OBJECT_ID(N'[dbo].[fn_4_2_MonHocCoPhatSinh]', N'FN') IS NOT NULL
     DROP FUNCTION [dbo].[fn_4_2_MonHocCoPhatSinh];
 GO
@@ -407,6 +134,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH FUNCTION: fn_4_3_DemSinhVienTheoLop
+   - Đếm số sinh viên còn hoạt động trong một lớp.
+   - Dùng cho màn hình danh sách lớp và kiểm tra lớp có sinh viên hay không.
+   - Chỉ tính sinh viên chưa bị xóa mềm.
+*/
 IF OBJECT_ID(N'[dbo].[fn_4_3_DemSinhVienTheoLop]', N'FN') IS NOT NULL
     DROP FUNCTION [dbo].[fn_4_3_DemSinhVienTheoLop];
 GO
@@ -433,6 +166,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH FUNCTION: fn_4_4_DemCauHoiCuaGV
+   - Đếm số câu hỏi đang hoạt động do một giảng viên biên soạn.
+   - Dùng để thống kê khối lượng câu hỏi của giảng viên.
+   - Không tính các câu hỏi đã bị xóa mềm.
+*/
 IF OBJECT_ID(N'[dbo].[fn_4_4_DemCauHoiCuaGV]', N'FN') IS NOT NULL
     DROP FUNCTION [dbo].[fn_4_4_DemCauHoiCuaGV];
 GO
@@ -459,6 +198,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH FUNCTION: fn_4_5_CoQuyenSuaCauHoi
+   - Kiểm tra quyền sửa, xóa hoặc phục hồi một câu hỏi trong ngân hàng đề.
+   - PGV được quyền thao tác mọi câu hỏi; giảng viên thường chỉ thao tác câu hỏi do chính mình tạo.
+   - Giúp các SP BoDe_* kiểm soát quyền ở tầng SQL Server.
+*/
 IF OBJECT_ID(N'[dbo].[fn_4_5_CoQuyenSuaCauHoi]', N'FN') IS NOT NULL
     DROP FUNCTION [dbo].[fn_4_5_CoQuyenSuaCauHoi];
 GO
@@ -504,6 +249,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH FUNCTION: fn_4_5_DemCauHoiTheoMonTrinhDo
+   - Đếm số câu hỏi theo môn học và trình độ A/B/C.
+   - Hỗ trợ kiểm tra nhanh ngân hàng đề trước khi đăng ký lịch thi hoặc phát đề.
+   - Chỉ đếm câu hỏi còn hoạt động.
+*/
 IF OBJECT_ID(N'[dbo].[fn_4_5_DemCauHoiTheoMonTrinhDo]', N'FN') IS NOT NULL
     DROP FUNCTION [dbo].[fn_4_5_DemCauHoiTheoMonTrinhDo];
 GO
@@ -532,6 +283,13 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH FUNCTION: fn_DuSoCauThi
+   - Kiểm tra ngân hàng đề có đủ số câu để tạo đề thi theo môn, trình độ và số câu yêu cầu.
+   - Với trình độ A/B, đề cần tối thiểu 70% câu cùng trình độ và phần còn lại có thể lấy trình độ thấp hơn.
+   - Với trình độ C, đề chỉ dùng câu trình độ C.
+   - Trigger đăng ký thi gọi function này để chặn tạo lịch thi khi bộ đề chưa đủ.
+*/
 IF OBJECT_ID(N'[dbo].[fn_DuSoCauThi]', N'FN') IS NOT NULL
     DROP FUNCTION [dbo].[fn_DuSoCauThi];
 GO
@@ -589,6 +347,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH FUNCTION: fn_KiemTraDieuKienThi
+   - Kiểm tra sinh viên có đủ điều kiện thi một môn/lần thi hay không.
+   - Điều kiện chính: sinh viên thuộc lớp có lịch thi tương ứng và chưa có điểm ở lần thi đó.
+   - Được dùng trong luồng bắt đầu thi/phát đề để tránh sinh viên thi sai lớp hoặc thi lại trái phép.
+*/
 IF OBJECT_ID(N'[dbo].[fn_KiemTraDieuKienThi]', N'FN') IS NOT NULL
     DROP FUNCTION [dbo].[fn_KiemTraDieuKienThi];
 GO
@@ -643,6 +407,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH FUNCTION: fn_LayDiemCaoNhat
+   - Lấy điểm cao nhất của một sinh viên trong một môn học.
+   - Hữu ích khi sinh viên có nhiều lần thi.
+   - Giữ logic chọn điểm tốt nhất ở tầng database để dùng lại.
+*/
 IF OBJECT_ID(N'[dbo].[fn_LayDiemCaoNhat]', N'FN') IS NOT NULL
     DROP FUNCTION [dbo].[fn_LayDiemCaoNhat];
 GO
@@ -670,6 +440,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH FUNCTION: fn_TinhDiemThi
+   - Tính điểm theo thang 10 từ số câu đúng và tổng số câu.
+   - Có xử lý trường hợp tổng số câu không hợp lệ để tránh chia cho 0.
+   - SP nộp bài dùng function này khi ghi điểm vào BangDiem.
+*/
 IF OBJECT_ID(N'[dbo].[fn_TinhDiemThi]', N'FN') IS NOT NULL
     DROP FUNCTION [dbo].[fn_TinhDiemThi];
 GO
@@ -702,6 +478,12 @@ GO
    ========================================================= */
 
 /* 4.1 - Dang nhap GV / PGV */
+/*
+   CHÚ THÍCH VIEW: vw_4_1_DangNhapGiaoVien
+   - Tạo lớp truy vấn đọc dữ liệu đã chuẩn hóa cho màn hình ứng dụng.
+   - View giúp ẩn bớt join/điều kiện lọc xóa mềm khỏi tầng Java.
+   - Dùng để đọc dữ liệu an toàn hơn thay vì truy cập trực tiếp bảng gốc.
+*/
 IF OBJECT_ID(N'[dbo].[vw_4_1_DangNhapGiaoVien]', N'V') IS NOT NULL
     DROP VIEW [dbo].[vw_4_1_DangNhapGiaoVien];
 GO
@@ -726,6 +508,12 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 /* 4.1 - Dang nhap sinh vien: lay tu bang SinhVien, KHONG lay TaiKhoan */
+/*
+   CHÚ THÍCH VIEW: vw_4_1_DangNhapSinhVien
+   - Tạo lớp truy vấn đọc dữ liệu đã chuẩn hóa cho màn hình ứng dụng.
+   - View giúp ẩn bớt join/điều kiện lọc xóa mềm khỏi tầng Java.
+   - Dùng để đọc dữ liệu an toàn hơn thay vì truy cập trực tiếp bảng gốc.
+*/
 IF OBJECT_ID(N'[dbo].[vw_4_1_DangNhapSinhVien]', N'V') IS NOT NULL
     DROP VIEW [dbo].[vw_4_1_DangNhapSinhVien];
 GO
@@ -748,6 +536,12 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 /* 4.2 */
+/*
+   CHÚ THÍCH VIEW: vw_4_2_MonHoc
+   - Tạo lớp truy vấn đọc dữ liệu đã chuẩn hóa cho màn hình ứng dụng.
+   - View giúp ẩn bớt join/điều kiện lọc xóa mềm khỏi tầng Java.
+   - Dùng để đọc dữ liệu an toàn hơn thay vì truy cập trực tiếp bảng gốc.
+*/
 IF OBJECT_ID(N'[dbo].[vw_4_2_MonHoc]', N'V') IS NOT NULL
     DROP VIEW [dbo].[vw_4_2_MonHoc];
 GO
@@ -766,6 +560,12 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 /* 4.3 - Lop */
+/*
+   CHÚ THÍCH VIEW: vw_4_3_Lop
+   - Tạo lớp truy vấn đọc dữ liệu đã chuẩn hóa cho màn hình ứng dụng.
+   - View giúp ẩn bớt join/điều kiện lọc xóa mềm khỏi tầng Java.
+   - Dùng để đọc dữ liệu an toàn hơn thay vì truy cập trực tiếp bảng gốc.
+*/
 IF OBJECT_ID(N'[dbo].[vw_4_3_Lop]', N'V') IS NOT NULL
     DROP VIEW [dbo].[vw_4_3_Lop];
 GO
@@ -786,6 +586,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH VIEW: v_4_7_SinhVien_ThongTin
+   - Tạo lớp truy vấn đọc dữ liệu đã chuẩn hóa cho màn hình ứng dụng.
+   - View giúp ẩn bớt join/điều kiện lọc xóa mềm khỏi tầng Java.
+   - Dùng để đọc dữ liệu an toàn hơn thay vì truy cập trực tiếp bảng gốc.
+*/
 IF OBJECT_ID(N'[dbo].[v_4_7_SinhVien_ThongTin]', N'V') IS NOT NULL
     DROP VIEW [dbo].[v_4_7_SinhVien_ThongTin];
 GO
@@ -809,6 +615,12 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 /* 4.3 - Sinh vien */
+/*
+   CHÚ THÍCH VIEW: vw_4_3_SinhVien
+   - Tạo lớp truy vấn đọc dữ liệu đã chuẩn hóa cho màn hình ứng dụng.
+   - View giúp ẩn bớt join/điều kiện lọc xóa mềm khỏi tầng Java.
+   - Dùng để đọc dữ liệu an toàn hơn thay vì truy cập trực tiếp bảng gốc.
+*/
 IF OBJECT_ID(N'[dbo].[vw_4_3_SinhVien]', N'V') IS NOT NULL
     DROP VIEW [dbo].[vw_4_3_SinhVien];
 GO
@@ -833,6 +645,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH VIEW: v_4_6_LichThi
+   - Tạo lớp truy vấn đọc dữ liệu đã chuẩn hóa cho màn hình ứng dụng.
+   - View giúp ẩn bớt join/điều kiện lọc xóa mềm khỏi tầng Java.
+   - Dùng để đọc dữ liệu an toàn hơn thay vì truy cập trực tiếp bảng gốc.
+*/
 IF OBJECT_ID(N'[dbo].[v_4_6_LichThi]', N'V') IS NOT NULL
     DROP VIEW [dbo].[v_4_6_LichThi];
 GO
@@ -884,6 +702,12 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 /* 4.4 */
+/*
+   CHÚ THÍCH VIEW: vw_4_4_GiaoVien
+   - Tạo lớp truy vấn đọc dữ liệu đã chuẩn hóa cho màn hình ứng dụng.
+   - View giúp ẩn bớt join/điều kiện lọc xóa mềm khỏi tầng Java.
+   - Dùng để đọc dữ liệu an toàn hơn thay vì truy cập trực tiếp bảng gốc.
+*/
 IF OBJECT_ID(N'[dbo].[vw_4_4_GiaoVien]', N'V') IS NOT NULL
     DROP VIEW [dbo].[vw_4_4_GiaoVien];
 GO
@@ -908,6 +732,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH VIEW: v_4_8_KetQuaThi
+   - Tạo lớp truy vấn đọc dữ liệu đã chuẩn hóa cho màn hình ứng dụng.
+   - View giúp ẩn bớt join/điều kiện lọc xóa mềm khỏi tầng Java.
+   - Dùng để đọc dữ liệu an toàn hơn thay vì truy cập trực tiếp bảng gốc.
+*/
 IF OBJECT_ID(N'[dbo].[v_4_8_KetQuaThi]', N'V') IS NOT NULL
     DROP VIEW [dbo].[v_4_8_KetQuaThi];
 GO
@@ -949,6 +779,12 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 /* 4.5 */
+/*
+   CHÚ THÍCH VIEW: vw_4_5_BoDe
+   - Tạo lớp truy vấn đọc dữ liệu đã chuẩn hóa cho màn hình ứng dụng.
+   - View giúp ẩn bớt join/điều kiện lọc xóa mềm khỏi tầng Java.
+   - Dùng để đọc dữ liệu an toàn hơn thay vì truy cập trực tiếp bảng gốc.
+*/
 IF OBJECT_ID(N'[dbo].[vw_4_5_BoDe]', N'V') IS NOT NULL
     DROP VIEW [dbo].[vw_4_5_BoDe];
 GO
@@ -978,6 +814,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH VIEW: v_4_9_BangDiem_Thi
+   - Tạo lớp truy vấn đọc dữ liệu đã chuẩn hóa cho màn hình ứng dụng.
+   - View giúp ẩn bớt join/điều kiện lọc xóa mềm khỏi tầng Java.
+   - Dùng để đọc dữ liệu an toàn hơn thay vì truy cập trực tiếp bảng gốc.
+*/
 IF OBJECT_ID(N'[dbo].[v_4_9_BangDiem_Thi]', N'V') IS NOT NULL
     DROP VIEW [dbo].[v_4_9_BangDiem_Thi];
 GO
@@ -1021,6 +863,12 @@ GO
    ========================================================= */
 
 /* -------------------- 4.1 DANG NHAP -------------------- */
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_1_DangNhap
+   - Xử lý đăng nhập cho PGV, GIANGVIEN và SINHVIEN.
+   - GV/PGV kiểm tra qua TaiKhoan; sinh viên kiểm tra bằng MASV và dữ liệu SinhVien.
+   - Trả về SUCCESS, MESSAGE và thông tin người dùng cho session ứng dụng.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_1_DangNhap]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_1_DangNhap];
 GO
@@ -1117,6 +965,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_1_KiemTraQuyenTaoTaiKhoan
+   - Thực hiện thao tác quản lý cho nghiệp vụ liên quan.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_1_KiemTraQuyenTaoTaiKhoan]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_1_KiemTraQuyenTaoTaiKhoan];
 GO
@@ -1146,6 +1000,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_11_TaoTaiKhoan
+   - PGV tạo tài khoản ứng dụng cho giảng viên hoặc phòng giáo vụ.
+   - SP kiểm tra người tạo có quyền PGV, kiểm tra login trùng và kiểm tra giáo viên tồn tại.
+   - Tập trung nghiệp vụ tạo tài khoản ở tầng database.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_11_TaoTaiKhoan]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_11_TaoTaiKhoan];
 GO
@@ -1247,6 +1107,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_2_MonHoc_DanhSach
+   - Thực hiện thao tác quản lý cho môn học.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_2_MonHoc_DanhSach]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_2_MonHoc_DanhSach];
 GO
@@ -1268,6 +1134,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_2_MonHoc_DaXoa
+   - Thực hiện thao tác quản lý cho môn học.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_2_MonHoc_DaXoa]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_2_MonHoc_DaXoa];
 GO
@@ -1289,6 +1161,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_2_MonHoc_PhucHoi
+   - Thực hiện thao tác quản lý cho môn học.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_2_MonHoc_PhucHoi]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_2_MonHoc_PhucHoi];
 GO
@@ -1316,6 +1194,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_2_MonHoc_Sua
+   - Thực hiện thao tác quản lý cho môn học.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_2_MonHoc_Sua]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_2_MonHoc_Sua];
 GO
@@ -1343,6 +1227,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_2_MonHoc_Them
+   - Thực hiện thao tác quản lý cho môn học.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_2_MonHoc_Them]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_2_MonHoc_Them];
 GO
@@ -1368,6 +1258,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_2_MonHoc_Tim
+   - Thực hiện thao tác quản lý cho môn học.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_2_MonHoc_Tim]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_2_MonHoc_Tim];
 GO
@@ -1392,6 +1288,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_2_MonHoc_Xoa
+   - Thực hiện thao tác quản lý cho môn học.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_2_MonHoc_Xoa]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_2_MonHoc_Xoa];
 GO
@@ -1419,6 +1321,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_3_Lop_DanhSach
+   - Thực hiện thao tác quản lý cho lớp.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_3_Lop_DanhSach]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_3_Lop_DanhSach];
 GO
@@ -1443,6 +1351,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_3_Lop_DaXoa
+   - Thực hiện thao tác quản lý cho lớp.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_3_Lop_DaXoa]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_3_Lop_DaXoa];
 GO
@@ -1464,6 +1378,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_3_Lop_PhucHoi
+   - Thực hiện thao tác quản lý cho lớp.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_3_Lop_PhucHoi]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_3_Lop_PhucHoi];
 GO
@@ -1491,6 +1411,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_3_Lop_Sua
+   - Thực hiện thao tác quản lý cho lớp.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_3_Lop_Sua]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_3_Lop_Sua];
 GO
@@ -1518,6 +1444,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_3_Lop_Them
+   - Thực hiện thao tác quản lý cho lớp.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_3_Lop_Them]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_3_Lop_Them];
 GO
@@ -1543,6 +1475,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_3_Lop_Tim
+   - Thực hiện thao tác quản lý cho lớp.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_3_Lop_Tim]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_3_Lop_Tim];
 GO
@@ -1570,6 +1508,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_3_Lop_Xoa
+   - Thực hiện thao tác quản lý cho lớp.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_3_Lop_Xoa]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_3_Lop_Xoa];
 GO
@@ -1600,6 +1544,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_3_SinhVien_DanhSachTheoLop
+   - Thực hiện thao tác quản lý cho sinh viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_3_SinhVien_DanhSachTheoLop]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_3_SinhVien_DanhSachTheoLop];
 GO
@@ -1624,6 +1574,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_3_SinhVien_DaXoa
+   - Thực hiện thao tác quản lý cho sinh viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_3_SinhVien_DaXoa]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_3_SinhVien_DaXoa];
 GO
@@ -1646,6 +1602,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_3_SinhVien_DaXoaTheoLop
+   - Thực hiện thao tác quản lý cho sinh viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_3_SinhVien_DaXoaTheoLop]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_3_SinhVien_DaXoaTheoLop];
 GO
@@ -1670,6 +1632,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_3_SinhVien_PhucHoi
+   - Thực hiện thao tác quản lý cho sinh viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_3_SinhVien_PhucHoi]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_3_SinhVien_PhucHoi];
 GO
@@ -1706,6 +1674,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_3_SinhVien_Sua
+   - Thực hiện thao tác quản lý cho sinh viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_3_SinhVien_Sua]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_3_SinhVien_Sua];
 GO
@@ -1744,6 +1718,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_3_SinhVien_Them
+   - Thực hiện thao tác quản lý cho sinh viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_3_SinhVien_Them]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_3_SinhVien_Them];
 GO
@@ -1777,6 +1757,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_3_SinhVien_Tim
+   - Thực hiện thao tác quản lý cho sinh viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_3_SinhVien_Tim]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_3_SinhVien_Tim];
 GO
@@ -1802,6 +1788,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_3_SinhVien_Xoa
+   - Thực hiện thao tác quản lý cho sinh viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_3_SinhVien_Xoa]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_3_SinhVien_Xoa];
 GO
@@ -1829,6 +1821,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_4_GiaoVien_DanhSach
+   - Thực hiện thao tác quản lý cho giảng viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_4_GiaoVien_DanhSach]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_4_GiaoVien_DanhSach];
 GO
@@ -1855,6 +1853,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_4_GiaoVien_DaXoa
+   - Thực hiện thao tác quản lý cho giảng viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_4_GiaoVien_DaXoa]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_4_GiaoVien_DaXoa];
 GO
@@ -1877,6 +1881,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_4_GiaoVien_PhucHoi
+   - Thực hiện thao tác quản lý cho giảng viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_4_GiaoVien_PhucHoi]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_4_GiaoVien_PhucHoi];
 GO
@@ -1904,6 +1914,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_4_GiaoVien_Sua
+   - Thực hiện thao tác quản lý cho giảng viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_4_GiaoVien_Sua]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_4_GiaoVien_Sua];
 GO
@@ -1936,6 +1952,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_4_GiaoVien_Them
+   - Thực hiện thao tác quản lý cho giảng viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_4_GiaoVien_Them]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_4_GiaoVien_Them];
 GO
@@ -1964,6 +1986,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_4_GiaoVien_Tim
+   - Thực hiện thao tác quản lý cho giảng viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_4_GiaoVien_Tim]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_4_GiaoVien_Tim];
 GO
@@ -1998,6 +2026,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_4_GiaoVien_Xoa
+   - Thực hiện thao tác quản lý cho giảng viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_4_GiaoVien_Xoa]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_4_GiaoVien_Xoa];
 GO
@@ -2029,6 +2063,12 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 /* -------------------- 4.5 BO DE -------------------- */
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_5_BoDe_DanhSach
+   - Thực hiện thao tác quản lý cho ngân hàng câu hỏi.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử. Riêng nhóm BoDe có kiểm tra quyền PGV/GV để giảng viên thường chỉ thao tác câu hỏi của mình.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_5_BoDe_DanhSach]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_5_BoDe_DanhSach];
 GO
@@ -2049,6 +2089,12 @@ GO
 /* =================
    6. Question bank procedures aligned with application login accounts
    ================= */
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_5_BoDe_DanhSachCuaNguoiDung
+   - Thực hiện thao tác quản lý cho ngân hàng câu hỏi.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử. Riêng nhóm BoDe có kiểm tra quyền PGV/GV để giảng viên thường chỉ thao tác câu hỏi của mình.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_5_BoDe_DanhSachCuaNguoiDung]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_5_BoDe_DanhSachCuaNguoiDung];
 GO
@@ -2087,6 +2133,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_5_BoDe_DaXoaCuaNguoiDung
+   - Thực hiện thao tác quản lý cho ngân hàng câu hỏi.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử. Riêng nhóm BoDe có kiểm tra quyền PGV/GV để giảng viên thường chỉ thao tác câu hỏi của mình.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_5_BoDe_DaXoaCuaNguoiDung]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_5_BoDe_DaXoaCuaNguoiDung];
 GO
@@ -2125,6 +2177,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_5_BoDe_PhucHoi
+   - Thực hiện thao tác quản lý cho ngân hàng câu hỏi.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử. Riêng nhóm BoDe có kiểm tra quyền PGV/GV để giảng viên thường chỉ thao tác câu hỏi của mình.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_5_BoDe_PhucHoi]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_5_BoDe_PhucHoi];
 GO
@@ -2177,6 +2235,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_5_BoDe_Sua
+   - Thực hiện thao tác quản lý cho ngân hàng câu hỏi.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử. Riêng nhóm BoDe có kiểm tra quyền PGV/GV để giảng viên thường chỉ thao tác câu hỏi của mình.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_5_BoDe_Sua]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_5_BoDe_Sua];
 GO
@@ -2237,6 +2301,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_5_BoDe_Them
+   - Thực hiện thao tác quản lý cho ngân hàng câu hỏi.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử. Riêng nhóm BoDe có kiểm tra quyền PGV/GV để giảng viên thường chỉ thao tác câu hỏi của mình.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_5_BoDe_Them]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_5_BoDe_Them];
 GO
@@ -2283,6 +2353,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_5_BoDe_Tim
+   - Thực hiện thao tác quản lý cho ngân hàng câu hỏi.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử. Riêng nhóm BoDe có kiểm tra quyền PGV/GV để giảng viên thường chỉ thao tác câu hỏi của mình.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_5_BoDe_Tim]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_5_BoDe_Tim];
 GO
@@ -2316,6 +2392,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_5_BoDe_Xoa
+   - Thực hiện thao tác quản lý cho ngân hàng câu hỏi.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử. Riêng nhóm BoDe có kiểm tra quyền PGV/GV để giảng viên thường chỉ thao tác câu hỏi của mình.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_5_BoDe_Xoa]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_5_BoDe_Xoa];
 GO
@@ -2371,6 +2453,12 @@ GO
     - Chay file nay tren database THI_TRAC_NGHIEM bang tai khoan co quyen ALTER PROCEDURE.
 */
 
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_4_6_DoiMatKhauGiangVien
+   - Đổi mật khẩu cho tài khoản PGV/GIANGVIEN trong bảng TaiKhoan.
+   - Kiểm tra mật khẩu hiện tại, độ dài mật khẩu mới và không cho đặt lại mật khẩu cũ.
+   - Dùng cho màn hình đổi mật khẩu.
+*/
 IF OBJECT_ID(N'[dbo].[sp_4_6_DoiMatKhauGiangVien]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_4_6_DoiMatKhauGiangVien];
 GO
@@ -2443,6 +2531,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_BangDiemMonHoc
+   - Lấy bảng điểm theo lớp, môn học và lần thi.
+   - Kết quả gồm thông tin sinh viên, ngày thi, điểm và trạng thái có/chưa có điểm.
+   - Dùng cho màn hình bảng điểm và chức năng xuất điểm.
+*/
 IF OBJECT_ID(N'[dbo].[sp_BangDiemMonHoc]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_BangDiemMonHoc];
 GO
@@ -2483,6 +2577,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_BatDauThi
+   - Tạo phiên bài thi chính thức cho sinh viên.
+   - Nếu sinh viên còn bài DANG_THI thì trả lại bài cũ để tiếp tục, không phát đề mới.
+   - Nếu chưa có bài, SP phát đề và lưu snapshot câu hỏi/đáp án đã xáo vào BaiThi_CauTraLoi.
+*/
 IF OBJECT_ID(N'[dbo].[sp_BatDauThi]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_BatDauThi];
 GO
@@ -2629,6 +2729,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_ChamDiem
+   - Thực hiện thao tác quản lý cho nghiệp vụ liên quan.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_ChamDiem]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_ChamDiem];
 GO
@@ -2667,6 +2773,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_DangKyThi
+   - Đăng ký hoặc cập nhật lịch thi cho một lớp theo môn, trình độ, lần thi, số câu và thời gian.
+   - SP chuẩn hóa dữ liệu đầu vào, kiểm tra lớp/môn/giảng viên tồn tại và ghi vào GiaoVien_DangKy.
+   - Trigger trg_GiaoVienDangKy_KiemTraHopLe tiếp tục kiểm tra điều kiện sâu hơn như đủ câu hỏi, ngày thi và phát sinh điểm/bài thi.
+*/
 IF OBJECT_ID(N'[dbo].[sp_DangKyThi]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_DangKyThi];
 GO
@@ -2737,6 +2849,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_LuuTamCauTraLoi
+   - Lưu đáp án sinh viên chọn trong lúc làm bài.
+   - Chỉ cho lưu khi bài thi còn trạng thái DANG_THI và chưa quá thời gian kết thúc.
+   - Giúp ứng dụng tự động lưu tiến độ làm bài.
+*/
 IF OBJECT_ID(N'[dbo].[sp_LuuTamCauTraLoi]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_LuuTamCauTraLoi];
 GO
@@ -2791,6 +2909,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_NopBai
+   - Nộp bài thi, chấm điểm và ghi kết quả chính thức.
+   - SP đếm số câu đúng, tính điểm, cập nhật BaiThi sang DA_NOP/HET_GIO và ghi BangDiem.
+   - Có transaction để trạng thái bài thi và bảng điểm nhất quán.
+*/
 IF OBJECT_ID(N'[dbo].[sp_NopBai]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_NopBai];
 GO
@@ -2894,6 +3018,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_SuaSinhVien
+   - Thực hiện thao tác quản lý cho sinh viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_SuaSinhVien]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_SuaSinhVien];
 GO
@@ -2927,6 +3057,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_ThemSinhVien
+   - Thực hiện thao tác quản lý cho sinh viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_ThemSinhVien]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_ThemSinhVien];
 GO
@@ -2955,6 +3091,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_Thi_PhatDeNgauNhien
+   - Phát đề thi chính thức theo lịch thi của sinh viên.
+   - SP chọn câu ngẫu nhiên, bảo đảm không trùng câu, áp dụng quy tắc trình độ 70/30 và xáo thứ tự A/B/C/D từng câu.
+   - Trả về đáp án đúng sau khi xáo để lưu snapshot trong BaiThi_CauTraLoi, không hiển thị cho sinh viên.
+*/
 IF OBJECT_ID(N'[dbo].[sp_Thi_PhatDeNgauNhien]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_Thi_PhatDeNgauNhien];
 GO
@@ -3167,6 +3309,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_ThiThu_PhatDe
+   - Phát đề thi thử cho giảng viên.
+   - Không tạo BaiThi, không ghi BangDiem, chỉ lấy câu hỏi ngẫu nhiên để kiểm tra ngân hàng đề.
+   - Có kiểm tra số câu và trình độ trước khi phát đề.
+*/
 IF OBJECT_ID(N'[dbo].[sp_ThiThu_PhatDe]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_ThiThu_PhatDe];
 GO
@@ -3252,6 +3400,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_TraCuuKetQua
+   - Tra cứu kết quả bài thi của sinh viên.
+   - Trả thông tin tổng quan bài thi và chi tiết từng câu, gồm đáp án chọn và đáp án đúng.
+   - Dùng cho màn hình kết quả sau khi nộp bài.
+*/
 IF OBJECT_ID(N'[dbo].[sp_TraCuuKetQua]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_TraCuuKetQua];
 GO
@@ -3311,6 +3465,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_TTN_Backup_TaoDevice
+   - Tạo backup device vật lý cho database THI_TRAC_NGHIEM.
+   - Tự xác định thư mục backup mặc định hoặc thư mục truyền vào và ghi lịch sử vào BackupRestoreHistory.
+   - Được sp_TTN_Backup_Full gọi trước khi backup full.
+*/
 IF OBJECT_ID(N'[dbo].[sp_TTN_Backup_TaoDevice]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_TTN_Backup_TaoDevice];
 GO
@@ -3367,6 +3527,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_TTN_Backup_Full
+   - Thực hiện full backup database và kiểm tra file bằng RESTORE VERIFYONLY.
+   - Ghi lại thông tin backup vào BackupRestoreHistory.
+   - Dùng cho phần quản trị CSDL/khôi phục dữ liệu.
+*/
 IF OBJECT_ID(N'[dbo].[sp_TTN_Backup_Full]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_TTN_Backup_Full];
 GO
@@ -3417,6 +3583,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_TTN_Backup_Log
+   - Backup transaction log để hỗ trợ restore theo thời điểm.
+   - Chỉ chạy khi database dùng FULL hoặc BULK_LOGGED recovery model.
+   - Tạo file log backup riêng theo timestamp và ghi lịch sử thao tác.
+*/
 IF OBJECT_ID(N'[dbo].[sp_TTN_Backup_Log]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_TTN_Backup_Log];
 GO
@@ -3484,6 +3656,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_TTN_Backup_DanhSach
+   - Liệt kê các bản backup đã ghi nhận trong msdb.
+   - Trả loại backup, thời gian, kích thước và đường dẫn file backup.
+   - Dùng để chọn bản backup khi cần restore hoặc kiểm tra lịch sử sao lưu.
+*/
 IF OBJECT_ID(N'[dbo].[sp_TTN_Backup_DanhSach]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_TTN_Backup_DanhSach];
 GO
@@ -3520,6 +3698,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_TTN_TuDongNopBaiHetGio
+   - Tự động nộp các bài thi đã quá KETTHUC_LUC nhưng vẫn còn trạng thái DANG_THI.
+   - SP chấm điểm các bài quá giờ và cập nhật trạng thái HET_GIO.
+   - SQL Server Agent Job có thể gọi SP này định kỳ.
+*/
 IF OBJECT_ID(N'[dbo].[sp_TTN_TuDongNopBaiHetGio]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_TTN_TuDongNopBaiHetGio];
 GO
@@ -3602,6 +3786,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_XoaSinhVien
+   - Thực hiện thao tác quản lý cho sinh viên.
+   - SP đặt logic kiểm tra và thao tác dữ liệu ở tầng SQL Server để ứng dụng gọi thống nhất.
+   - Các bản ghi xóa mềm được xử lý qua IS_DELETED, DELETED_AT, DELETED_BY khi cần giữ lịch sử.
+*/
 IF OBJECT_ID(N'[dbo].[sp_XoaSinhVien]', N'P') IS NOT NULL
     DROP PROCEDURE [dbo].[sp_XoaSinhVien];
 GO
@@ -3635,6 +3825,12 @@ GO
 */
 
 /* 1. Do not delete a class while it still has students. */
+/*
+   CHÚ THÍCH TRIGGER: trg_Lop_KhongXoaKhiConSinhVien
+   - Chặn xóa lớp nếu lớp vẫn còn sinh viên liên quan.
+   - Trigger dạng INSTEAD OF DELETE: kiểm tra bảng deleted trước, nếu còn sinh viên thì THROW lỗi.
+   - Nếu không còn sinh viên, trigger mới thực hiện DELETE thật trên Lop.
+*/
 IF OBJECT_ID('dbo.trg_Lop_KhongXoaKhiConSinhVien', 'TR') IS NOT NULL
     DROP TRIGGER dbo.trg_Lop_KhongXoaKhiConSinhVien;
 GO
@@ -3668,6 +3864,12 @@ END;
 GO
 
 /* 2. Do not delete a student that already has scores or stored exam attempts. */
+/*
+   CHÚ THÍCH TRIGGER: trg_SinhVien_KhongXoaKhiDaCoDiem
+   - Chặn xóa sinh viên đã có bảng điểm hoặc đã phát sinh bài thi.
+   - Bảo vệ lịch sử thi, tránh mất dữ liệu điểm và chi tiết bài làm.
+   - Trigger dạng INSTEAD OF DELETE: chỉ cho xóa khi sinh viên chưa có dữ liệu phụ thuộc.
+*/
 IF OBJECT_ID('dbo.trg_SinhVien_KhongXoaKhiDaCoDiem', 'TR') IS NOT NULL
     DROP TRIGGER dbo.trg_SinhVien_KhongXoaKhiDaCoDiem;
 GO
@@ -3706,6 +3908,13 @@ END;
 GO
 
 /* 3. Validate exam registration before saving teacher registration rows. */
+/*
+   CHÚ THÍCH TRIGGER: trg_GiaoVienDangKy_KiemTraHopLe
+   - Kiểm tra lịch thi sau khi thêm hoặc cập nhật GiaoVien_DangKy.
+   - Chặn lần thi ngoài 1-2, số câu/thời gian/trình độ không hợp lệ, ngày thi quá khứ, lớp chưa có sinh viên.
+   - Gọi fn_DuSoCauThi để bảo đảm ngân hàng đề đủ câu theo quy tắc 70/30 trước khi cho lưu lịch thi.
+   - Cũng chặn sửa lịch thi đã phát sinh bài thi hoặc bảng điểm.
+*/
 IF OBJECT_ID('dbo.trg_GiaoVienDangKy_KiemTraHopLe', 'TR') IS NOT NULL
     DROP TRIGGER dbo.trg_GiaoVienDangKy_KiemTraHopLe;
 GO
@@ -3784,6 +3993,12 @@ END;
 GO
 
 /* 4. Validate score rows and keep BangDiem consistent with registrations. */
+/*
+   CHÚ THÍCH TRIGGER: trg_BangDiem_KiemTraHopLe
+   - Kiểm tra dữ liệu bảng điểm sau khi thêm hoặc sửa.
+   - Chặn điểm ngoài khoảng 0-10, lần thi ngoài 1-2 và chặn ghi điểm nếu sinh viên không có lịch thi tương ứng.
+   - Bảo đảm ngày ghi điểm không được trước ngày thi đã đăng ký.
+*/
 IF OBJECT_ID('dbo.trg_BangDiem_KiemTraHopLe', 'TR') IS NOT NULL
     DROP TRIGGER dbo.trg_BangDiem_KiemTraHopLe;
 GO
@@ -3843,6 +4058,12 @@ END;
 GO
 
 /* 5. Validate stored answer details of an exam attempt. */
+/*
+   CHÚ THÍCH TRIGGER: trg_BaiThiCauTraLoi_KiemTraHopLe
+   - Kiểm tra chi tiết câu trả lời của bài thi khi insert/update.
+   - Chặn thứ tự câu không hợp lệ, đáp án ngoài A/B/C/D, thiếu môn/trình độ/nội dung câu hỏi.
+   - Không cho sửa câu trả lời nếu bài thi đã nộp hoặc đã hết giờ, và bắt buộc câu hỏi thuộc đúng môn thi.
+*/
 IF OBJECT_ID('dbo.trg_BaiThiCauTraLoi_KiemTraHopLe', 'TR') IS NOT NULL
     DROP TRIGGER dbo.trg_BaiThiCauTraLoi_KiemTraHopLe;
 GO
@@ -3897,6 +4118,12 @@ END;
 GO
 
 /* 6. Audit changes on exam registrations. */
+/*
+   CHÚ THÍCH TRIGGER: trg_Audit_GiaoVienDangKy
+   - Ghi audit khi lịch thi được thêm, sửa hoặc xóa.
+   - Lưu khóa nghiệp vụ MALOP|MAMH|LAN và mô tả giảng viên, số câu, thời gian.
+   - Giúp truy vết ai đã thay đổi lịch thi trong hệ thống.
+*/
 IF OBJECT_ID('dbo.trg_Audit_GiaoVienDangKy', 'TR') IS NOT NULL
     DROP TRIGGER dbo.trg_Audit_GiaoVienDangKy;
 GO
@@ -3927,6 +4154,12 @@ END;
 GO
 
 /* 7. Audit changes on question bank. */
+/*
+   CHÚ THÍCH TRIGGER: trg_Audit_BoDe
+   - Ghi audit khi ngân hàng câu hỏi thay đổi.
+   - Lưu mã câu hỏi, môn học, trình độ và đáp án sau thao tác insert/update/delete.
+   - Hỗ trợ kiểm tra lịch sử chỉnh sửa đề thi.
+*/
 IF OBJECT_ID('dbo.trg_Audit_BoDe', 'TR') IS NOT NULL
     DROP TRIGGER dbo.trg_Audit_BoDe;
 GO
@@ -3954,6 +4187,12 @@ END;
 GO
 
 /* 8. Audit score changes. */
+/*
+   CHÚ THÍCH TRIGGER: trg_Audit_BangDiem
+   - Ghi audit khi bảng điểm thay đổi.
+   - Lưu khóa MASV|MAMH|LAN và điểm cũ/điểm mới để truy vết sửa điểm.
+   - Đây là audit quan trọng vì điểm thi là dữ liệu nhạy cảm.
+*/
 IF OBJECT_ID('dbo.trg_Audit_BangDiem', 'TR') IS NOT NULL
     DROP TRIGGER dbo.trg_Audit_BangDiem;
 GO
@@ -3984,6 +4223,12 @@ END;
 GO
 
 /* 9. Audit account changes. */
+/*
+   CHÚ THÍCH TRIGGER: trg_Audit_TaiKhoan
+   - Ghi audit khi tài khoản ứng dụng được thêm, sửa hoặc xóa.
+   - Lưu login, role và mã giảng viên liên kết.
+   - Hỗ trợ theo dõi thay đổi quyền đăng nhập của GV/PGV.
+*/
 IF OBJECT_ID('dbo.trg_Audit_TaiKhoan', 'TR') IS NOT NULL
     DROP TRIGGER dbo.trg_Audit_TaiKhoan;
 GO
@@ -4214,6 +4459,12 @@ GO
 USE [master]
 GO
 
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_TTN_Restore_Full
+   - Procedure trong master dùng để restore full backup cho database.
+   - Chuyển database sang SINGLE_USER, restore với CHECKSUM rồi trả về MULTI_USER.
+   - Dùng khi cần phục hồi toàn bộ database.
+*/
 IF OBJECT_ID('dbo.sp_TTN_Restore_Full', 'P') IS NOT NULL
     DROP PROCEDURE dbo.sp_TTN_Restore_Full;
 GO
@@ -4255,6 +4506,12 @@ BEGIN
 END;
 GO
 
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_TTN_Restore_PointInTime
+   - Procedure trong master dùng để restore database về một thời điểm cụ thể.
+   - Cần full backup và log backup; restore full với NORECOVERY rồi restore log với STOPAT.
+   - Phục vụ tình huống phục hồi dữ liệu trước thời điểm xảy ra lỗi.
+*/
 IF OBJECT_ID('dbo.sp_TTN_Restore_PointInTime', 'P') IS NOT NULL
     DROP PROCEDURE dbo.sp_TTN_Restore_PointInTime;
 GO
@@ -4306,6 +4563,12 @@ BEGIN
 END;
 GO
 
+/*
+   CHÚ THÍCH STORED PROCEDURE: sp_TTN_Restore_SinhLenh
+   - Sinh ra các câu lệnh restore tương ứng với tham số truyền vào.
+   - Dùng để kiểm tra lệnh restore trước khi thực thi thật.
+   - Không tự restore dữ liệu, chỉ trả về script gợi ý.
+*/
 IF OBJECT_ID('dbo.sp_TTN_Restore_SinhLenh', 'P') IS NOT NULL
     DROP PROCEDURE dbo.sp_TTN_Restore_SinhLenh;
 GO

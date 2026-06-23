@@ -1,8 +1,12 @@
-﻿/*
+/*
     ============================================================
-    FILE 01 - TẠO DATABASE TỔNG TỪ db_final.sql
-    Tạo database, bảng, dữ liệu mẫu, khóa, ràng buộc và index.
-    Chạy file này trước file 02.
+    FILE 01 - TẠO DATABASE TỔNG
+    Chạy trước file 02_db_final_views_sp_triggers.sql.
+
+    Ghi chú:
+    - File này tạo database, user/role, bảng, dữ liệu mẫu, khóa, ràng buộc và index.
+    - Các bảng và các phần dữ liệu/ràng buộc chính đều có chú thích ngay trước đoạn script tương ứng.
+    - Nếu database THI_TRAC_NGHIEM đã tồn tại, script sẽ dừng để tránh ghi đè nhầm dữ liệu.
     ============================================================
 */
 
@@ -156,6 +160,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH BẢNG: GiaoVien
+   - Lưu hồ sơ giảng viên và phòng giáo vụ.
+   - MAGV là khóa chính dùng liên kết với TaiKhoan, BoDe và GiaoVien_DangKy.
+   - IS_DELETED, DELETED_AT, DELETED_BY phục vụ xóa mềm để giữ lịch sử dữ liệu.
+*/
 CREATE TABLE [dbo].[GiaoVien](
 	[MAGV] [nchar](8) NOT NULL,
 	[HO] [nvarchar](40) NULL,
@@ -177,6 +187,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH BẢNG: TaiKhoan
+   - Lưu tài khoản đăng nhập ứng dụng cho PGV và GIANGVIEN.
+   - LOGINNAME là khóa chính; ROLE_NAME xác định quyền nghiệp vụ; MAGV liên kết về GiaoVien.
+   - Bảng này không dùng cho sinh viên, sinh viên đăng nhập bằng MASV.
+*/
 CREATE TABLE [dbo].[TaiKhoan](
 	[LOGINNAME] [nvarchar](50) NOT NULL,
 	[MATKHAU] [nvarchar](255) NOT NULL,
@@ -196,6 +212,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH BẢNG: Lop
+   - Lưu danh mục lớp sinh viên.
+   - MALOP là khóa chính, TENLOP có ràng buộc duy nhất để tránh trùng tên lớp.
+   - Dùng làm gốc cho SinhVien và GiaoVien_DangKy.
+*/
 CREATE TABLE [dbo].[Lop](
 	[MALOP] [nchar](15) NOT NULL,
 	[TENLOP] [nvarchar](40) NOT NULL,
@@ -214,6 +236,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH BẢNG: SinhVien
+   - Lưu thông tin sinh viên và lớp sinh viên đang theo học.
+   - MASV được tạo unique index để BaiThi và BangDiem tham chiếu ổn định.
+   - Dữ liệu sinh viên dùng cho đăng nhập sinh viên, phòng thi và bảng điểm.
+*/
 CREATE TABLE [dbo].[SinhVien](
 	[MASV] [nchar](10) NOT NULL,
 	[HO] [nvarchar](40) NULL,
@@ -232,6 +260,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH BẢNG: MonHoc
+   - Lưu danh mục môn học thi trắc nghiệm.
+   - MAMH là khóa chính và có check viết hoa để chuẩn hóa mã môn.
+   - Môn học liên kết với BoDe, GiaoVien_DangKy, BaiThi và BangDiem.
+*/
 CREATE TABLE [dbo].[MonHoc](
 	[MAMH] [nchar](5) NOT NULL,
 	[TENMH] [nvarchar](40) NOT NULL,
@@ -250,6 +284,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH BẢNG: GiaoVien_DangKy
+   - Lưu lịch thi do giảng viên hoặc PGV đăng ký cho từng lớp, môn và lần thi.
+   - Khóa chính gồm MALOP, MAMH, LAN để một lớp chỉ có một lịch cho mỗi môn/lần thi.
+   - TRINHDO, SOCAUTHI, THOIGIAN là dữ liệu đầu vào cho phát đề và tính thời gian thi.
+*/
 CREATE TABLE [dbo].[GiaoVien_DangKy](
 	[MAGV] [nchar](8) NOT NULL,
 	[MALOP] [nchar](15) NOT NULL,
@@ -273,6 +313,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH BẢNG: BoDe
+   - Lưu ngân hàng câu hỏi trắc nghiệm.
+   - Mỗi câu có môn, trình độ A/B/C, bốn đáp án A/B/C/D, đáp án đúng và giảng viên soạn.
+   - IS_DELETED giúp xóa mềm câu hỏi mà không làm mất lịch sử bài thi đã phát.
+*/
 CREATE TABLE [dbo].[BoDe](
 	[MAMH] [nchar](5) NOT NULL,
 	[CAUHOI] [int] IDENTITY(1,1) NOT NULL,
@@ -299,6 +345,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH BẢNG: BaiThi_CauTraLoi
+   - Lưu snapshot từng câu hỏi trong một bài thi đã phát cho sinh viên.
+   - Bảng giữ nội dung câu hỏi, đáp án đã xáo, đáp án đúng và đáp án sinh viên chọn.
+   - Việc lưu snapshot giúp bài thi cũ không bị ảnh hưởng nếu câu hỏi trong BoDe bị sửa sau này.
+*/
 CREATE TABLE [dbo].[BaiThi_CauTraLoi](
 	[MABT] [bigint] NOT NULL,
 	[CAUHOI] [int] NOT NULL,
@@ -325,6 +377,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH BẢNG: BaiThi
+   - Lưu thông tin tổng quát của một phiên làm bài.
+   - Theo dõi sinh viên, môn, lần thi, thời điểm bắt đầu/kết thúc/nộp bài, số câu đúng và điểm.
+   - TRANGTHAI phân biệt DANG_THI, DA_NOP, HET_GIO để SP và trigger kiểm soát luồng thi.
+*/
 CREATE TABLE [dbo].[BaiThi](
 	[MABT] [bigint] IDENTITY(1,1) NOT NULL,
 	[MASV] [nchar](10) NOT NULL,
@@ -351,6 +409,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH BẢNG: BangDiem
+   - Lưu điểm chính thức của sinh viên theo môn và lần thi.
+   - Dữ liệu được ghi sau khi nộp bài hoặc tự động nộp bài hết giờ.
+   - Check constraint bảo đảm LAN hợp lệ và DIEM nằm trong khoảng 0-10.
+*/
 CREATE TABLE [dbo].[BangDiem](
 	[MASV] [nchar](10) NOT NULL,
 	[MAMH] [nchar](5) NOT NULL,
@@ -365,6 +429,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH BẢNG: AuditLog
+   - Lưu nhật ký thay đổi dữ liệu quan trọng do các trigger audit ghi lại.
+   - Ghi thời điểm, SQL login, database user, login ứng dụng, object bị tác động, hành động và khóa nghiệp vụ.
+   - Dùng để truy vết thay đổi lịch thi, câu hỏi, điểm và tài khoản.
+*/
 CREATE TABLE [dbo].[AuditLog](
 	[AUDIT_ID] [bigint] IDENTITY(1,1) NOT NULL,
 	[EVENT_TIME] [datetime2](0) NOT NULL,
@@ -387,6 +457,12 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+/*
+   CHÚ THÍCH BẢNG: BackupRestoreHistory
+   - Lưu lịch sử thao tác backup/restore.
+   - Ghi loại backup, đường dẫn file, backup device, người thực hiện và thời điểm thực hiện.
+   - Dùng cho các SP quản trị backup/restore ở file 02.
+*/
 CREATE TABLE [dbo].[BackupRestoreHistory](
 	[ID] [bigint] IDENTITY(1,1) NOT NULL,
 	[ACTION_NAME] [nvarchar](30) NOT NULL,
@@ -409,6 +485,12 @@ GO
    PHẦN 2. DỮ LIỆU MẪU / DỮ LIỆU HIỆN CÓ TỪ db_final.sql
    ============================================================ */
 
+/*
+   CHÚ THÍCH PHẦN DỮ LIỆU MẪU
+   - Dữ liệu insert trong phần này là dữ liệu hiện có được trích từ db_final.sql.
+   - Bao gồm dữ liệu mẫu cho giảng viên, tài khoản, lớp, sinh viên, môn học, câu hỏi, lịch thi, bài thi, bảng điểm và audit.
+   - Khi demo, dữ liệu này giúp chạy ngay các luồng đăng nhập, quản lý câu hỏi, đăng ký thi, làm bài và xem điểm mà không cần nhập tay từ đầu.
+*/
 SET IDENTITY_INSERT [dbo].[AuditLog] ON 
 
 INSERT [dbo].[AuditLog] ([AUDIT_ID], [EVENT_TIME], [DB_LOGIN], [DB_USER_NAME], [APP_LOGINNAME], [OBJECT_NAME], [ACTION_NAME], [KEY_VALUE], [DESCRIPTION]) VALUES (3, CAST(N'2026-06-23T09:35:54.0000000' AS DateTime2), N'sa', N'dbo', N'pgv1', N'TaiKhoan', N'INSERT', N'pgv2', N'ROLE=PGV; MAGV=GV000004')
@@ -626,6 +708,13 @@ SET ANSI_PADDING ON
 GO
 
 /****** Object:  Index [IX_AuditLog_Object_Time]    Script Date: 6/23/2026 5:21:00 PM ******/
+/*
+   CHÚ THÍCH PHẦN KHÓA, INDEX, DEFAULT, FOREIGN KEY, CHECK
+   - Các index tăng tốc truy vấn cho màn hình danh sách, lọc theo lớp/môn/lần thi và tra cứu audit.
+   - Default constraint tự điền trạng thái, ngày tạo, thời điểm audit và trạng thái xóa mềm.
+   - Foreign key giữ toàn vẹn quan hệ giữa sinh viên-lớp, câu hỏi-môn-giảng viên, lịch thi-lớp-môn-giảng viên, bài thi-sinh viên-môn.
+   - Check constraint chặn dữ liệu sai như điểm ngoài 0-10, lần thi ngoài 1-2, trình độ ngoài A/B/C, đáp án ngoài A/B/C/D.
+*/
 CREATE NONCLUSTERED INDEX [IX_AuditLog_Object_Time] ON [dbo].[AuditLog]
 (
 	[OBJECT_NAME] ASC,
