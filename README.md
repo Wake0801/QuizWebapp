@@ -1,147 +1,248 @@
-# QuizWebapp - He thong thi trac nghiem SQL Server
+# QuizWebapp - Hệ thống thi trắc nghiệm SQL Server
 
-Du an la ung dung thi trac nghiem cho mon He Quan Tri Co So Du Lieu, tap trung vao xu ly nghiep vu tai tang SQL Server: stored procedure, trigger, view, phan quyen, audit, backup va restore.
+Đây là ứng dụng web thi trắc nghiệm cho môn **Hệ Quản Trị Cơ Sở Dữ Liệu**, xây dựng bằng Spring Boot, Thymeleaf và SQL Server. Điểm chính của dự án là đưa phần nghiệp vụ quan trọng xuống tầng database: bảng dữ liệu, view, function, stored procedure, trigger, audit, phân quyền, backup/restore và SQL Server Agent Job.
 
-## Cau truc file DB
+## Công nghệ sử dụng
 
-Thu muc `database/` chua cac file SQL bo sung cho phan HQT CSDL:
+- Java 21
+- Spring Boot 4
+- Spring MVC
+- Spring Data JPA
+- Thymeleaf
+- SQL Server
+- Maven
 
-- `database/db_nghiepvu_thi.sql`: bo sung bang nghiep vu bai thi, view, function, stored procedure, index, phan quyen va chan truy cap truc tiep bang goc.
-- `database/db_triggers_thi.sql`: trigger kiem tra rang buoc nghiep vu va audit thay doi du lieu.
-- `database/db_backup_restore.sql`: procedure backup full, backup log, liet ke backup, restore full va restore theo thoi diem.
-- `database/db_sql_agent_jobs.sql`: SQL Server Agent Job tu dong nop bai khi bai thi het gio.
-- `database/db_test_cases.sql`: script kiem thu nhanh cac function, procedure, trigger, audit va quyen truy cap.
+## Cấu trúc chính
 
-File `thitracnghiem_db.sql` la file DB tong tao schema va du lieu nen chay truoc cac file trong `database/`.
+- `src/main/java`: mã nguồn backend Spring Boot.
+- `src/main/resources/templates`: giao diện Thymeleaf cho giảng viên và sinh viên.
+- `src/main/resources/static`: CSS, JavaScript, hình ảnh.
+- `src/main/resources/application.yml`: cấu hình kết nối SQL Server.
+- `database/01_db_final_tao_database.sql`: tạo database tổng, bảng, dữ liệu mẫu, khóa, ràng buộc và index.
+- `database/02_db_final_views_sp_triggers.sql`: tạo view, function, stored procedure, trigger, phân quyền, backup/restore và SQL Server Agent Job.
 
-## Thu tu khoi tao database
+Hiện tại chỉ cần dùng **2 file trong thư mục `database/`** để dựng lại database đầy đủ.
 
-Chay trong SQL Server Management Studio theo thu tu:
+## Yêu cầu môi trường
 
-```sql
--- 1. Tao database tong, bang goc, du lieu mau
-:r .\thitracnghiem_db.sql
+- Cài JDK 21.
+- Cài Maven hoặc dùng Maven Wrapper nếu môi trường hỗ trợ.
+- Cài SQL Server và SQL Server Management Studio.
+- SQL Server đang chạy tại `localhost:1433` hoặc cập nhật lại chuỗi kết nối trong `application.yml`.
+- Tài khoản SQL Server có quyền tạo database, tạo user/role, tạo procedure, trigger và job.
 
--- 2. Them nghiep vu thi, SP, view, function, phan quyen
-:r .\database\db_nghiepvu_thi.sql
+## Khởi tạo database
 
--- 3. Them trigger kiem soat du lieu va audit
-:r .\database\db_triggers_thi.sql
+Mở SQL Server Management Studio và chạy theo đúng thứ tự:
 
--- 4. Them backup/restore procedure
-:r .\database\db_backup_restore.sql
-
--- 5. Tuy chon: tao SQL Server Agent Job tu dong nop bai het gio
-:r .\database\db_sql_agent_jobs.sql
-
--- 6. Tuy chon: chay bo test DB
-:r .\database\db_test_cases.sql
-```
-
-Neu khong dung SQLCMD Mode trong SSMS, co the mo tung file va execute theo dung thu tu tren.
-
-## Nghiep vu CSDL da trien khai
-
-### Dang ky thi
-
-Procedure `sp_DangKyThi` cho giao vien/PGV tao hoac cap nhat lich thi theo lop, mon, lan thi. DB kiem tra lan thi chi duoc 1 hoac 2, so cau tu 10 den 100, thoi gian tu 5 den 60 phut va bo de phai du cau theo quy tac trinh do 70/30.
-
-Trigger `trg_GiaoVienDangKy_KiemTraHopLe` tiep tuc bao ve o tang DB: khong cho lich thi qua khu, khong cho dang ky lop chua co sinh vien, khong cho sua lich da phat sinh bai thi hoac bang diem.
-
-### Phat de va xao dap an
-
-Procedure `sp_Thi_PhatDeNgauNhien` phat de theo lich thi cua sinh vien. Cau hoi duoc lay ngau nhien bang `ORDER BY NEWID()`. Voi trinh do A/B, DB lay toi thieu 70% cau dung trinh do va toi da 30% cau thap hon. Voi trinh do C, DB chi lay cau C.
-
-Dap an A/B/C/D duoc xao rieng tung cau bang 24 hoan vi. DB tinh lai `DAP_AN_MOI` sau khi xao, nen dap an dung khong bi lech voi noi dung dap an.
-
-### Bat dau thi va tiep tuc bai dang thi
-
-Procedure `sp_BatDauThi` tao bai thi trong transaction. Neu sinh vien da co bai `DANG_THI`, DB tra ve lai `MABT` cu thay vi phat de moi. Vi vay neu dang thi bi ngat, dang nhap lai se tiep tuc bai dang lam va giu dung thoi gian con lai.
-
-Bai thi duoc luu trong `BaiThi`, tung cau va dap an da xao duoc luu trong `BaiThi_CauTraLoi`.
-
-### Luu dap an va nop bai
-
-Procedure `sp_LuuTamCauTraLoi` luu dap an sinh vien chon. DB chi cho luu khi bai thi dang o trang thai `DANG_THI` va chua het gio.
-
-Procedure `sp_NopBai` dem so cau dung, tinh diem bang `fn_TinhDiemThi`, ghi vao `BangDiem`, cap nhat trang thai `DA_NOP` hoac `HET_GIO`.
-
-Procedure `sp_TTN_TuDongNopBaiHetGio` xu ly cac bai thi da qua `KETTHUC_LUC` nhung chua nop. File `db_sql_agent_jobs.sql` tao job chay moi 1 phut de goi procedure nay.
-
-### Tra cuu ket qua va bang diem
-
-Procedure `sp_TraCuuKetQua` tra ve thong tin tong quan bai thi va chi tiet tung cau tra loi.
-
-Procedure `sp_BangDiemMonHoc` tra bang diem theo lop, mon, lan thi. Chuc nang export Excel tren web lay du lieu tu luong nay.
-
-View `v_4_8_KetQuaThi` va `v_4_9_BangDiem_Thi` ho tro xem ket qua, dap an va diem chu.
-
-## Trigger va audit
-
-File `database/db_triggers_thi.sql` gom cac trigger chinh:
-
-- `trg_Lop_KhongXoaKhiConSinhVien`: khong cho xoa lop khi con sinh vien.
-- `trg_SinhVien_KhongXoaKhiDaCoDiem`: khong cho xoa sinh vien da co diem hoac bai thi.
-- `trg_GiaoVienDangKy_KiemTraHopLe`: kiem tra lich thi hop le.
-- `trg_BangDiem_KiemTraHopLe`: chan diem ngoai khoang 0-10 va chan ghi diem khi khong co lich thi.
-- `trg_BaiThiCauTraLoi_KiemTraHopLe`: chan sua cau tra loi khi bai da nop/het gio.
-- `trg_Audit_GiaoVienDangKy`: ghi audit lich thi.
-- `trg_Audit_BoDe`: ghi audit ngan hang cau hoi.
-- `trg_Audit_BangDiem`: ghi audit thay doi diem.
-- `trg_Audit_TaiKhoan`: ghi audit thay doi tai khoan.
-
-Bang `AuditLog` luu thoi diem, SQL login, database user, login ung dung `APP_LOGINNAME`, bang bi tac dong, hanh dong va mo ta chi tiet.
-
-## Phan quyen CSDL
-
-He thong dung cac role:
-
-- `Sinhvien`: duoc bat dau thi, luu dap an, nop bai, xem ket qua qua SP/view.
-- `Giangvien`: duoc dang ky thi, thi thu, xem bang diem, quan ly cau hoi cua minh.
-- `PGV`: co quyen quan tri cao hon, tao tai khoan, xem audit, chay backup.
-
-Script nghiep vu co `DENY SELECT, INSERT, UPDATE, DELETE` truc tiep tren cac bang goc cho cac role ung dung. Nguoi dung phai thao tac qua stored procedure va view da duoc cap quyen.
-
-## Backup va restore
-
-File `database/db_backup_restore.sql` tao:
-
-- `BackupRestoreHistory`: luu lich su backup/restore.
-- `sp_TTN_Backup_TaoDevice`: tao backup device.
-- `sp_TTN_Backup_Full`: backup full database va verify bang `RESTORE VERIFYONLY`.
-- `sp_TTN_Backup_Log`: backup transaction log de phuc vu restore theo thoi diem.
-- `sp_TTN_Backup_DanhSach`: liet ke backup tu `msdb`.
-- `master.dbo.sp_TTN_Restore_Full`: restore full backup.
-- `master.dbo.sp_TTN_Restore_PointInTime`: restore ve mot thoi diem bang full backup va log backup.
-- `master.dbo.sp_TTN_Restore_SinhLenh`: sinh cau lenh restore de demo an toan.
-
-Vi du backup:
+1. Chạy file tạo database tổng:
 
 ```sql
-EXEC dbo.sp_TTN_Backup_TaoDevice;
-EXEC dbo.sp_TTN_Backup_Full;
-EXEC dbo.sp_TTN_Backup_DanhSach;
+:r .\database\01_db_final_tao_database.sql
 ```
 
-Muon restore theo thoi diem, database can dung recovery model `FULL` va phai co log backup:
+2. Chạy file tạo nghiệp vụ database:
 
 ```sql
-ALTER DATABASE [THI_TRAC_NGHIEM] SET RECOVERY FULL;
-EXEC dbo.sp_TTN_Backup_Full;
-EXEC dbo.sp_TTN_Backup_Log;
+:r .\database\02_db_final_views_sp_triggers.sql
 ```
 
-## Chay ung dung
+Nếu không dùng SQLCMD Mode trong SSMS, có thể mở từng file rồi bấm Execute theo đúng thứ tự trên.
 
-Cap nhat ket noi SQL Server trong `src/main/resources/application.yml`, sau do chay:
+Lưu ý:
+
+- File `01_db_final_tao_database.sql` sẽ dừng nếu database `THI_TRAC_NGHIEM` đã tồn tại, nhằm tránh ghi đè nhầm dữ liệu.
+- Nếu muốn dựng lại từ đầu, hãy backup dữ liệu cần giữ rồi drop database `THI_TRAC_NGHIEM` cũ trước khi chạy file 01.
+- File 02 cần các bảng từ file 01, vì vậy không chạy file 02 trước.
+- Phần SQL Server Agent Job trong file 02 cần SQL Server Agent và quyền phù hợp. Nếu máy không bật Agent, phần job có thể lỗi nhưng phần bảng, view, function, stored procedure và trigger vẫn là phần chính của database.
+
+## Nội dung database đã triển khai
+
+Database `THI_TRAC_NGHIEM` gồm các nhóm chức năng chính:
+
+- Quản lý tài khoản giảng viên, phòng giáo vụ.
+- Quản lý lớp, sinh viên, môn học, giảng viên.
+- Quản lý ngân hàng câu hỏi.
+- Đăng ký lịch thi theo lớp, môn, lần thi, trình độ, số câu và thời gian.
+- Phát đề ngẫu nhiên theo lịch thi.
+- Lưu tạm câu trả lời trong lúc sinh viên làm bài.
+- Nộp bài, tự động chấm điểm và ghi bảng điểm.
+- Tra cứu kết quả thi và chi tiết đáp án.
+- Audit thay đổi dữ liệu quan trọng.
+- Phân quyền truy cập qua role database.
+- Backup, restore và job tự động nộp bài hết giờ.
+
+Số lượng đối tượng chính trong 2 file database:
+
+- 12 bảng.
+- 11 function.
+- 11 view.
+- 58 stored procedure.
+- 9 trigger.
+
+## Một số bảng quan trọng
+
+- `GiaoVien`: lưu thông tin giảng viên.
+- `TaiKhoan`: lưu tài khoản đăng nhập của giảng viên và phòng giáo vụ.
+- `Lop`: lưu danh sách lớp.
+- `SinhVien`: lưu thông tin sinh viên.
+- `MonHoc`: lưu danh sách môn học.
+- `GiaoVien_DangKy`: lưu lịch thi do giảng viên hoặc phòng giáo vụ đăng ký.
+- `BoDe`: ngân hàng câu hỏi trắc nghiệm.
+- `BaiThi`: lưu phiên làm bài của sinh viên.
+- `BaiThi_CauTraLoi`: lưu từng câu hỏi, đáp án đúng và đáp án sinh viên chọn trong một bài thi.
+- `BangDiem`: lưu điểm sau khi sinh viên nộp bài.
+- `AuditLog`: lưu lịch sử thay đổi dữ liệu.
+- `BackupRestoreHistory`: lưu lịch sử thao tác backup/restore.
+
+## Stored procedure nghiệp vụ chính
+
+- `sp_4_1_DangNhap`: xử lý đăng nhập theo vai trò sinh viên, giảng viên hoặc phòng giáo vụ.
+- `sp_4_11_TaoTaiKhoan`: tạo tài khoản giảng viên/phòng giáo vụ.
+- `sp_DangKyThi`: đăng ký hoặc cập nhật lịch thi.
+- `sp_Thi_PhatDeNgauNhien`: phát đề thi ngẫu nhiên theo môn, trình độ và số câu.
+- `sp_BatDauThi`: tạo phiên bài thi hoặc trả lại bài đang làm dở.
+- `sp_LuuTamCauTraLoi`: lưu đáp án sinh viên chọn trong lúc làm bài.
+- `sp_NopBai`: nộp bài, đếm số câu đúng, tính điểm và ghi vào `BangDiem`.
+- `sp_TTN_TuDongNopBaiHetGio`: tự động nộp các bài thi đã hết thời gian.
+- `sp_TraCuuKetQua`: xem kết quả và chi tiết từng câu của bài thi.
+- `sp_BangDiemMonHoc`: xem bảng điểm theo lớp, môn và lần thi.
+- `sp_ThiThu_PhatDe`: phát đề thi thử cho giảng viên.
+
+Ngoài ra còn có các nhóm procedure CRUD cho môn học, lớp, sinh viên, giảng viên và bộ đề:
+
+- `sp_4_2_MonHoc_*`
+- `sp_4_3_Lop_*`
+- `sp_4_3_SinhVien_*`
+- `sp_4_4_GiaoVien_*`
+- `sp_4_5_BoDe_*`
+
+## Trigger chính
+
+- `trg_Lop_KhongXoaKhiConSinhVien`: không cho xóa lớp nếu lớp còn sinh viên.
+- `trg_SinhVien_KhongXoaKhiDaCoDiem`: không cho xóa sinh viên đã có điểm hoặc đã có bài thi.
+- `trg_GiaoVienDangKy_KiemTraHopLe`: kiểm tra lịch thi hợp lệ trước khi lưu.
+- `trg_BangDiem_KiemTraHopLe`: kiểm tra điểm nằm trong khoảng 0 đến 10 và phải có lịch thi tương ứng.
+- `trg_BaiThiCauTraLoi_KiemTraHopLe`: kiểm tra chi tiết câu trả lời trong bài thi.
+- `trg_Audit_GiaoVienDangKy`: ghi audit khi thêm, sửa, xóa lịch thi.
+- `trg_Audit_BoDe`: ghi audit khi thay đổi ngân hàng câu hỏi.
+- `trg_Audit_BangDiem`: ghi audit khi thay đổi bảng điểm.
+- `trg_Audit_TaiKhoan`: ghi audit khi thay đổi tài khoản.
+
+## Phân quyền database
+
+Database có các role chính:
+
+- `Sinhvien`: làm bài thi, lưu đáp án, nộp bài, xem kết quả.
+- `Giangvien`: quản lý câu hỏi của mình, đăng ký thi, xem điểm, thi thử.
+- `PGV`: quản trị dữ liệu, tạo tài khoản, xem audit, backup.
+
+Script database có cấp quyền thông qua stored procedure và view, đồng thời hạn chế thao tác trực tiếp trên bảng gốc đối với các role ứng dụng.
+
+## Backup, restore và job tự động
+
+File `02_db_final_views_sp_triggers.sql` có các procedure backup/restore:
+
+- `sp_TTN_Backup_TaoDevice`
+- `sp_TTN_Backup_Full`
+- `sp_TTN_Backup_Log`
+- `sp_TTN_Backup_DanhSach`
+- `master.dbo.sp_TTN_Restore_Full`
+- `master.dbo.sp_TTN_Restore_PointInTime`
+- `master.dbo.sp_TTN_Restore_SinhLenh`
+
+File này cũng tạo SQL Server Agent Job gọi `sp_TTN_TuDongNopBaiHetGio` theo chu kỳ để tự động nộp các bài thi quá thời gian.
+
+## Cấu hình kết nối database
+
+File cấu hình nằm tại:
+
+```text
+src/main/resources/application.yml
+```
+
+Mặc định ứng dụng dùng:
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=THI_TRAC_NGHIEM;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: 1234
+```
+
+Có thể đổi cấu hình bằng biến môi trường:
+
+```powershell
+$env:DB_URL="jdbc:sqlserver://localhost:1433;databaseName=THI_TRAC_NGHIEM;encrypt=true;trustServerCertificate=true"
+$env:DB_USERNAME="sa"
+$env:DB_PASSWORD="mat_khau_sql_server"
+```
+
+## Chạy ứng dụng
+
+Chạy bằng Maven:
 
 ```powershell
 mvn spring-boot:run
 ```
 
-Build/test nhanh:
+Sau khi chạy thành công, mở trình duyệt:
+
+```text
+http://localhost:8080
+```
+
+Build hoặc kiểm tra nhanh:
 
 ```powershell
 mvn test
 ```
+
+## Tài khoản mẫu
+
+Tài khoản giảng viên/phòng giáo vụ có trong dữ liệu mẫu:
+
+| Vai trò | Tài khoản | Mật khẩu |
+| --- | --- | --- |
+| PGV | `pgv1` | `123456` |
+| PGV | `pgv2` | `123456` |
+| Giảng viên | `gv1` | `1234567` |
+| Giảng viên | `gv2` | `123456` |
+
+Sinh viên đăng nhập bằng mã sinh viên, mật khẩu mặc định:
+
+```text
+123456
+```
+
+Ví dụ mã sinh viên có trong dữ liệu mẫu:
+
+- `SV000001`
+- `SV000002`
+- `SV000003`
+- `N22DCDT002`
+- `N22DCAT002`
+
+## Luồng sử dụng cơ bản
+
+1. Phòng giáo vụ hoặc giảng viên đăng nhập.
+2. Quản lý môn học, lớp, sinh viên, giảng viên nếu cần.
+3. Thêm hoặc chỉnh sửa câu hỏi trong ngân hàng đề.
+4. Đăng ký lịch thi cho lớp.
+5. Sinh viên đăng nhập bằng mã sinh viên.
+6. Sinh viên vào phòng thi, bắt đầu làm bài.
+7. Hệ thống phát đề ngẫu nhiên, lưu câu trả lời, nộp bài và chấm điểm.
+8. Giảng viên/phòng giáo vụ xem bảng điểm và kết quả chi tiết.
+
+## Ghi chú khi báo cáo
+
+Khi thuyết trình phần Hệ Quản Trị Cơ Sở Dữ Liệu, nên tập trung vào:
+
+- Thiết kế bảng và ràng buộc khóa.
+- Cách stored procedure kiểm soát nghiệp vụ thay vì xử lý toàn bộ ở Java.
+- Trigger kiểm tra dữ liệu và ghi audit.
+- View hỗ trợ đăng nhập, tra cứu và báo cáo.
+- Phân quyền role để người dùng thao tác qua SP/view.
+- Backup/restore và job tự động nộp bài hết giờ.
 
