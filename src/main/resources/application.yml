@@ -3,8 +3,8 @@ spring:
     name: thitracnghiem
   datasource:
     url: ${DB_URL:jdbc:sqlserver://localhost:1433;databaseName=THI_TRAC_NGHIEM;encrypt=true;trustServerCertificate=true}
-    username: ${DB_USERNAME:sa}
-    password: ${DB_PASSWORD:1234}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   jpa:
     hibernate:
