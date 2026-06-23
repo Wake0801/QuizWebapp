@@ -4,6 +4,301 @@
     Tổng hợp từ db_final.sql và các phần đã triển khai trong thư mục database.
     Chạy sau file 01_db_final_tao_database.sql.
     ============================================================
+
+    MỤC ĐÍCH FILE
+    - Dùng để tạo toàn bộ phần nghiệp vụ SQL Server sau khi file 01 đã tạo bảng.
+    - File này tập trung vào các thành phần cần thuyết trình trong môn HQT CSDL:
+      view, function, stored procedure, trigger, phân quyền, backup/restore và job.
+    - Script đã dùng cú pháp DROP + CREATE để tương thích SQL Server 2014.
+
+    NỘI DUNG ĐÃ TRIỂN KHAI
+    1. FUNCTIONS
+       - fn_4_1_LaPGV: kiểm tra login có thuộc role PGV trong bảng TaiKhoan.
+       - fn_4_1_MatKhauDung: kiểm tra mật khẩu tài khoản ứng dụng.
+       - fn_4_2_MonHocCoPhatSinh: kiểm tra môn học đã có câu hỏi/lịch thi/điểm.
+       - fn_4_3_DemSinhVienTheoLop: đếm sinh viên theo lớp.
+       - fn_4_4_DemCauHoiCuaGV: đếm số câu hỏi do một giảng viên soạn.
+       - fn_4_5_CoQuyenSuaCauHoi: kiểm tra quyền sửa câu hỏi theo PGV/GV.
+       - fn_4_5_DemCauHoiTheoMonTrinhDo: đếm câu hỏi theo môn và trình độ.
+       - fn_DuSoCauThi: kiểm tra bộ đề đủ số câu theo quy tắc 70/30.
+       - fn_KiemTraDieuKienThi: kiểm tra sinh viên đủ điều kiện thi.
+       - fn_LayDiemCaoNhat: lấy điểm cao nhất của sinh viên trong một môn.
+       - fn_TinhDiemThi: tính điểm thang 10 từ số câu đúng.
+
+    2. VIEWS
+       - vw_4_1_DangNhapGiaoVien: dữ liệu đăng nhập GV/PGV.
+       - vw_4_1_DangNhapSinhVien: dữ liệu đăng nhập sinh viên.
+       - vw_4_2_MonHoc: danh mục môn học còn hoạt động.
+       - vw_4_3_Lop: danh sách lớp kèm số sinh viên.
+       - vw_4_3_SinhVien, v_4_7_SinhVien_ThongTin: thông tin sinh viên kèm lớp.
+       - v_4_6_LichThi: lịch thi kèm thông tin bộ đề.
+       - vw_4_4_GiaoVien: danh sách giáo viên kèm số câu đã soạn.
+       - vw_4_5_BoDe: ngân hàng câu hỏi kèm môn học/giảng viên.
+       - v_4_8_KetQuaThi: chi tiết kết quả từng bài thi.
+       - v_4_9_BangDiem_Thi: bảng điểm kèm điểm chữ.
+
+    3. STORED PROCEDURES
+       - Nhóm đăng nhập/tài khoản: sp_4_1_DangNhap,
+         sp_4_1_KiemTraQuyenTaoTaiKhoan, sp_4_11_TaoTaiKhoan,
+         sp_4_6_DoiMatKhauGiangVien.
+       - Nhóm quản lý danh mục: sp_4_2_MonHoc_*, sp_4_3_Lop_*,
+         sp_4_3_SinhVien_*, sp_4_4_GiaoVien_*.
+       - Nhóm ngân hàng câu hỏi: sp_4_5_BoDe_* có kiểm tra quyền PGV/GV.
+       - Nhóm thi trắc nghiệm: sp_DangKyThi, sp_Thi_PhatDeNgauNhien,
+         sp_BatDauThi, sp_LuuTamCauTraLoi, sp_NopBai,
+         sp_TraCuuKetQua, sp_BangDiemMonHoc, sp_ThiThu_PhatDe.
+       - Nhóm quản trị CSDL: sp_TTN_Backup_*, sp_TTN_TuDongNopBaiHetGio.
+
+    4. TRIGGERS
+       - Trigger bảo vệ nghiệp vụ: không xóa lớp còn sinh viên, không xóa sinh viên
+         đã có bài thi/điểm, kiểm tra lịch thi, kiểm tra điểm và câu trả lời.
+       - Trigger audit: ghi lịch sử thay đổi GiaoVien_DangKy, BoDe, BangDiem,
+         TaiKhoan vào AuditLog.
+
+    5. PHÂN QUYỀN
+       - Tạo/cấp quyền cho role Sinhvien, Giangvien, PGV.
+       - Hạn chế truy cập trực tiếp bảng gốc, ưu tiên thao tác qua view/SP.
+
+    6. BACKUP/RESTORE VÀ SQL SERVER AGENT JOB
+       - Tạo thủ tục backup full, backup log, liệt kê backup.
+       - Tạo thủ tục restore trong master để demo restore full/point-in-time.
+       - Tạo job tự động nộp bài hết giờ nếu SQL Server Agent đang chạy.
+
+    LƯU Ý KHI CHẠY
+    - Chạy sau file 01_db_final_tao_database.sql.
+    - Nếu chạy trên SQL Server 2014, file này dùng DROP + CREATE thay vì
+      CREATE OR ALTER.
+    - Nếu SQL Server Agent chưa chạy, phần tạo job sẽ được bỏ qua và chỉ in thông báo.
+*/
+
+/*
+    ============================================================
+    TÀI LIỆU CHÚ THÍCH CHI TIẾT CÁC FUNCTION, SP, TRIGGER
+    ============================================================
+
+    A. FUNCTIONS
+
+    1. fn_4_1_LaPGV(@LOGINNAME)
+       - Kiểm tra một tài khoản trong bảng TaiKhoan có phải PGV hay không.
+       - Chỉ trả về 1 khi ROLE_NAME = PGV và tài khoản còn hoạt động.
+       - Được dùng trong các SP cần kiểm tra quyền quản trị như tạo tài khoản.
+
+    2. fn_4_1_MatKhauDung(@LOGINNAME, @MATKHAU)
+       - Kiểm tra mật khẩu tài khoản ứng dụng của giảng viên/PGV.
+       - So khớp LOGINNAME, MATKHAU và IS_ACTIVE.
+       - Giúp gom logic kiểm tra mật khẩu tại tầng database.
+
+    3. fn_4_2_MonHocCoPhatSinh(@MAMH)
+       - Kiểm tra môn học đã được sử dụng trong câu hỏi, lịch thi, điểm hoặc bài thi chưa.
+       - Nếu đã phát sinh thì không nên xóa cứng để tránh mất dữ liệu lịch sử.
+
+    4. fn_4_3_DemSinhVienTheoLop(@MALOP)
+       - Đếm số sinh viên còn hoạt động trong một lớp.
+       - Dùng cho view danh sách lớp và kiểm tra lớp có sinh viên hay chưa.
+
+    5. fn_4_4_DemCauHoiCuaGV(@MAGV)
+       - Đếm số câu hỏi đang hoạt động do một giảng viên biên soạn.
+       - Dùng để hiển thị thống kê trong phần quản lý giảng viên.
+
+    6. fn_4_5_CoQuyenSuaCauHoi(@LOGINNAME, @CAUHOI)
+       - Kiểm tra quyền sửa/xóa/phục hồi câu hỏi trong ngân hàng đề.
+       - PGV được thao tác tất cả câu hỏi.
+       - Giảng viên chỉ được thao tác câu hỏi do chính mình tạo.
+
+    7. fn_4_5_DemCauHoiTheoMonTrinhDo(@MAMH, @TRINHDO)
+       - Đếm số câu hỏi theo môn học và trình độ A/B/C.
+       - Hỗ trợ kiểm tra nhanh ngân hàng đề trước khi đăng ký hoặc phát đề.
+
+    8. fn_DuSoCauThi(@MAMH, @TRINHDO, @SOCAUTHI)
+       - Kiểm tra bộ đề có đủ số câu để tạo đề thi hay không.
+       - Với trình độ A/B: yêu cầu tối thiểu 70% câu cùng trình độ, phần còn lại có thể lấy trình độ thấp hơn.
+       - Với trình độ C: chỉ lấy câu trình độ C.
+       - Trigger đăng ký thi gọi function này để chặn tạo lịch thi khi ngân hàng đề chưa đủ.
+
+    9. fn_KiemTraDieuKienThi(@MASV, @MAMH, @LAN)
+       - Kiểm tra sinh viên có thuộc lớp đã đăng ký thi môn/lần thi đó không.
+       - Kiểm tra sinh viên chưa có điểm ở môn/lần thi tương ứng.
+       - Dùng để ngăn thi sai lịch hoặc thi lại lần đã có điểm.
+
+    10. fn_LayDiemCaoNhat(@MASV, @MAMH)
+        - Lấy điểm cao nhất của sinh viên trong một môn.
+        - Phục vụ tra cứu kết quả học tập hoặc tổng hợp điểm.
+
+    11. fn_TinhDiemThi(@SoCauDung, @TongCau)
+        - Tính điểm theo thang 10 từ số câu đúng và tổng số câu.
+        - Công thức: số câu đúng / tổng số câu * 10.
+        - Được dùng khi nộp bài và chấm điểm để mọi nơi dùng cùng một công thức.
+
+    B. STORED PROCEDURES
+
+    1. Nhóm đăng nhập và tài khoản
+       - sp_4_1_DangNhap:
+         Xử lý đăng nhập cho PGV, GIANGVIEN và SINHVIEN. Với giảng viên/PGV,
+         SP kiểm tra TaiKhoan, role và trạng thái hoạt động. Với sinh viên,
+         SP kiểm tra mã sinh viên theo dữ liệu SinhVien. Kết quả trả về SUCCESS,
+         MESSAGE và thông tin cần lưu vào session ứng dụng.
+
+       - sp_4_1_KiemTraQuyenTaoTaiKhoan:
+         Kiểm tra login hiện tại có quyền tạo tài khoản hay không. Quy tắc là
+         chỉ PGV đang hoạt động mới được tạo tài khoản.
+
+       - sp_4_11_TaoTaiKhoan:
+         Cho PGV tạo tài khoản ứng dụng cho giảng viên hoặc PGV khác. SP kiểm tra
+         người tạo có quyền PGV, login mới không trùng, role hợp lệ và MAGV tồn tại.
+         Khi có quyền SQL Server phù hợp, SP còn tạo SQL login/user và gán role DB.
+
+       - sp_4_6_DoiMatKhauGiangVien:
+         Đổi mật khẩu cho tài khoản giảng viên/PGV. SP kiểm tra mật khẩu hiện tại,
+         độ dài mật khẩu mới, mật khẩu mới khác mật khẩu cũ, sau đó cập nhật
+         TaiKhoan.MATKHAU và SQL login nếu login tồn tại.
+
+    2. Nhóm quản lý danh mục
+       - sp_4_2_MonHoc_*:
+         Quản lý môn học: danh sách, tìm kiếm, thêm, sửa, xóa mềm, xem đã xóa,
+         phục hồi. Khi môn học đã phát sinh dữ liệu, hệ thống ưu tiên xóa mềm
+         để bảo toàn lịch sử.
+
+       - sp_4_3_Lop_*:
+         Quản lý lớp: danh sách, tìm kiếm, thêm, sửa, xóa, phục hồi. Lớp là dữ liệu
+         nền để quản lý sinh viên và đăng ký lịch thi.
+
+       - sp_4_3_SinhVien_*:
+         Quản lý sinh viên theo lớp: thêm, sửa, tìm, xóa mềm, phục hồi. Sinh viên
+         đã có bài thi hoặc điểm cần được bảo vệ để không mất lịch sử thi.
+
+       - sp_4_4_GiaoVien_*:
+         Quản lý giảng viên: thêm, sửa, tìm, xóa mềm, phục hồi. Giảng viên có thể
+         liên quan đến tài khoản, câu hỏi và lịch thi nên các thao tác xóa cần kiểm tra phát sinh.
+
+    3. Nhóm ngân hàng câu hỏi
+       - sp_4_5_BoDe_*:
+         Quản lý câu hỏi trắc nghiệm: danh sách, tìm kiếm, thêm, sửa, xóa mềm,
+         phục hồi và danh sách theo người dùng. Quy tắc quyền là PGV được thao tác
+         toàn bộ, giảng viên chỉ thao tác câu hỏi của mình. SP kiểm tra môn học,
+         trình độ, nội dung, đáp án A/B/C/D và đáp án đúng.
+
+    4. Nhóm đăng ký thi và làm bài
+       - sp_DangKyThi:
+         Tạo hoặc cập nhật lịch thi cho một lớp. SP kiểm tra môn, lớp, giảng viên,
+         lần thi, số câu, thời gian và bộ đề có đủ câu. Sau khi ghi dữ liệu, trigger
+         trg_GiaoVienDangKy_KiemTraHopLe tiếp tục bảo vệ ở tầng DB.
+
+       - sp_Thi_PhatDeNgauNhien:
+         Phát đề ngẫu nhiên theo lịch thi. SP chọn câu không trùng, áp dụng quy tắc
+         70/30 theo trình độ, xáo thứ tự đáp án A/B/C/D và tính lại đáp án đúng sau khi xáo.
+
+       - sp_BatDauThi:
+         Tạo phiên bài thi chính thức. Nếu sinh viên đã có bài DANG_THI thì trả lại
+         bài cũ để tiếp tục làm. Nếu chưa có thì phát đề, tạo BaiThi và lưu từng câu
+         vào BaiThi_CauTraLoi.
+
+       - sp_LuuTamCauTraLoi:
+         Lưu đáp án sinh viên chọn khi đang làm bài. SP chỉ cho lưu khi bài còn
+         trạng thái DANG_THI và chưa quá thời gian kết thúc.
+
+       - sp_NopBai:
+         Kết thúc bài thi, đếm số câu đúng, tính điểm bằng fn_TinhDiemThi, cập nhật
+         BaiThi và ghi BangDiem. Nếu quá giờ thì trạng thái bài thi là HET_GIO.
+
+       - sp_TTN_TuDongNopBaiHetGio:
+         Tự động tìm các bài DANG_THI đã quá KETTHUC_LUC, gọi sp_NopBai để nộp bài.
+         Nếu có lỗi thì ghi AuditLog với APP_LOGINNAME = AUTO_TIMEOUT.
+
+       - sp_ThiThu_PhatDe:
+         Phát đề thi thử cho giảng viên/PGV. SP không tạo BaiThi và không ghi điểm,
+         chỉ dùng để kiểm tra chất lượng ngân hàng đề.
+
+    5. Nhóm kết quả và bảng điểm
+       - sp_TraCuuKetQua:
+         Trả về hai tập kết quả: thông tin tổng quan bài thi và chi tiết từng câu
+         gồm đáp án sinh viên chọn, đáp án đúng.
+
+       - sp_BangDiemMonHoc:
+         Lập bảng điểm theo lớp, môn và lần thi. Dữ liệu dùng cho màn hình xem điểm
+         và xuất báo cáo bảng điểm.
+
+       - sp_ChamDiem:
+         Tính số câu đúng và điểm của bài thi dựa trên BaiThi_CauTraLoi.
+
+    6. Nhóm backup, restore và quản trị
+       - sp_TTN_Backup_TaoDevice:
+         Tạo backup device theo tên database.
+
+       - sp_TTN_Backup_Full:
+         Backup full database, kiểm tra bằng RESTORE VERIFYONLY và ghi lịch sử.
+
+       - sp_TTN_Backup_Log:
+         Backup transaction log để phục vụ restore theo thời điểm. Database cần dùng
+         recovery model FULL hoặc BULK_LOGGED.
+
+       - sp_TTN_Backup_DanhSach:
+         Liệt kê lịch sử backup từ msdb.
+
+       - master.dbo.sp_TTN_Restore_Full:
+         Restore full backup, chuyển database sang SINGLE_USER rồi trả về MULTI_USER.
+
+       - master.dbo.sp_TTN_Restore_PointInTime:
+         Restore database về một thời điểm bằng full backup và log backup.
+
+       - master.dbo.sp_TTN_Restore_SinhLenh:
+         Sinh câu lệnh restore để kiểm tra hoặc demo trước khi chạy restore thật.
+
+    C. TRIGGERS
+
+    1. trg_Lop_KhongXoaKhiConSinhVien
+       - Loại: INSTEAD OF DELETE trên bảng Lop.
+       - Chặn xóa lớp nếu lớp vẫn còn sinh viên.
+       - Nếu lớp không còn sinh viên thì trigger tự thực hiện DELETE.
+       - Mục đích là bảo vệ quan hệ lớp - sinh viên.
+
+    2. trg_SinhVien_KhongXoaKhiDaCoDiem
+       - Loại: INSTEAD OF DELETE trên bảng SinhVien.
+       - Chặn xóa sinh viên đã có BangDiem hoặc BaiThi.
+       - Nếu sinh viên chưa phát sinh dữ liệu thi thì trigger mới cho xóa.
+       - Mục đích là giữ lịch sử bài thi và điểm.
+
+    3. trg_GiaoVienDangKy_KiemTraHopLe
+       - Loại: AFTER INSERT, UPDATE trên bảng GiaoVien_DangKy.
+       - Kiểm tra lần thi chỉ được 1 hoặc 2.
+       - Kiểm tra số câu từ 10 đến 100, thời gian từ 5 đến 60 phút.
+       - Kiểm tra trình độ chỉ thuộc A/B/C và ngày thi không nằm trong quá khứ.
+       - Gọi fn_DuSoCauThi để đảm bảo bộ đề đủ câu theo quy tắc 70/30.
+       - Không cho đăng ký thi cho lớp chưa có sinh viên.
+       - Không cho sửa lịch thi nếu đã phát sinh BangDiem hoặc BaiThi.
+       - Đây là trigger bảo vệ nghiệp vụ đăng ký thi quan trọng nhất.
+
+    4. trg_BangDiem_KiemTraHopLe
+       - Loại: AFTER INSERT, UPDATE trên bảng BangDiem.
+       - Kiểm tra điểm nằm trong khoảng 0 đến 10.
+       - Kiểm tra lần thi chỉ được 1 hoặc 2.
+       - Chỉ cho ghi điểm khi sinh viên có lịch thi tương ứng theo lớp, môn và lần thi.
+       - Không cho ngày ghi điểm trước ngày thi đã đăng ký.
+
+    5. trg_BaiThiCauTraLoi_KiemTraHopLe
+       - Loại: AFTER INSERT, UPDATE trên bảng BaiThi_CauTraLoi.
+       - Kiểm tra thứ tự câu, môn học, trình độ câu, nội dung và đáp án hợp lệ.
+       - Không cho sửa câu trả lời nếu bài thi đã nộp hoặc đã hết giờ.
+       - Kiểm tra câu hỏi trong bài thi phải thuộc đúng môn của BaiThi.
+
+    6. trg_Audit_GiaoVienDangKy
+       - Ghi AuditLog khi thêm, sửa hoặc xóa lịch thi.
+       - Audit lưu khóa MALOP|MAMH|LAN, giảng viên đăng ký, số câu và thời gian.
+       - Dùng để truy vết thay đổi lịch thi.
+
+    7. trg_Audit_BoDe
+       - Ghi AuditLog khi thêm, sửa hoặc xóa câu hỏi trong BoDe.
+       - Audit lưu mã câu hỏi, môn, trình độ và đáp án đúng.
+       - Dùng để truy vết thay đổi ngân hàng câu hỏi.
+
+    8. trg_Audit_BangDiem
+       - Ghi AuditLog khi thêm, sửa hoặc xóa bảng điểm.
+       - Audit lưu MASV|MAMH|LAN, điểm cũ và điểm mới.
+       - Dùng để giải trình mọi thay đổi điểm.
+
+    9. trg_Audit_TaiKhoan
+       - Ghi AuditLog khi thêm, sửa hoặc xóa tài khoản.
+       - Audit lưu LOGINNAME, role và MAGV liên quan.
+       - Dùng để truy vết việc quản lý tài khoản giảng viên/PGV.
 */
 
 USE [THI_TRAC_NGHIEM]
