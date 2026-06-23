@@ -42,7 +42,12 @@
         </header>
 
         <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
-        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+        <div class="alert alert-error" th:if="${error}">
+            <span th:text="${error}">Có lỗi xảy ra.</span>
+            <ul class="alert-list" th:if="${importErrors != null && !#lists.isEmpty(importErrors)}">
+                <li th:each="importError : ${importErrors}" th:text="${importError}">Dòng lỗi</li>
+            </ul>
+        </div>
 
         <section class="workbench wide-form">
             <div class="panel table-panel">
@@ -114,63 +119,91 @@
                 </div>
             </div>
 
-            <form class="panel form-panel question-form" th:action="@{/gv/bo-de/save}" method="post">
-                <div class="panel-head">
-                    <h3 th:text="${mode == 'edit' ? 'Sửa câu hỏi' : 'Thêm câu hỏi'}">Thêm câu hỏi</h3>
-                    <span class="status-pill" th:text="${mode == 'edit' ? 'Đang sửa' : 'Thêm mới'}">Thêm mới</span>
-                </div>
-                <input type="hidden" name="mode" th:value="${mode}">
-                <input type="hidden" name="cauhoi" th:value="${form['CAUHOI']}">
-
-                <label>Môn học</label>
-                <select class="input-control" name="mamh" required>
-                    <option value="">-- Chọn môn --</option>
-                    <option th:each="subject : ${subjects}" th:value="${subject.MAMH}"
-                            th:selected="${subject.MAMH == form['MAMH']}"
-                            th:text="${subject.MAMH + ' - ' + subject.TENMH}">CSDL - Cơ sở dữ liệu</option>
-                </select>
-
-                <div class="form-grid two-cols">
-                    <div>
-                        <label>Trình độ</label>
-                        <select class="input-control" name="trinhdo" required>
-                            <option value="A" th:selected="${form['TRINHDO'] == 'A'}">A</option>
-                            <option value="B" th:selected="${form['TRINHDO'] == 'B'}">B</option>
-                            <option value="C" th:selected="${form['TRINHDO'] == 'C'}">C</option>
-                        </select>
+            <div class="side-stack">
+                <form class="panel form-panel import-panel" th:action="@{/gv/bo-de/import}" method="post" enctype="multipart/form-data">
+                    <div class="panel-head">
+                        <h3>Nhập từ file</h3>
+                        <a class="btn btn-small btn-light" th:href="@{/gv/bo-de/template}">Tải mẫu CSV</a>
                     </div>
-                    <div>
-                        <label>Đáp án đúng</label>
-                        <select class="input-control" name="dapAn" required>
-                            <option value="A" th:selected="${form['DAP_AN'] == 'A'}">A</option>
-                            <option value="B" th:selected="${form['DAP_AN'] == 'B'}">B</option>
-                            <option value="C" th:selected="${form['DAP_AN'] == 'C'}">C</option>
-                            <option value="D" th:selected="${form['DAP_AN'] == 'D'}">D</option>
-                        </select>
+                    <label for="questionFile">File CSV</label>
+                    <label class="file-picker" for="questionFile">
+                        <span class="file-picker-button">Chọn tệp</span>
+                        <span class="file-picker-name" id="questionFileName">Chưa chọn tệp</span>
+                    </label>
+                    <input id="questionFile" class="sr-only-file" name="file" type="file" accept=".csv,.txt,text/csv,text/plain" required>
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" type="submit">Nhập file</button>
                     </div>
-                </div>
+                </form>
 
-                <label>Nội dung câu hỏi</label>
-                <textarea class="input-control" name="noidung" maxlength="200" required rows="4" th:text="${form['NOIDUNG']}"></textarea>
+                <form class="panel form-panel question-form" th:action="@{/gv/bo-de/save}" method="post">
+                    <div class="panel-head">
+                        <h3 th:text="${mode == 'edit' ? 'Sửa câu hỏi' : 'Thêm câu hỏi'}">Thêm câu hỏi</h3>
+                        <span class="status-pill" th:text="${mode == 'edit' ? 'Đang sửa' : 'Thêm mới'}">Thêm mới</span>
+                    </div>
+                    <input type="hidden" name="mode" th:value="${mode}">
+                    <input type="hidden" name="cauhoi" th:value="${form['CAUHOI']}">
 
-                <label>Đáp án A</label>
-                <input class="input-control" name="a" maxlength="50" required th:value="${form['A']}">
+                    <label>Môn học</label>
+                    <select class="input-control" name="mamh" required>
+                        <option value="">-- Chọn môn --</option>
+                        <option th:each="subject : ${subjects}" th:value="${subject.MAMH}"
+                                th:selected="${subject.MAMH == form['MAMH']}"
+                                th:text="${subject.MAMH + ' - ' + subject.TENMH}">CSDL - Cơ sở dữ liệu</option>
+                    </select>
 
-                <label>Đáp án B</label>
-                <input class="input-control" name="b" maxlength="50" required th:value="${form['B']}">
+                    <div class="form-grid two-cols">
+                        <div>
+                            <label>Trình độ</label>
+                            <select class="input-control" name="trinhdo" required>
+                                <option value="A" th:selected="${form['TRINHDO'] == 'A'}">A</option>
+                                <option value="B" th:selected="${form['TRINHDO'] == 'B'}">B</option>
+                                <option value="C" th:selected="${form['TRINHDO'] == 'C'}">C</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Đáp án đúng</label>
+                            <select class="input-control" name="dapAn" required>
+                                <option value="A" th:selected="${form['DAP_AN'] == 'A'}">A</option>
+                                <option value="B" th:selected="${form['DAP_AN'] == 'B'}">B</option>
+                                <option value="C" th:selected="${form['DAP_AN'] == 'C'}">C</option>
+                                <option value="D" th:selected="${form['DAP_AN'] == 'D'}">D</option>
+                            </select>
+                        </div>
+                    </div>
 
-                <label>Đáp án C</label>
-                <input class="input-control" name="c" maxlength="50" required th:value="${form['C']}">
+                    <label>Nội dung câu hỏi</label>
+                    <textarea class="input-control" name="noidung" maxlength="200" required rows="4" th:text="${form['NOIDUNG']}"></textarea>
 
-                <label>Đáp án D</label>
-                <input class="input-control" name="d" maxlength="50" required th:value="${form['D']}">
+                    <label>Đáp án A</label>
+                    <input class="input-control" name="a" maxlength="50" required th:value="${form['A']}">
 
-                <div class="form-actions">
-                    <button class="btn btn-primary" type="submit">Ghi</button>
-                </div>
-            </form>
+                    <label>Đáp án B</label>
+                    <input class="input-control" name="b" maxlength="50" required th:value="${form['B']}">
+
+                    <label>Đáp án C</label>
+                    <input class="input-control" name="c" maxlength="50" required th:value="${form['C']}">
+
+                    <label>Đáp án D</label>
+                    <input class="input-control" name="d" maxlength="50" required th:value="${form['D']}">
+
+                    <div class="form-actions">
+                        <button class="btn btn-primary" type="submit">Ghi</button>
+                    </div>
+                </form>
+            </div>
         </section>
     </main>
 </div>
+<script>
+    const questionFile = document.getElementById("questionFile");
+    const questionFileName = document.getElementById("questionFileName");
+
+    if (questionFile && questionFileName) {
+        questionFile.addEventListener("change", () => {
+            questionFileName.textContent = questionFile.files.length ? questionFile.files[0].name : "Chưa chọn tệp";
+        });
+    }
+</script>
 </body>
 </html>

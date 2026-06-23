@@ -1,6 +1,7 @@
 package com.example.thitracnghiem.controller.gv;
 
 import com.example.thitracnghiem.support.ControllerSupport;
+import com.example.thitracnghiem.support.SqlAuditContext;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,10 +22,12 @@ public class PasswordController {
 
     private final JdbcTemplate jdbcTemplate;
     private final ControllerSupport support;
+    private final SqlAuditContext auditContext;
 
-    public PasswordController(JdbcTemplate jdbcTemplate, ControllerSupport support) {
+    public PasswordController(JdbcTemplate jdbcTemplate, ControllerSupport support, SqlAuditContext auditContext) {
         this.jdbcTemplate = jdbcTemplate;
         this.support = support;
+        this.auditContext = auditContext;
     }
 
     @GetMapping("/mat-khau")
@@ -92,9 +95,10 @@ public class PasswordController {
             }
 
             jdbcTemplate.update(
-                    "EXEC dbo.sp_4_6_DoiMatKhauGiangVien @LOGINNAME = ?, @NEW_PASSWORD = ?",
-                    loginname,
-                    newPassword
+                    auditContext.withAppLogin(
+                            "EXEC dbo.sp_4_6_DoiMatKhauGiangVien @LOGINNAME = ?, @CURRENT_PASSWORD = ?, @NEW_PASSWORD = ?"
+                    ),
+                    auditContext.params(loginname, loginname, currentPassword, newPassword)
             );
             redirect.addFlashAttribute("success", "Đã đổi mật khẩu cho tài khoản đang đăng nhập.");
         } catch (DataAccessException ex) {
