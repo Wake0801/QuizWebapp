@@ -24,6 +24,7 @@
             <a class="nav-link" th:href="@{/gv/dang-ky-thi}">Đăng ký thi</a>
             <a class="nav-link" th:href="@{/gv/ket-qua}">Xem kết quả bài thi</a>
             <a class="nav-link active" th:href="@{/gv/bang-diem}">Bảng điểm môn học</a>
+            <a class="nav-link highlight" th:if="${isPgv}" th:href="@{/gv/backup-restore}" href="/gv/backup-restore">Backup / Restore</a>
             <a class="nav-link highlight" th:if="${isPgv}" th:href="@{/gv/tai-khoan}" href="/gv/tai-khoan">Tạo tài khoản</a>
         </nav>
         <a class="logout-link" th:href="@{/logout}">Đăng xuất</a>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Backup / Restore | TTN</title>
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" href="/css/dashboard.css">
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark">TTN</div>
+            <div><h1>Thi trắc nghiệm</h1><p th:text="${roleLabel}">PGV</p></div>
+        </div>
+        <nav class="nav-menu">
+            <a class="nav-link" th:href="@{/gv/home}">Tổng quan</a>
+            <a class="nav-link" th:href="@{/gv/mon-hoc}">Quản lý môn học</a>
+            <a class="nav-link" th:href="@{/gv/lop-sinh-vien}">Quản lý lớp - sinh viên</a>
+            <a class="nav-link" th:href="@{/gv/giao-vien}">Quản lý giáo viên</a>
+            <a class="nav-link" th:href="@{/gv/bo-de}">Nhập câu hỏi thi</a>
+            <a class="nav-link" th:href="@{/gv/thi-thu}">Thi thử</a>
+            <a class="nav-link" th:href="@{/gv/mat-khau}">Đổi mật khẩu</a>
+            <a class="nav-link" th:href="@{/gv/dang-ky-thi}">Đăng ký thi</a>
+            <a class="nav-link" th:href="@{/gv/ket-qua}">Xem kết quả bài thi</a>
+            <a class="nav-link" th:href="@{/gv/bang-diem}">Bảng điểm môn học</a>
+            <a class="nav-link highlight active" th:href="@{/gv/backup-restore}">Backup / Restore</a>
+            <a class="nav-link highlight" th:href="@{/gv/tai-khoan}">Tạo tài khoản</a>
+        </nav>
+        <a class="logout-link" th:href="@{/logout}">Đăng xuất</a>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">PGV</p>
+                <h2>Backup / Restore database</h2>
+            </div>
+            <div class="user-badge">
+                <strong th:text="${hoten}">PGV</strong>
+                <span th:text="${loginname}">login</span>
+            </div>
+        </header>
+
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+        <div class="alert alert-error" th:if="${backupLoadError}" th:text="${backupLoadError}"></div>
+
+        <section class="split-workbench">
+            <section class="side-stack">
+                <form class="panel form-panel" th:action="@{/gv/backup-restore/device}" method="post">
+                    <div class="panel-head">
+                        <h3>Tạo backup device</h3>
+                        <span class="status-pill">DEVICE</span>
+                    </div>
+                    <label>Thư mục backup</label>
+                    <input class="input-control" name="backupDirectory" placeholder="Bỏ trống để dùng thư mục backup mặc định của SQL Server">
+                    <div class="form-actions">
+                        <button class="btn btn-light" type="submit">Tạo device</button>
+                    </div>
+                </form>
+
+                <form class="panel form-panel" th:action="@{/gv/backup-restore/full}" method="post">
+                    <div class="panel-head">
+                        <h3>Backup full</h3>
+                        <span class="status-pill">FULL</span>
+                    </div>
+                    <label>Thư mục backup</label>
+                    <input class="input-control" name="backupDirectory" placeholder="Ví dụ: C:\SQLBackup">
+                    <div class="form-actions">
+                        <button class="btn btn-primary" type="submit">Backup full</button>
+                    </div>
+                </form>
+
+                <form class="panel form-panel" th:action="@{/gv/backup-restore/log}" method="post">
+                    <div class="panel-head">
+                        <h3>Backup log</h3>
+                        <span class="status-pill">LOG</span>
+                    </div>
+                    <label>Thư mục backup log</label>
+                    <input class="input-control" name="backupDirectory" placeholder="Database cần dùng FULL/BULK_LOGGED recovery model">
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" type="submit">Backup log</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="side-stack">
+                <section class="panel form-panel">
+                    <div class="panel-head">
+                        <h3>Restore</h3>
+                        <span class="status-pill">PGV</span>
+                    </div>
+
+                    <form class="form-grid" th:action="@{/gv/backup-restore/restore-script}" method="post">
+                        <label>Full backup path</label>
+                        <input class="input-control" name="fullBackupPath" required placeholder="C:\SQLBackup\THI_TRAC_NGHIEM.bak">
+
+                        <label>Log backup path</label>
+                        <input class="input-control" name="logBackupPath" placeholder="Chỉ nhập khi restore theo thời điểm">
+
+                        <label>Restore đến thời điểm</label>
+                        <input class="input-control" type="datetime-local" name="restoreTo">
+
+                        <div class="form-actions">
+                            <button class="btn btn-light" type="submit">Sinh lệnh restore</button>
+                        </div>
+                    </form>
+
+                    <form class="inline-form" th:action="@{/gv/backup-restore/restore-full}" method="post">
+                        <label>Full backup path</label>
+                        <input class="input-control" name="fullBackupPath" required placeholder="C:\SQLBackup\THI_TRAC_NGHIEM.bak">
+                        <label>Xác nhận restore full</label>
+                        <input class="input-control" name="confirmRestore" placeholder="Nhập YES để chạy restore thật">
+                        <input type="hidden" name="withReplace" value="true">
+                        <div class="form-actions">
+                            <button class="btn btn-danger" type="submit">Restore full</button>
+                        </div>
+                    </form>
+
+                    <form class="inline-form" th:action="@{/gv/backup-restore/restore-point}" method="post">
+                        <label>Full backup path</label>
+                        <input class="input-control" name="fullBackupPath" required>
+                        <label>Log backup path</label>
+                        <input class="input-control" name="logBackupPath" required>
+                        <label>Restore đến thời điểm</label>
+                        <input class="input-control" type="datetime-local" name="restoreTo" required>
+                        <label>Xác nhận restore theo thời điểm</label>
+                        <input class="input-control" name="confirmRestore" placeholder="Nhập YES để chạy restore thật">
+                        <div class="form-actions">
+                            <button class="btn btn-danger" type="submit">Restore theo thời điểm</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="panel table-panel" th:if="${operationRows}">
+                    <div class="panel-head">
+                        <h3>Kết quả thao tác</h3>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <tbody>
+                            <tr th:each="row : ${operationRows}">
+                                <td th:each="cell : ${row}" th:text="${cell.key + ': ' + cell.value}">Kết quả</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="panel table-panel" th:if="${restoreCommands}">
+                    <div class="panel-head">
+                        <h3>Lệnh restore sinh ra</h3>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <tbody>
+                            <tr th:each="cmd : ${restoreCommands}">
+                                <td class="long-text" th:text="${cmd.RESTORE_COMMAND}">RESTORE COMMAND</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+        </section>
+
+        <section class="panel table-panel">
+            <div class="panel-head">
+                <h3>Danh sách backup từ msdb</h3>
+                <span class="status-pill" th:text="${#lists.size(backupRows)} + ' bản'">0 bản</span>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Loại</th>
+                        <th>Bắt đầu</th>
+                        <th>Kết thúc</th>
+                        <th>MB</th>
+                        <th>Đường dẫn</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="row : ${backupRows}">
+                        <td><span class="status-pill" th:text="${row.BACKUP_TYPE}">FULL</span></td>
+                        <td th:text="${row.START_TIME}">Start</td>
+                        <td th:text="${row.FINISH_TIME}">Finish</td>
+                        <td th:text="${row.SIZE_MB}">0</td>
+                        <td class="long-text" th:text="${row.FILE_PATH}">Path</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(backupRows)}">
+                        <td colspan="5" class="empty-cell">Chưa có bản backup trong msdb hoặc tài khoản chưa có quyền đọc.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel table-panel">
+            <div class="panel-head">
+                <h3>Lịch sử thao tác trong ứng dụng</h3>
+                <span class="status-pill" th:text="${#lists.size(historyRows)} + ' dòng'">0 dòng</span>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Hành động</th>
+                        <th>Loại</th>
+                        <th>Thời điểm</th>
+                        <th>Người chạy</th>
+                        <th>File</th>
+                        <th>Ghi chú</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="row : ${historyRows}">
+                        <td th:text="${row.ACTION_NAME}">BACKUP</td>
+                        <td th:text="${row.BACKUP_TYPE}">FULL</td>
+                        <td th:text="${row.EXECUTED_AT}">Time</td>
+                        <td th:text="${row.EXECUTED_BY}">User</td>
+                        <td class="long-text" th:text="${row.FILE_PATH}">Path</td>
+                        <td th:text="${row.NOTE}">Note</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(historyRows)}">
+                        <td colspan="6" class="empty-cell">Chưa có lịch sử backup/restore.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>
